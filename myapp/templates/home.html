@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SoundScore</title>
+    <meta name="description" content="Rank your taste in music" />
+    
+    <!-- Include Tailwind CSS via CDN for quick setup -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <!-- Header Section -->
+    <header class="flex justify-between items-center bg-white px-20 py-5 max-md:p-5">
+      <div class="flex items-center gap-5">
+        <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/dfed36ca65d5eb1a335ffa9e8a898a89cda3f6d2" class="w-[86px] h-[86px]" alt="SoundScore Logo" />
+        <div style="color: #C9184A; font-size: 3rem;">SoundScore</div>
+      </div>
+      <nav class="flex gap-12 max-sm:hidden">
+        <a href="#about" style="color: black; font-size: 32px;">About</a>
+        <a href="#account" style="color: black; font-size: 32px;">My Account</a>
+        <a href="#reviews" style="color: black; font-size: 32px;">My Reviews</a>
+        <a href="#register" style="color: black; font-size: 32px;">Register</a>
+      </nav>
+    </header>
+    
+    <main>
+      <!-- Hero Section -->
+    <section class="flex justify-between items-center p-20 max-md:flex-col max-md:p-10" style="background: linear-gradient(to bottom, rgba(201, 24, 74, 0.56) 60%, #000000);">
+      <div class="max-w-[844px] max-md:text-center">
+        <h1 class="text-white text-9xl font-bold tracking-[-2.56px] mb-6 max-md:text-[64px] max-sm:text-5xl ml-32">
+        Rank your taste in music
+        </h1>
+        <p style="color: rgba(255,255,255,0.75); font-size: 2.25rem; margin-bottom: 2.5rem;" class="max-md:text-2xl max-sm:text-lg ml-32">
+        SoundScore allows you to rank every album that has ever launched. You
+        can discuss and review other people's score.
+        </p>
+        <button onclick="console.log('Start ranking clicked')" 
+            class="text-black text-5xl cursor-pointer bg-white px-8 py-5 rounded-lg max-sm:w-full max-sm:text-2xl ml-32">
+        Start Ranking
+        </button>
+      </div>
+      <img
+        src="https://cdn.builder.io/api/v1/image/assets/TEMP/27032dba77e68e55a80db39bdfcbc3e2ccb4b98f"
+        class="w-[887px] h-[887px] max-md:w-full max-md:h-auto max-md:mt-10"
+        alt="Music illustration"
+      />
+    </section>
+    </section>
+      
+    <!-- Albums Section -->
+    <section class="text-center bg-black p-20">
+      <div class="container mx-auto">
+        <h2 class="text-white text-[64px] font-bold tracking-[-1.28px] mb-10 max-sm:text-4xl">
+        All albums you have ever imagined
+        </h2>
+        <figure class="relative">
+        <img
+          src="https://cdn.builder.io/api/v1/image/assets/TEMP/d578524dc05ef0a1d102bcaca03c78c5f6dc8b21"
+          class="w-full max-w-[1269px] h-auto rounded-[25px] mx-auto max-md:w-full"
+          alt="Album grid"
+          loading="lazy"
+        />
+        </figure>
+      </div>
+    </section>
+      
+    <!-- Reviews Section -->
+    <section id="reviews" class="bg-black px-20 py-16">
+    <h2 class="text-white text-[64px] font-bold tracking-[-1.28px] mb-12 mt-48 text-center max-sm:text-4xl">
+      Latest Reviews
+    </h2>
+    <div class="grid grid-cols-4 gap-24 max-xl:grid-cols-2 max-md:grid-cols-1 max-w-7xl mx-auto">
+      <!-- Review Card 1 -->
+      <div class="bg-[#1A1A1A] rounded-lg p-8 hover:bg-[#252525] transition-all w-80 mb-12">
+      <img
+        src="https://cdn.builder.io/api/v1/image/assets/TEMP/ee34e0953143bbfff6a0ca1a18f354879b06f78e"
+        class="w-64 h-64 object-cover rounded-md mb-4"
+        alt="Album cover"
+      />
+      <div class="flex items-center gap-4 mb-3">
+        <div class="w-10 h-10 rounded-full bg-[#D9D9D9]"></div>
+        <div class="flex flex-col">
+        <span class="text-white text-base font-medium">John</span>
+        <div class="flex gap-1">
+        <span class="text-yellow-400 text-base">★★★★</span><span class="text-gray-400 text-base">★</span>
+        </div>
+        </div>
+      </div>
+      <p class="text-gray-300 text-base">Ótimo álbum! Recomendo.</p>
+      </div>
+      
+      <!-- Review Card 2 -->
+      <div class="bg-[#1A1A1A] rounded-lg p-8 hover:bg-[#252525] transition-all w-80 mb-12">
+      <img
+        src="https://cdn.builder.io/api/v1/image/assets/TEMP/ee34e0953143bbfff6a0ca1a18f354879b06f78e"
+        class="w-64 h-64 object-cover rounded-md mb-4"
+        alt="Album cover"
+      />
+      <div class="flex items-center gap-4 mb-3">
+        <div class="w-10 h-10 rounded-full bg-[#D9D9D9]"></div>
+        <div class="flex flex-col">
+        <span class="text-white text-base font-medium">Sarah</span>
+        <div class="flex gap-1">
+        <span class="text-yellow-400 text-base">★★★★★</span>
+        </div>
+        </div>
+      </div>
+      <p class="text-gray-300 text-base">Great album! Really enjoyed it.</p>
+      </div>
+      
+      <!-- Review Card 3 -->
+      <div class="bg-[#1A1A1A] rounded-lg p-8 hover:bg-[#252525] transition-all w-80 mb-12">
+      <img
+        src="https://cdn.builder.io/api/v1/image/assets/TEMP/ee34e0953143bbfff6a0ca1a18f354879b06f78e"
+        class="w-64 h-64 object-cover rounded-md mb-4"
+        alt="Album cover"
+      />
+      <div class="flex items-center gap-4 mb-3">
+        <div class="w-10 h-10 rounded-full bg-[#D9D9D9]"></div>
+        <div class="flex flex-col">
+        <span class="text-white text-base font-medium">Michael</span>
+        <div class="flex gap-1">
+        <span class="text-yellow-400 text-base">★★★★</span><span class="text-gray-400 text-base">★</span>
+        </div>
+        </div>
+      </div>
+      <p class="text-gray-300 text-base">Perfect mix of rhythm and melody.</p>
+      </div>
+      
+      <!-- Review Card 4 -->
+      <div class="bg-[#1A1A1A] rounded-lg p-8 hover:bg-[#252525] transition-all w-80 mb-12">
+      <img
+        src="https://cdn.builder.io/api/v1/image/assets/TEMP/ee34e0953143bbfff6a0ca1a18f354879b06f78e"
+        class="w-64 h-64 object-cover rounded-md mb-4"
+        alt="Album cover"
+      />
+      <div class="flex items-center gap-4 mb-3">
+        <div class="w-10 h-10 rounded-full bg-[#D9D9D9]"></div>
+        <div class="flex flex-col">
+        <span class="text-white text-base font-medium">Emma</span>
+        <div class="flex gap-1">
+        <span class="text-yellow-400 text-base">★★★★★</span>
+        </div>
+        </div>
+      </div>
+      <p class="text-gray-300 text-base">Listened on repeat for days.</p>
+      </div>
+    </div>
+    </section>
+      <!-- Weekly Top Albums Section -->
+      <section class="flex justify-between bg-black p-20 max-md:flex-col">
+        <div class="max-w-[624px]">
+          <h2 class="text-white text-[64px] font-bold tracking-[-1.28px] mb-10 max-sm:text-4xl">
+            Weekly Top Albums
+          </h2>
+          <div class="flex flex-col gap-12">
+            <article class="mb-12 max-sm:mb-8">
+              <h3 class="text-white text-[40px] mb-2 max-sm:text-[28px]">
+                Ubermensch - by GDRAGON
+              </h3>
+              <p class="text-white text-2xl max-sm:text-base">
+                With a captivating vibe built on dreamy vocals and layered electronic textures, Ubermensch unfolds like a sonic garden constantly shifting, always beautiful.
+              </p>
+            </article>
+            
+            <article class="mb-12 max-sm:mb-8">
+              <h3 class="text-white text-[40px] mb-2 max-sm:text-[28px]">
+                Brighter Days - by Ariana Grande
+              </h3>
+              <p class="text-white text-2xl max-sm:text-base">
+                With a captivating vibe rooted in acoustic storytelling, Brighter Days carries the warmth of folk with a melancholic edge. It's the perfect companion for introspective evenings and quiet mornings.
+              </p>
+            </article>
+            
+            <article class="mb-12 max-sm:mb-8">
+              <h3 class="text-white text-[40px] mb-2 max-sm:text-[28px]">
+                The Album - by Jonas Brothers
+              </h3>
+              <p class="text-white text-2xl max-sm:text-base">
+                With a captivating vibe that blends synth-pop and lo-fi beats, The Album transports listeners to a glowing, futuristic cityscape. Each track feels like a midnight drive under neon lights.
+              </p>
+            </article>
+          </div>
+        </div>
+        <img
+          src="https://cdn.builder.io/api/v1/image/assets/TEMP/fc11fc80e5d5c37c3fe85d969038fa370489289d"
+          class="w-[956px] h-[956px] max-md:w-full max-md:h-auto max-md:mt-10"
+          alt="Weekly top albums illustration"
+        />
+      </section>
+      
+      <!-- Register Section -->
+      <div id="register" class="bg-black p-20">
+        <h2 class="text-white text-[64px] font-bold tracking-[-1.28px] mb-10 text-center max-sm:text-4xl">
+          Join SoundScore Today
+        </h2>
+      </div>
+    </main>
+    
+    <!-- Footer Section -->
+    <footer class="flex justify-between bg-white px-20 py-12 max-md:flex-col max-md:gap-10">
+      <div class="flex flex-col gap-10">
+        <div class="text-black text-2xl">SoundScore</div>
+        <div class="flex gap-2">
+          <a href="#" aria-label="Social media link">
+            <div class="w-10 h-10 rounded bg-[#828282]"></div>
+          </a>
+          <a href="#" aria-label="Social media link">
+            <div class="w-10 h-10 rounded bg-[#828282]"></div>
+          </a>
+          <a href="#" aria-label="Social media link">
+            <div class="w-10 h-10 rounded bg-[#828282]"></div>
+          </a>
+          <a href="#" aria-label="Social media link">
+            <div class="w-10 h-10 rounded bg-[#828282]"></div>
+          </a>
+        </div>
+      </div>
+      <div class="flex gap-28 max-md:flex-wrap max-md:gap-10">
+        <!-- Footer Link Group 1 -->
+        <div class="flex flex-col gap-6 max-sm:w-full">
+          <h3 class="text-black text-base font-medium">Topic</h3>
+          <a href="#" class="text-[#454545] text-base">Page</a>
+          <a href="#" class="text-[#454545] text-base">Page</a>
+          <a href="#" class="text-[#454545] text-base">Page</a>
+        </div>
+        
+        <!-- Footer Link Group 2 -->
+        <div class="flex flex-col gap-6 max-sm:w-full">
+          <h3 class="text-black text-base font-medium">Topic</h3>
+          <a href="#" class="text-[#454545] text-base">Page</a>
+          <a href="#" class="text-[#454545] text-base">Page</a>
+          <a href="#" class="text-[#454545] text-base">Page</a>
+        </div>
+        
+        <!-- Footer Link Group 3 -->
+        <div class="flex flex-col gap-6 max-sm:w-full">
+          <h3 class="text-black text-base font-medium">Topic</h3>
+          <a href="#" class="text-[#454545] text-base">Page</a>
+          <a href="#" class="text-[#454545] text-base">Page</a>
+          <a href="#" class="text-[#454545] text-base">Page</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
