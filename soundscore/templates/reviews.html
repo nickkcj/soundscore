@@ -5,129 +5,591 @@
 {% block description %}View your reviewed albums and ratings on SoundScore.{% endblock %}
 
 {% block content %}
-<main class="container mx-auto max-w-7xl px-4 py-12 md:py-20">
-
-    {# User Profile Summary Section #}
+<div class="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+  <main class="container mx-auto max-w-7xl px-4 py-12 md:py-20">
+    <!-- User Profile Section - Updated with Pink Gradient -->
     <section class="mb-16 md:mb-20">
-        <div class="flex flex-col md:flex-row items-center bg-white rounded-xl shadow-lg overflow-hidden p-6 md:p-10 gap-8 border border-gray-100">
-            {# Profile Picture #}
-            <div class="flex-shrink-0">
-                <img
-                    src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}"
-                    class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-pink-100 shadow-md"
-                    alt="{{ user.username }}'s Profile Picture"
-                />
-            </div>
-            {# User Info & Stats #}
-            <div class="text-center md:text-left">
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{{ user.username }}</h1>
-                <div class="flex flex-col md:flex-row gap-x-6 gap-y-2 text-gray-600">
-                    <span class="flex items-center justify-center md:justify-start">
-                        <svg class="w-5 h-5 mr-1.5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                        {{ total_reviews|default:0 }} Total Reviews
-                    </span>
-                    <span class="flex items-center justify-center md:justify-start">
-                         <svg class="w-5 h-5 mr-1.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                        {{ average_rating|default:"N/A" }} Average Rating {# Or total_stars #}
-                    </span>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-pink-500 to-purple-600 text-white">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-15">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                    <defs>
+                        <pattern id="music-pattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+                            <path d="M30 5 L25 30 L45 30 Z" fill="currentColor" opacity="0.3"></path>
+                            <circle cx="15" cy="15" r="5" fill="currentColor" opacity="0.3"></circle>
+                            <circle cx="45" cy="45" r="8" fill="currentColor" opacity="0.3"></circle>
+                        </pattern>
+                    </defs>
+                    <rect x="0" y="0" width="100%" height="100%" fill="url(#music-pattern)"></rect>
+                </svg>
             </div>
             
-            {# Create New Review Button #}
-            <div class="md:ml-auto mt-6 md:mt-0">
-                <a href="#" class="inline-flex items-center px-6 py-3 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition duration-200 shadow-md">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                    Create New Review
-                </a>
+            <div class="relative p-8 md:p-10 flex flex-col md:flex-row items-center gap-8">
+                <!-- Profile Picture with new style -->
+                <div class="flex-shrink-0 relative">
+                    <div class="rounded-full overflow-hidden ring-4 ring-white/30 shadow-xl">
+                        <img
+                            src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}"
+                            class="w-32 h-32 md:w-40 md:h-40 object-cover"
+                            alt="{{ user.username }}'s Profile Picture"
+                        />
+                    </div>
+                </div>
+                
+                <!-- User Info with new style -->
+                <div class="text-center md:text-left">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-2">{{ user.username }}</h1>
+                    <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-6">
+                        <div class="bg-white/20 backdrop-blur-sm py-1.5 px-4 rounded-full">
+                            <span class="font-medium">{{ total_reviews|default:0 }}</span>
+                            <span class="text-white/80">Reviews</span>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm py-1.5 px-4 rounded-full flex items-center">
+                            <svg class="w-4 h-4 mr-1 text-yellow-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <span class="font-medium">{{ average_rating|default:"N/A" }}</span>
+                            <span class="text-white/80 ml-1">Avg</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Create New Review Button -->
+                <div class="md:ml-auto">
+                    <a href="#" id="openCreateReviewModal" class="inline-flex items-center px-6 py-3 bg-white text-pink-600 font-medium rounded-full hover:bg-pink-50 transition duration-300 shadow-md">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Create New Review
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
-    {# Favorite Albums Section #}
+    <!-- Keep the Favorite Albums Section as it is -->
     <section class="mb-16 md:mb-20">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-3">Favorite Albums</h2>
-        {# Check if there are favorite albums #}
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-3 flex items-center">
+            <svg class="w-8 h-8 mr-2 text-pink-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+            </svg>
+            Favorite Albums
+        </h2>
         {% if favorite_albums %}
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {# Loop through favorite albums (replace with actual loop) #}
-                {% for album in favorite_albums %} {# Replace with actual loop variable #}
-                <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-100">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="{{ album.image_url|default:'/static/images/default_album.png' }}" alt="{{ album.title }} cover" class="w-full h-full object-cover">
+                {% for album in favorite_albums %} 
+                <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 transform hover:-translate-y-1 group">
+                    <div class="aspect-square overflow-hidden relative">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-start p-3 z-10">
+                            <div class="flex items-center">
+                                {% with rating=album.rating|default:0 %}
+                                    {% for i in "12345" %}
+                                        <svg class="w-5 h-5 {% if i|add:0 <= rating|add:0 %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    {% endfor %}
+                                    <span class="ml-2 text-sm text-white font-medium">({{ album.rating }}/5)</span>
+                                {% endwith %}
+                            </div>
+                        </div>
+                        <img src="{{ album.album.cover_image|default:'/static/images/default_album.png' }}" alt="{{ album.title }} cover" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
                     </div>
                     <div class="p-4">
-                        <h3 class="text-lg font-semibold text-gray-800 truncate mb-1">{{ album.title|default:"Album Title" }}</h3>
-                        <p class="text-sm text-gray-500 mb-2">{{ album.artist|default:"Artist Name" }}</p>
-                        <div class="flex items-center">
-                            {# Display stars based on album.user_rating #}
-                            {% with rating=album.user_rating|default:0 %}
-                                {% for i in "12345" %}
-                                    <svg class="w-4 h-4 {% if i|add:0 <= rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                {% endfor %}
-                                <span class="ml-2 text-xs text-gray-500">({{ rating }}/5)</span>
-                            {% endwith %}
-                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 truncate mb-1">{{ album.album.title|default:"Album Title" }}</h3>
+                        <p class="text-sm text-gray-500 mb-2">{{ album.album.artist|default:"Artist Name" }}</p>
                     </div>
                 </div>
                 {% endfor %}
-                {# End loop #}
             </div>
         {% else %}
-            <p class="text-gray-500 italic">You haven't marked any albums as favorites yet.</p>
+            <div class="bg-white border border-gray-200 rounded-lg p-8 text-center">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                </svg>
+                <p class="text-gray-500 italic">You haven't marked any albums as favorites yet.</p>
+            </div>
         {% endif %}
     </section>
 
-    {# All Reviews Section #}
+    <!-- All Reviews Section - Compact Version -->
     <section>
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-3">All Reviews</h2>
-        {# Check if there are any reviews #}
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-3 flex items-center">
+            <svg class="w-8 h-8 mr-2 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            All Reviews
+        </h2>
         {% if all_reviews %}
-            <div class="space-y-6">
-                {# Loop through all reviews (replace with actual loop) #}
-                {% for review in all_reviews %} {# Replace with actual loop variable #}
-                <div class="flex flex-col sm:flex-row items-start bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 p-4 gap-4">
-                    <div class="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32">
-                        <img src="{{ review.album.image_url|default:'/static/images/default_album.png' }}" alt="{{ review.album.title }} cover" class="w-full h-full object-cover rounded-md">
-                    </div>
-                    <div class="flex-grow">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-1">{{ review.album.title|default:"Album Title" }}</h3>
-                        <p class="text-md text-gray-600 mb-2">{{ review.album.artist|default:"Artist Name" }}</p>
-                        <div class="flex items-center mb-3">
-                            {# Display stars based on review.rating #}
-                            {% with rating=review.rating|default:0 %}
-                                {% for i in "12345" %}
-                                    <svg class="w-5 h-5 {% if i|add:0 <= rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                {% endfor %}
-                                <span class="ml-2 text-sm text-gray-500">({{ rating }}/5)</span>
-                            {% endwith %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for review in all_reviews %}
+                <div class="flex bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden relative"> <!-- Added relative positioning -->
+                    <div class="w-1/3 max-w-[120px] relative">
+                        <img src="{{ review.album.cover_image|default:'/static/images/default_album.png' }}" 
+                            alt="{{ review.album.title }} cover" 
+                            class="w-full h-full object-cover aspect-square">
+                        <div class="absolute bottom-0 left-0 right-0 bg-black/70 py-1 px-2 flex items-center justify-center">
+                            <div class="flex items-center">
+                                {% with rating=review.rating|default:0 %}
+                                    {% for i in "12345" %}
+                                        <svg class="w-3 h-3 {% if i|add:0 <= rating %}text-yellow-400{% else %}text-gray-400{% endif %}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    {% endfor %}
+                                {% endwith %}
+                                <span class="ml-1 text-xs text-white">{{ review.rating }}/5</span>
+                            </div>
                         </div>
-                        {# Optional: Display review text if available #}
+                    </div>
+                    
+                    <div class="w-2/3 p-4 pb-8"> <!-- Added bottom padding to make space for the button -->
+                        <h3 class="text-lg font-semibold text-gray-800 truncate">{{ review.album.title|default:"Album Title" }}</h3>
+                        <p class="text-sm text-gray-500 mb-2">{{ review.album.artist|default:"Artist Name" }}</p>
+                        
                         {% if review.text %}
-                        <p class="text-gray-700 text-sm italic mb-2">"{{ review.text }}"</p>
+                        <p class="text-sm text-gray-600 italic line-clamp-2 mb-2">"{{ review.text }}"</p>
                         {% endif %}
-                        <p class="text-xs text-gray-400">Reviewed on: {{ review.created_at|date:"M d, Y"|default:"N/A" }}</p> {# Assuming a created_at field #}
+                        
+                        <div class="flex justify-between items-center text-xs text-gray-400 mt-1">
+                            <span>{{ review.created_at|date:"M d, Y"|default:"N/A" }}</span>
+                        </div>
                     </div>
-                    {# Edit Review Button #}
-                    <div class="flex-shrink-0 mt-4 sm:mt-0 self-start">
-                        <a href="#" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition duration-200 border border-gray-200">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            Edit
-                        </a>
-                    </div>
+                    
+                    <!-- New Edit Icon Button -->
+                    <a href="#" title="Edit Review" class="absolute bottom-2 right-2 p-1.5 bg-pink-50 text-pink-600 rounded-full hover:bg-pink-100 transition-colors duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </a>
                 </div>
                 {% endfor %}
-                {# End loop #}
             </div>
         {% else %}
-            <div class="text-center py-10">
-                <p class="text-gray-500 italic mb-6">You haven't reviewed any albums yet.</p>
-                <a href="#" class="inline-flex items-center px-6 py-3 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition duration-200 shadow-md">
+            <div class="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="bg-pink-50 w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-12 h-12 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">No Reviews Yet</h3>
+                <p class="text-gray-500 mb-6 max-w-md mx-auto">Start sharing your thoughts on your favorite music by creating your first review.</p>
+                <a href="#" id="openCreateReviewModalEmpty" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium rounded-full hover:from-pink-600 hover:to-purple-700 transition duration-300 shadow-md">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     Write Your First Review
                 </a>
             </div>
         {% endif %}
     </section>
+  </main>
+</div>
 
-</main>
+<!-- Review Modal - Updated Design with pink accents -->
+<div id="createReviewModal" class="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center hidden backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+        <div class="flex justify-between items-center p-6 border-b border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Create New Review
+            </h2>
+            <button id="closeCreateReviewModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Step 1: Search for an album -->
+        <div id="searchStep" class="p-6">
+            <label for="artist_name" class="block text-sm font-medium text-gray-700 mb-2">Search for an Artist or Album</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input 
+                    type="text" 
+                    id="artist_name" 
+                    class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-pink-600 focus:border-pink-600 bg-gray-50"
+                    placeholder="Enter artist or album name..."
+                >
+                <div id="searchSpinner" class="absolute right-3 top-3 hidden">
+                    <svg class="animate-spin h-5 w-5 text-pink-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Search Results -->
+            <div id="searchResults" class="mt-4 space-y-2 max-h-96 overflow-y-auto px-1"></div>
+        </div>
+        
+        <!-- Step 2: Write Review (initially hidden) -->
+        <div id="reviewStep" class="hidden p-6">
+            <div id="selectedAlbumDisplay" class="flex items-center mb-6 p-4 bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl">
+                <img id="selectedAlbumCover" src="" alt="Album Cover" class="w-20 h-20 object-cover rounded-lg shadow-md">
+                <div class="ml-4">
+                    <h3 id="selectedAlbumTitle" class="font-medium text-gray-800 text-lg"></h3>
+                    <p id="selectedAlbumArtist" class="text-sm text-gray-500"></p>
+                </div>
+            </div>
+            
+            <form id="reviewForm" class="space-y-5">
+                {% csrf_token %}
+                <input type="hidden" id="album_id" name="album_id">
+                <input type="hidden" id="album_title" name="album_title">
+                <input type="hidden" id="album_artist" name="album_artist">
+                <input type="hidden" id="album_cover" name="album_cover">
+                
+                <!-- Rating -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                    <div class="flex items-center p-4 bg-gray-50 rounded-xl" id="ratingContainer">
+                        <div class="flex items-center" id="ratingStars">
+                            <button type="button" data-rating="1" class="rating-star text-gray-300 hover:text-yellow-400 text-3xl focus:outline-none transform hover:scale-110 transition-transform">★</button>
+                            <button type="button" data-rating="2" class="rating-star text-gray-300 hover:text-yellow-400 text-3xl focus:outline-none transform hover:scale-110 transition-transform">★</button>
+                            <button type="button" data-rating="3" class="rating-star text-gray-300 hover:text-yellow-400 text-3xl focus:outline-none transform hover:scale-110 transition-transform">★</button>
+                            <button type="button" data-rating="4" class="rating-star text-gray-300 hover:text-yellow-400 text-3xl focus:outline-none transform hover:scale-110 transition-transform">★</button>
+                            <button type="button" data-rating="5" class="rating-star text-gray-300 hover:text-yellow-400 text-3xl focus:outline-none transform hover:scale-110 transition-transform">★</button>
+                        </div>
+                        <span id="ratingDisplay" class="ml-3 text-sm font-medium text-gray-500">Select a rating</span>
+                    </div>
+                    <input type="hidden" id="rating" name="rating" value="">
+                </div>
+                
+                <!-- Review Text -->
+                <div>
+                    <label for="review_text" class="block text-sm font-medium text-gray-700 mb-2">Your Review (Optional)</label>
+                    <textarea 
+                        id="review_text" 
+                        name="review_text"
+                        rows="4"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-pink-600 focus:border-pink-600 bg-gray-50"
+                        placeholder="Write your thoughts about this album..."
+                    ></textarea>
+                </div>
+                
+                <!-- Favorite Checkbox -->
+                <div class="flex items-center p-4 bg-pink-50 rounded-xl">
+                    <input type="checkbox" id="is_favorite" name="is_favorite" class="h-5 w-5 text-pink-600 focus:ring-pink-500 border-gray-300 rounded">
+                    <label for="is_favorite" class="ml-2 block text-sm text-gray-700 font-medium">
+                        Add to favorites
+                        <span class="text-pink-600">
+                            <svg class="w-4 h-4 inline-block ml-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" id="backToSearch" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors duration-200 border border-gray-300 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back
+                    </button>
+                    <button type="submit" id="submitReview" class="px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl hover:from-pink-600 hover:to-purple-700 transition-colors duration-200 flex items-center font-medium shadow-sm hover:shadow">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Success Message (initially hidden) -->
+        <div id="successStep" class="hidden text-center py-12 px-6">
+            <div class="relative mx-auto w-20 h-20 mb-6">
+                <div class="absolute inset-0 bg-pink-100 opacity-50 rounded-full animate-ping"></div>
+                <svg class="w-20 h-20 text-pink-500 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Review Submitted!</h3>
+            <p class="text-gray-600 mb-8">Your review has been successfully added.</p>
+            <button id="doneButton" class="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium rounded-xl hover:from-pink-600 hover:to-purple-700 transition-colors duration-200 shadow-md">
+                Done
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update the JavaScript with pink colors instead of indigo
+    document.addEventListener('DOMContentLoaded', function () {
+        // DOM elements
+        const modal = document.getElementById('createReviewModal');
+        const modalContent = document.getElementById('modalContent');
+        const openModalButton = document.getElementById('openCreateReviewModal');
+        const openModalButtonEmpty = document.getElementById('openCreateReviewModalEmpty');
+        const closeModalButton = document.getElementById('closeCreateReviewModal');
+        const artistInput = document.getElementById('artist_name');
+        const searchResults = document.getElementById('searchResults');
+        const searchSpinner = document.getElementById('searchSpinner');
+        const searchStep = document.getElementById('searchStep');
+        const reviewStep = document.getElementById('reviewStep');
+        const successStep = document.getElementById('successStep');
+        const backToSearchBtn = document.getElementById('backToSearch');
+        const reviewForm = document.getElementById('reviewForm');
+        const doneButton = document.getElementById('doneButton');
+        const ratingStars = document.querySelectorAll('.rating-star');
+        const ratingInput = document.getElementById('rating');
+        const ratingDisplay = document.getElementById('ratingDisplay');
+        const ratingContainer = document.getElementById('ratingContainer');
+        
+        // Selected album elements
+        const selectedAlbumDisplay = document.getElementById('selectedAlbumDisplay');
+        const selectedAlbumCover = document.getElementById('selectedAlbumCover');
+        const selectedAlbumTitle = document.getElementById('selectedAlbumTitle');
+        const selectedAlbumArtist = document.getElementById('selectedAlbumArtist');
+        const albumIdInput = document.getElementById('album_id');
+        const albumTitleInput = document.getElementById('album_title');
+        const albumArtistInput = document.getElementById('album_artist');
+        const albumCoverInput = document.getElementById('album_cover');
+        
+        let searchTimeout;
+        
+        // Open modal
+        function openModal() {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            artistInput.focus();
+        }
+        
+        // Event listeners for opening modal
+        if (openModalButton) {
+            openModalButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                openModal();
+            });
+        }
+        
+        if (openModalButtonEmpty) {
+            openModalButtonEmpty.addEventListener('click', function (e) {
+                e.preventDefault();
+                openModal();
+            });
+        }
+        
+        // Close modal
+        closeModalButton.addEventListener('click', closeModal);
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Done button
+        doneButton.addEventListener('click', function() {
+            window.location.reload(); // Reload page to see the new review
+        });
+        
+        // Search for albums with debounce
+        artistInput.addEventListener('input', function () {
+            if (searchTimeout) clearTimeout(searchTimeout);
+            
+            const query = this.value.trim();
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                searchAlbums(query);
+            }, 500);
+        });
+        
+        // Back button
+        backToSearchBtn.addEventListener('click', function() {
+            reviewStep.classList.add('hidden');
+            searchStep.classList.remove('hidden');
+        });
+        
+        // Rating stars
+        ratingStars.forEach(star => {
+            star.addEventListener('click', function() {
+                const ratingValue = this.getAttribute('data-rating');
+                setRating(ratingValue);
+                
+                // Add a subtle animation to the rating container
+                ratingContainer.classList.add('bg-pink-50');
+                setTimeout(() => {
+                    ratingContainer.classList.remove('bg-pink-50');
+                }, 300);
+            });
+        });
+        
+        // Submit review
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitReview();
+        });
+        
+        // Functions
+        
+        function closeModal() {
+            modalContent.classList.add('scale-95', 'opacity-0');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = ''; // Re-enable scrolling
+                resetModal();
+            }, 200);
+        }
+        
+        function resetModal() {
+            artistInput.value = '';
+            searchResults.innerHTML = '';
+            reviewForm.reset();
+            searchStep.classList.remove('hidden');
+            reviewStep.classList.add('hidden');
+            successStep.classList.add('hidden');
+            setRating(0);
+        }
+        
+        function searchAlbums(query) {
+            searchSpinner.classList.remove('hidden');
+            searchResults.innerHTML = '<p class="text-gray-500 text-center py-3">Searching...</p>';
+            
+            fetch(`/api/search-albums/?q=${encodeURIComponent(query)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Search failed');
+                    return response.json();
+                })
+                .then(data => {
+                    displaySearchResults(data.albums || []);
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                    searchResults.innerHTML = '<p class="text-red-500 text-center py-3">Error searching for albums. Please try again.</p>';
+                })
+                .finally(() => {
+                    searchSpinner.classList.add('hidden');
+                });
+        }
+        
+        function displaySearchResults(albums) {
+            searchResults.innerHTML = '';
+            
+            if (albums.length === 0) {
+                searchResults.innerHTML = '<p class="text-gray-500 text-center py-3">No albums found. Try another search term.</p>';
+                return;
+            }
+            
+            albums.forEach(album => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'flex items-center gap-3 p-3 hover:bg-pink-50 cursor-pointer border border-gray-200 rounded-xl mb-2 transition-colors duration-200';
+                
+                const releaseYear = album.release_date ? album.release_date.substring(0, 4) : '';
+                
+                resultItem.innerHTML = `
+                    <img src="${album.cover_url || '/static/images/default_album.png'}" 
+                        alt="${album.title}" class="w-16 h-16 object-cover rounded-lg shadow-sm">
+                    <div>
+                        <h3 class="font-medium text-gray-800">${album.title}</h3>
+                        <p class="text-sm text-gray-500">${album.artist}</p>
+                        <p class="text-xs text-gray-400">${releaseYear}</p>
+                    </div>
+                `;
+                
+                resultItem.addEventListener('click', () => {
+                    selectAlbum(album);
+                });
+                
+                searchResults.appendChild(resultItem);
+            });
+        }
+        
+        function selectAlbum(album) {
+            // Set hidden inputs
+            albumIdInput.value = album.id;
+            albumTitleInput.value = album.title;
+            albumArtistInput.value = album.artist;
+            albumCoverInput.value = album.cover_url;
+            
+            // Update display
+            selectedAlbumCover.src = album.cover_url || '/static/images/default_album.png';
+            selectedAlbumTitle.textContent = album.title;
+            selectedAlbumArtist.textContent = album.artist;
+            
+            // Switch to review step with animation
+            searchStep.classList.add('hidden');
+            reviewStep.classList.remove('hidden');
+        }
+        
+        function setRating(value) {
+            ratingInput.value = value;
+            
+            // Update stars
+            ratingStars.forEach((star, index) => {
+                if (index < value) {
+                    star.classList.remove('text-gray-300');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.add('text-gray-300');
+                    star.classList.remove('text-yellow-400');
+                }
+            });
+            
+            // Update text
+            if (value > 0) {
+                ratingDisplay.textContent = `${value} star${value !== 1 ? 's' : ''}`;
+                ratingDisplay.classList.add('text-yellow-600');
+                ratingDisplay.classList.remove('text-gray-500');
+            } else {
+                ratingDisplay.textContent = 'Select a rating';
+                ratingDisplay.classList.remove('text-yellow-600');
+                ratingDisplay.classList.add('text-gray-500');
+            }
+        }
+        
+        function submitReview() {
+            const formData = {
+                album_id: albumIdInput.value,
+                album_title: albumTitleInput.value,
+                album_artist: albumArtistInput.value,
+                album_cover: albumCoverInput.value,
+                rating: ratingInput.value,
+                review_text: document.getElementById('review_text').value,
+                is_favorite: document.getElementById('is_favorite').checked
+            };
+            
+            if (!formData.album_id || !formData.rating) {
+                alert('Please select an album and provide a rating');
+                return;
+            }
+            
+            // Get CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch('/api/create-review/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to submit review');
+                return response.json();
+            })
+            .then(data => {
+                // Show success message
+                reviewStep.classList.add('hidden');
+                successStep.classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error submitting review:', error);
+                alert('Error submitting review. Please try again.');
+            });
+        }
+    });
+</script>
 {% endblock %}
