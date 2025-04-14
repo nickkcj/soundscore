@@ -8,7 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404 # Import Http404
 import json
 from django.db.models import Avg, Q # Import Q for complex lookups
-from apis.spotify import search_albums # Assuming this returns a list of dicts
+from .apis.spotify import search_albums # Assuming this returns a list of dicts
+from django.http import HttpResponseForbidden
 
 # Create your views here.
 def home(request):
@@ -440,3 +441,39 @@ def user_profile(request, username):
         'is_own_profile': request.user == profile_user # Flag to check if it's the logged-in user's profile
     }
     return render(request, 'user_profile.html', context)
+
+
+@login_required
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+
+    # Ensure the logged-in user is the owner of the review
+    if review.user != request.user:
+        return HttpResponseForbidden("You are not allowed to edit this review.")
+
+    if request.method == 'POST':
+        # Process the submitted form data
+        try:
+            rating = int(request.POST.get('rating'))
+            if not 1 <= rating <= 5:
+                raise ValueError("Rating must be between 1 and 5.")
+            review.rating = rating
+        except (ValueError, TypeError):
+            # Handle invalid rating input (optional: add message)
+            pass # Keep existing rating if new one is invalid
+
+        review.text = request.POST.get('review_text', '')
+        review.is_favorite = 'is_favorite' in request.POST # Check if the checkbox was checked
+
+        review.save()
+        # Optional: Add a success message
+        # messages.success(request, "Review updated successfully!")
+        return redirect('reviews', username=request.user.username) # Redirect back to the main reviews page
+
+    # If GET request, display the form pre-filled with review data
+    context = {
+        'review': review
+    }
+    return render(request, 'edit_review.html', context)
+
+# ... rest of your views ...

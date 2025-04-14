@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/search-albums/', views.search_albums_api_view, name='search_albums'),
     path('api/create-review/', views.create_review_api, name='create_review_api'),
     path('discover/', views.discover, name='discover'),
-    path('profile/<str:username>/', views.user_profile, name='profile'),     
+    path('profile/<str:username>/', views.user_profile, name='profile'),
+    path('reviews/edit/<int:review_id>/', views.edit_review, name='edit_review'),    
 ]
 
