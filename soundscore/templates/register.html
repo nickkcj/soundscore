@@ -22,6 +22,25 @@
         <p class="mt-3 text-lg text-gray-600">Create your account to start your musical journey.</p>
     </div>
 
+        {% if messages %}
+        <div class="w-full px-4 py-4">
+            <div class="max-w-2xl mx-auto">
+                {% for message in messages %}
+                <div class="p-4 mb-4 text-sm rounded-lg
+                    {% if message.tags == 'success' %}
+                        bg-green-100 text-green-800 border border-green-200
+                    {% elif message.tags == 'error' %}
+                        bg-red-100 text-red-800 border border-red-200
+                    {% else %}
+                        bg-gray-100 text-gray-800 border border-gray-200
+                    {% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
     <div class="flex flex-col items-center bg-white p-8 sm:p-10 rounded-xl shadow-xl border border-gray-200 w-full max-w-2xl">
         <div class="text-center w-full mb-8">
             <h2 class="text-3xl sm:text-4xl font-medium text-gray-800">Register Now!</h2>
@@ -34,80 +53,80 @@
         <form id="authForm" class="flex flex-col gap-5 w-full" method="POST" action="{% url 'register' %}">
             {% csrf_token %}
             <div class="relative group">
-            <i class="ti ti-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B6DFF] transition-colors duration-200"></i>
-            <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                class="h-14 sm:h-16 w-full border rounded-lg text-base sm:text-lg px-12 py-2 bg-gray-50 border-gray-300 focus:border-[#0B6DFF] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B6DFF]/30 transition-all duration-200 ease-in-out"
-                required
-                aria-label="Username"
-            />
+                <i class="ti ti-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B6DFF] transition-colors duration-200"></i>
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Username"
+                    class="h-14 sm:h-16 w-full border rounded-lg text-base sm:text-lg px-12 py-2 bg-gray-50 border-gray-300 focus:border-[#0B6DFF] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B6DFF]/30 transition-all duration-200 ease-in-out"
+                    required
+                    aria-label="Username"
+                />
             </div>
 
             <div class="relative group">
-            <i class="ti ti-mail absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B6DFF] transition-colors duration-200"></i>
-            <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                class="h-14 sm:h-16 w-full border rounded-lg text-base sm:text-lg px-12 py-2 bg-gray-50 border-gray-300 focus:border-[#0B6DFF] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B6DFF]/30 transition-all duration-200 ease-in-out"
-                required
-                aria-label="Email Address"
-            />
+                <i class="ti ti-mail absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B6DFF] transition-colors duration-200"></i>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    class="h-14 sm:h-16 w-full border rounded-lg text-base sm:text-lg px-12 py-2 bg-gray-50 border-gray-300 focus:border-[#0B6DFF] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B6DFF]/30 transition-all duration-200 ease-in-out"
+                    required
+                    aria-label="Email Address"
+                />
             </div>
 
             <div class="relative group">
-            <i class="ti ti-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B6DFF] transition-colors duration-200"></i>
-            <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                class="h-14 sm:h-16 w-full border rounded-lg text-base sm:text-lg px-12 py-2 bg-gray-50 border-gray-300 focus:border-[#0B6DFF] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B6DFF]/30 transition-all duration-200 ease-in-out"
-                required
-                aria-label="Password"
-            />
+                <i class="ti ti-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B6DFF] transition-colors duration-200"></i>
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    class="h-14 sm:h-16 w-full border rounded-lg text-base sm:text-lg px-12 py-2 bg-gray-50 border-gray-300 focus:border-[#0B6DFF] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B6DFF]/30 transition-all duration-200 ease-in-out"
+                    required
+                    aria-label="Password"
+                />
             </div>
 
             <div class="relative group">
-            <i class="ti ti-lock-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B6DFF] transition-colors duration-200"></i>
-            <input
-                type="password"
-                name="confirm_password"
-                placeholder="Confirm Password"
-                id="confirmPasswordField"
-                class="h-14 sm:h-16 w-full border rounded-lg text-base sm:text-lg px-12 py-2 bg-gray-50 border-gray-300 focus:border-[#0B6DFF] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B6DFF]/30 transition-all duration-200 ease-in-out"
-                required
-                aria-label="Confirm Password"
-            />
+                <i class="ti ti-lock-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B6DFF] transition-colors duration-200"></i>
+                <input
+                    type="password"
+                    name="confirm_password"
+                    placeholder="Confirm Password"
+                    id="confirmPasswordField"
+                    class="h-14 sm:h-16 w-full border rounded-lg text-base sm:text-lg px-12 py-2 bg-gray-50 border-gray-300 focus:border-[#0B6DFF] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B6DFF]/30 transition-all duration-200 ease-in-out"
+                    required
+                    aria-label="Confirm Password"
+                />
             </div>
 
             <div class="flex items-center gap-3 my-3">
-            <button
-                type="button"
-                id="rememberMeBtn"
-                class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center flex-shrink-0 bg-white border-2 border-gray-300 rounded text-transparent hover:border-[#0B6DFF] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#0B6DFF]/50 transition-all duration-200 ease-in-out"
-                aria-label="Remember me checkbox"
-                role="checkbox"
-                aria-checked="false"
-            >
-             <!-- Check icon can be added here via JS when checked -->
-             <!-- Example: <i class="ti ti-check text-[#0B6DFF] text-sm"></i> -->
-            </button>
-            <label for="rememberMeBtn" class="text-base sm:text-lg text-gray-700 cursor-pointer select-none">Remember me</label>
+                <button
+                    type="button"
+                    id="rememberMeBtn"
+                    class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center flex-shrink-0 bg-white border-2 border-gray-300 rounded text-transparent hover:border-[#0B6DFF] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#0B6DFF]/50 transition-all duration-200 ease-in-out"
+                    aria-label="Remember me checkbox"
+                    role="checkbox"
+                    aria-checked="false"
+                >
+                 <!-- Check icon can be added here via JS when checked -->
+                 <!-- Example: <i class="ti ti-check text-[#0B6DFF] text-sm"></i> -->
+                </button>
+                <label for="rememberMeBtn" class="text-base sm:text-lg text-gray-700 cursor-pointer select-none">Remember me</label>
             </div>
 
             <button
-            type="submit"
-            id="submitBtn"
-            class="h-12 sm:h-14 w-full text-white text-lg sm:text-xl font-medium cursor-pointer bg-[#C9184A] hover:bg-[#A4133C] border-none rounded-lg px-6 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C9184A]/70 active:bg-[#800F2F]"
+                type="submit"
+                id="submitBtn"
+                class="h-12 sm:h-14 w-full text-white text-lg sm:text-xl font-medium cursor-pointer bg-pink-600 hover:bg-pink-700 border-none rounded-lg px-6 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-600/70 active:bg-pink-800"
             >
-            Register
+                Register
             </button>
 
             <p class="text-center text-gray-500 text-xs sm:text-sm mt-4">
-            By registering, you agree to our <a href="#" class="text-[#0B6DFF] hover:underline">Terms of Service</a> and
-            <a href="#" class="text-[#0B6DFF] hover:underline">Privacy Policy</a>.
+                By registering, you agree to our <a href="#" class="text-[#0B6DFF] hover:underline">Terms of Service</a> and
+                <a href="#" class="text-[#0B6DFF] hover:underline">Privacy Policy</a>.
             </p>
         </form>
     </div>

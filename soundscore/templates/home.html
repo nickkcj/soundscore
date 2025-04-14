@@ -6,11 +6,11 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="w-full" style="background: linear-gradient(to bottom, 
-rgba(201,24,74,0.8) 0%, 
-rgba(201,24,74,0.7) 20%, 
-rgba(201,24,74,0.6) 40%, 
-rgba(201,24,74,0.5) 60%, 
+<section class="w-full" style="background: linear-gradient(to bottom,
+rgba(201,24,74,0.8) 0%,
+rgba(201,24,74,0.7) 20%,
+rgba(201,24,74,0.6) 40%,
+rgba(201,24,74,0.5) 60%,
 rgba(201,24,74,0.3) 70%,
 rgba(0,0,0,0.7) 90%,
 #000000 100%)">
@@ -52,19 +52,19 @@ rgba(0,0,0,0.7) 90%,
     </figure>
   </div>
 </section>
-      
+
     <!-- Reviews Section -->
     <section id="reviews" class="bg-gradient-to-b from-black via-[#1F0812] to-black py-12 px-4 md:px-10">
       <div class="container mx-auto">
       <h2 class="text-white text-3xl md:text-4xl font-bold tracking-tight mb-8 text-center mt-64">
       Latest Reviews
       </h2>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Review 1 -->
-      <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-[#C9184A]/20">
+      <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-pink-600/20">
         <div class="aspect-square overflow-hidden">
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/ee34e0953143bbfff6a0ca1a18f354879b06f78e" 
+          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/ee34e0953143bbfff6a0ca1a18f354879b06f78e"
              alt="Album cover" class="w-full h-full object-contain" />
         </div>
         <div class="p-4">
@@ -82,11 +82,11 @@ rgba(0,0,0,0.7) 90%,
           </p>
         </div>
       </div>
-      
+
       <!-- Review 2 -->
-      <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-[#C9184A]/20">
+      <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-pink-600/20">
         <div class="aspect-square overflow-hidden">
-          <img src="{% static 'images/codyjon.jpg' %}" 
+          <img src="{% static 'images/codyjon.jpg' %}"
              alt="Album cover" class="w-full h-full object-contain" />
         </div>
         <div class="p-4">
@@ -104,11 +104,11 @@ rgba(0,0,0,0.7) 90%,
           </p>
         </div>
         </div>
-        
+
         <!-- Review 3 -->
-        <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-[#C9184A]/20">
+        <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-pink-600/20">
           <div class="aspect-square overflow-hidden">
-            <img src="{% static 'images/nsync.jpg' %}" 
+            <img src="{% static 'images/nsync.jpg' %}"
                alt="Album cover" class="w-full h-full object-contain" />
           </div>
           <div class="p-4">
@@ -127,9 +127,9 @@ rgba(0,0,0,0.7) 90%,
           </div>
           </div>
       </div>
-      
+
       <div class="text-center mt-6">
-        <a href="#" class="inline-block bg-[#C9184A] hover:bg-[#A4133C] text-white text-base font-medium py-2 px-5 rounded-md transition-colors">
+        <a href="#" class="inline-block bg-pink-600 hover:bg-pink-700 text-white text-base font-medium py-2 px-5 rounded-md transition-colors">
         View All Reviews
         </a>
       </div>
@@ -141,18 +141,18 @@ rgba(0,0,0,0.7) 90%,
         <h2 class="text-white text-4xl md:text-5xl font-bold tracking-tight mb-10 text-center mt-64">
           Weekly Top Albums
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <!-- Album 1 -->
-          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-[#C9184A]/50 max-w-full mx-auto w-full relative">
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div>
+          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-pink-600/50 max-w-full mx-auto w-full relative">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div> {# Kept original gradient as requested #}
             <div class="relative">
-              <div class="absolute top-0 right-0 bg-[#C9184A] text-white text-lg font-bold py-2 px-4 rounded-bl-lg">1</div>
+              <div class="absolute top-0 right-0 bg-pink-600 text-white text-lg font-bold py-2 px-4 rounded-bl-lg">1</div>
               <img src="{% static 'images/ubermensch.jpeg' %}" alt="Ubermensch album" class="w-full aspect-square object-contain" />
             </div>
             <div class="p-4">
               <h3 class="text-white text-xl font-bold mb-1">Ubermensch</h3>
-              <p class="text-[#C9184A] text-sm mb-1.5 font-medium">GDRAGON</p>
+              <p class="text-pink-600 text-sm mb-1.5 font-medium">GDRAGON</p>
               <div class="flex mb-2">
                 <span class="text-yellow-400 text-sm">★★★★★</span>
               </div>
@@ -161,17 +161,17 @@ rgba(0,0,0,0.7) 90%,
               </p>
             </div>
           </div>
-          
+
           <!-- Album 2 -->
-          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-[#C9184A]/50 max-w-full mx-auto w-full relative">
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div>
+          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-pink-600/50 max-w-full mx-auto w-full relative">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div> {# Kept original gradient as requested #}
             <div class="relative">
-              <div class="absolute top-0 right-0 bg-[#C9184A] text-white text-lg font-bold py-2 px-4 rounded-bl-lg">2</div>
+              <div class="absolute top-0 right-0 bg-pink-600 text-white text-lg font-bold py-2 px-4 rounded-bl-lg">2</div>
               <img src="{% static 'images/brighterdays.jpeg' %}" alt="Ariana Grande album" class="w-full aspect-square object-contain" />
             </div>
             <div class="p-4">
               <h3 class="text-white text-xl font-bold mb-1">Brighter Days</h3>
-              <p class="text-[#C9184A] text-sm mb-1.5 font-medium">Ariana Grande</p>
+              <p class="text-pink-600 text-sm mb-1.5 font-medium">Ariana Grande</p>
               <div class="flex mb-2">
                 <span class="text-yellow-400 text-sm">★★★★</span><span class="text-gray-500 text-sm">★</span>
               </div>
@@ -180,17 +180,17 @@ rgba(0,0,0,0.7) 90%,
               </p>
             </div>
           </div>
-          
+
           <!-- Album 3 -->
-          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-[#C9184A]/50 max-w-full mx-auto w-full relative">
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div>
+          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-pink-600/50 max-w-full mx-auto w-full relative">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div> {# Kept original gradient as requested #}
             <div class="relative">
-              <div class="absolute top-0 right-0 bg-[#C9184A] text-white text-lg font-bold py-2 px-4 rounded-bl-lg">3</div>
+              <div class="absolute top-0 right-0 bg-pink-600 text-white text-lg font-bold py-2 px-4 rounded-bl-lg">3</div>
               <img src="{% static 'images/thealbum.jpg' %}" alt="The Album" class="w-full aspect-square object-contain" />
             </div>
             <div class="p-4">
               <h3 class="text-white text-xl font-bold mb-1">The Album</h3>
-              <p class="text-[#C9184A] text-sm mb-1.5 font-medium">Jonas Brothers</p>
+              <p class="text-pink-600 text-sm mb-1.5 font-medium">Jonas Brothers</p>
               <div class="flex mb-2">
                 <span class="text-yellow-400 text-sm">★★★★</span><span class="text-gray-500 text-sm">★</span>
               </div>
@@ -200,9 +200,9 @@ rgba(0,0,0,0.7) 90%,
             </div>
           </div>
         </div>
-        
+
         <div class="text-center mt-8">
-          <a href="#" class="inline-block bg-[#C9184A] hover:bg-[#A4133C] text-white text-base font-bold py-2.5 px-6 rounded-md transition-colors mb-24">
+          <a href="#" class="inline-block bg-pink-600 hover:bg-pink-700 text-white text-base font-bold py-2.5 px-6 rounded-md transition-colors mb-24">
             View All Top Albums
           </a>
         </div>
@@ -211,4 +211,4 @@ rgba(0,0,0,0.7) 90%,
     </main>
   </body>
 </html>
-{% endblock %}  
+{% endblock %}
