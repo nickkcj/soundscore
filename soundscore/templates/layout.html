@@ -28,7 +28,7 @@
           <a href="{% url 'account' user.username %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">My Account</a>
           {# Add other authenticated links like My Reviews, Discover here if needed #}
            <a href="/reviews/{{ user.username }}/" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">My Reviews</a> 
-           <a href="/reviews/discover/" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Discover</a> 
+           <a href="{% url 'discover' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Discover</a> 
 
           {# Logout Button/Link #}
           <form action="{% url 'logout' %}" method="post" class="inline"> {# Use a form for POST request logout #}

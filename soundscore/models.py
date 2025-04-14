@@ -41,11 +41,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
 class Album(models.Model):
-    title = models.CharField(max_length=200)
-    artist = models.CharField(max_length=200)
-    release_date = models.DateField(null=True, blank=True)
-    cover_image = models.ImageField(upload_to='album_covers/', blank=True, null=True)
-    # Optional: genre, label, track list, etc.
+    spotify_id = models.CharField(max_length=255, unique=True, null=True)  
+    title = models.CharField(max_length=255)
+    artist = models.CharField(max_length=255)
+    cover_image = models.URLField(blank=True, null=True)
     
     def __str__(self):
         return f"{self.title} by {self.artist}"
