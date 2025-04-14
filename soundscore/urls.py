@@ -11,5 +11,7 @@ urlpatterns = [
 
     # Add the logout URL pattern
     path('logout/', views.logout_view, name='logout'),
+    path('reviews/<str:username>/', views.reviews, name='reviews'),
+    path('reviews/<str:username>/create_review/', views.create_review, name='create_review'),
 ]
 

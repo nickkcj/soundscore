@@ -134,3 +134,18 @@ def logout_view(request):
     auth_logout(request)
     messages.info(request, "You have been logged out successfully.")
     return redirect('home') # Redirect to home page after logout
+
+
+def reviews(request, username):
+    user = get_object_or_404(User, username=username)
+    # Fetch reviews related to the user if you have a Review model
+    # reviews = Review.objects.filter(user=user)
+    context = {
+        'user': user,
+        # 'reviews': reviews,  # Uncomment if you have a Review model
+    }
+    return render(request, 'reviews.html', context)
+
+@login_required
+def create_review(request, username):
+    return render(request, 'create_review.html')

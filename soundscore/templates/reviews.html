@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}My Reviews - SoundScore{% endblock %}
+{% block description %}View your reviewed albums and ratings on SoundScore.{% endblock %}
+
+{% block content %}
+<main class="container mx-auto max-w-7xl px-4 py-12 md:py-20">
+
+    {# User Profile Summary Section #}
+    <section class="mb-16 md:mb-20">
+        <div class="flex flex-col md:flex-row items-center bg-white rounded-xl shadow-lg overflow-hidden p-6 md:p-10 gap-8 border border-gray-100">
+            {# Profile Picture #}
+            <div class="flex-shrink-0">
+                <img
+                    src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}"
+                    class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-pink-100 shadow-md"
+                    alt="{{ user.username }}'s Profile Picture"
+                />
+            </div>
+            {# User Info & Stats #}
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{{ user.username }}</h1>
+                <div class="flex flex-col md:flex-row gap-x-6 gap-y-2 text-gray-600">
+                    <span class="flex items-center justify-center md:justify-start">
+                        <svg class="w-5 h-5 mr-1.5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        {{ total_reviews|default:0 }} Total Reviews
+                    </span>
+                    <span class="flex items-center justify-center md:justify-start">
+                         <svg class="w-5 h-5 mr-1.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        {{ average_rating|default:"N/A" }} Average Rating {# Or total_stars #}
+                    </span>
+                </div>
+            </div>
+            
+            {# Create New Review Button #}
+            <div class="md:ml-auto mt-6 md:mt-0">
+                <a href="#" class="inline-flex items-center px-6 py-3 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition duration-200 shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Create New Review
+                </a>
+            </div>
+        </div>
+    </section>
+
+    {# Favorite Albums Section #}
+    <section class="mb-16 md:mb-20">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-3">Favorite Albums</h2>
+        {# Check if there are favorite albums #}
+        {% if favorite_albums %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {# Loop through favorite albums (replace with actual loop) #}
+                {% for album in favorite_albums %} {# Replace with actual loop variable #}
+                <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                    <div class="aspect-square overflow-hidden">
+                        <img src="{{ album.image_url|default:'/static/images/default_album.png' }}" alt="{{ album.title }} cover" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 truncate mb-1">{{ album.title|default:"Album Title" }}</h3>
+                        <p class="text-sm text-gray-500 mb-2">{{ album.artist|default:"Artist Name" }}</p>
+                        <div class="flex items-center">
+                            {# Display stars based on album.user_rating #}
+                            {% with rating=album.user_rating|default:0 %}
+                                {% for i in "12345" %}
+                                    <svg class="w-4 h-4 {% if i|add:0 <= rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                {% endfor %}
+                                <span class="ml-2 text-xs text-gray-500">({{ rating }}/5)</span>
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {# End loop #}
+            </div>
+        {% else %}
+            <p class="text-gray-500 italic">You haven't marked any albums as favorites yet.</p>
+        {% endif %}
+    </section>
+
+    {# All Reviews Section #}
+    <section>
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-3">All Reviews</h2>
+        {# Check if there are any reviews #}
+        {% if all_reviews %}
+            <div class="space-y-6">
+                {# Loop through all reviews (replace with actual loop) #}
+                {% for review in all_reviews %} {# Replace with actual loop variable #}
+                <div class="flex flex-col sm:flex-row items-start bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 p-4 gap-4">
+                    <div class="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32">
+                        <img src="{{ review.album.image_url|default:'/static/images/default_album.png' }}" alt="{{ review.album.title }} cover" class="w-full h-full object-cover rounded-md">
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-1">{{ review.album.title|default:"Album Title" }}</h3>
+                        <p class="text-md text-gray-600 mb-2">{{ review.album.artist|default:"Artist Name" }}</p>
+                        <div class="flex items-center mb-3">
+                            {# Display stars based on review.rating #}
+                            {% with rating=review.rating|default:0 %}
+                                {% for i in "12345" %}
+                                    <svg class="w-5 h-5 {% if i|add:0 <= rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                {% endfor %}
+                                <span class="ml-2 text-sm text-gray-500">({{ rating }}/5)</span>
+                            {% endwith %}
+                        </div>
+                        {# Optional: Display review text if available #}
+                        {% if review.text %}
+                        <p class="text-gray-700 text-sm italic mb-2">"{{ review.text }}"</p>
+                        {% endif %}
+                        <p class="text-xs text-gray-400">Reviewed on: {{ review.created_at|date:"M d, Y"|default:"N/A" }}</p> {# Assuming a created_at field #}
+                    </div>
+                    {# Edit Review Button #}
+                    <div class="flex-shrink-0 mt-4 sm:mt-0 self-start">
+                        <a href="#" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition duration-200 border border-gray-200">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Edit
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+                {# End loop #}
+            </div>
+        {% else %}
+            <div class="text-center py-10">
+                <p class="text-gray-500 italic mb-6">You haven't reviewed any albums yet.</p>
+                <a href="#" class="inline-flex items-center px-6 py-3 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition duration-200 shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Write Your First Review
+                </a>
+            </div>
+        {% endif %}
+    </section>
+
+</main>
+{% endblock %}

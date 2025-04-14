@@ -39,3 +39,29 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def __str__(self):
         return self.username
+
+class Album(models.Model):
+    title = models.CharField(max_length=200)
+    artist = models.CharField(max_length=200)
+    release_date = models.DateField(null=True, blank=True)
+    cover_image = models.ImageField(upload_to='album_covers/', blank=True, null=True)
+    # Optional: genre, label, track list, etc.
+    
+    def __str__(self):
+        return f"{self.title} by {self.artist}"
+
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.IntegerField(choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')])
+    text = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_favorite = models.BooleanField(default=False)  # For marking favorite albums
+    
+    class Meta:
+        # Ensure a user can only review an album once
+        unique_together = ('user', 'album')
+    
+    def __str__(self):
+        return f"{self.user.username}'s review of {self.album.title}"

@@ -130,3 +130,5 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 AUTH_USER_MODEL = 'soundscore.User'
+
+LOGIN_URL = 'login'
