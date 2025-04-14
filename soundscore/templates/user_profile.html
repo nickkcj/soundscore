@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }}'s Profile - SoundScore{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+  <main class="container mx-auto max-w-7xl px-4 py-12 md:py-20">
+    
+    <!-- User Profile Section -->
+    <section class="mb-16">
+      <div class="bg-white rounded-xl shadow-lg p-6 md:p-10 text-center relative overflow-hidden">
+        <!-- Optional: Background Gradient/Image -->
+        <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-r from-pink-500 to-purple-600 opacity-80 -z-10"></div> 
+        
+        <div class="relative pt-10">
+          <!-- Profile Picture -->
+          <div class="mb-4 inline-block">
+            <img 
+              src="{{ profile_user.profile_picture.url|default:'/static/images/default.jpg' }}" 
+              alt="{{ profile_user.username }}" 
+              class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md mx-auto"
+            >
+          </div>
+
+          <!-- Username -->
+          <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{{ profile_user.username }}</h1>
+          
+          <!-- User Stats -->
+          <div class="flex justify-center items-center space-x-6 text-gray-600 mb-6">
+            <div class="text-center">
+              <span class="block text-2xl font-semibold text-pink-600">{{ review_count }}</span>
+              <span class="text-sm">Review{{ review_count|pluralize }}</span>
+            </div>
+            {% if avg_rating is not None %}
+            <div class="text-center">
+              <span class="block text-2xl font-semibold text-yellow-500">{{ avg_rating }}</span>
+              <span class="text-sm">Avg Rating</span>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Edit Profile Button (Only show if it's the logged-in user's profile) -->
+          {% if is_own_profile %}
+            <a href="{% url 'account' %}" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+              Edit Your Profile
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- User Reviews Section -->
+    <section>
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">Reviews by {{ profile_user.username }}</h2>
+      
+      {% if user_reviews %}
+        <div class="space-y-6">
+          {% for review in user_reviews %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
+              <div class="p-6">
+                <div class="flex items-start space-x-4">
+                  <!-- Album Cover -->
+                  <div class="flex-shrink-0">
+                    <img 
+                      src="{{ review.album.cover_image|default:'/static/images/default_album.png' }}" 
+                      alt="{{ review.album.title }} cover" 
+                      class="w-20 h-20 object-cover rounded-md"
+                      onerror="this.onerror=null; this.src='/static/images/default_album.png';"
+                    >
+                  </div>
+                  
+                  <!-- Review Content -->
+                  <div class="flex-grow">
+                    <div class="flex justify-between items-center mb-1">
+                      <div>
+                        <h3 class="text-lg font-semibold text-gray-800">{{ review.album.title }}</h3>
+                        <p class="text-sm text-gray-500">{{ review.album.artist }}</p>
+                      </div>
+                      <!-- Star Rating -->
+                      <div class="flex items-center">
+                        {% with rating=review.rating %}
+                        {% for i in "12345" %}
+                          <svg class="w-5 h-5 {% if forloop.counter <= rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        {% endfor %}
+                        {% endwith %}
+                      </div>
+                    </div>
+                    
+                    <!-- Review Text -->
+                    {% if review.review_text %}
+                      <p class="text-gray-700 mt-3">{{ review.review_text|linebreaksbr }}</p>
+                    {% endif %}
+                    
+                    <!-- Review Date -->
+                    <p class="text-xs text-gray-400 mt-3 text-right">Reviewed on {{ review.created_at|date:"M d, Y" }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center p-6 bg-gray-50 rounded-lg">
+          <p class="text-gray-500">{{ profile_user.username }} hasn't written any reviews yet.</p>
+        </div>
+      {% endif %}
+    </section>
+
+  </main>
+</div>
+{% endblock %}
