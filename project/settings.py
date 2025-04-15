@@ -81,7 +81,7 @@ DATABASES = {
     }
 }
 
-ALLOWED_HOSTS = ['soundscore.onrender.com']
+ALLOWED_HOSTS = ['soundscore.onrender.com', '127.0.0.1']
 
 
 # Password validation
