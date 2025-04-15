@@ -419,3 +419,36 @@ footer {
     width: 100%;
     overflow-x: hidden;
 }
+
+/* Fix for form inputs showing white text */
+input[type="text"],
+input[type="email"], 
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+select, 
+textarea {
+    color: #333333; /* Dark gray text */
+}
+
+/* Override for inputs in dark containers */
+.bg-gray-800 input,
+.bg-gray-900 input,
+.bg-black input,
+[class*="bg-pink-"] input,
+[class*="bg-purple-"] input,
+.bg-gray-800 textarea,
+.bg-gray-900 textarea,
+.bg-black textarea,
+[class*="bg-pink-"] textarea,
+[class*="bg-purple-"] textarea {
+    color: white;
+}
+
+/* Ensure placeholders are visible */
+::placeholder {
+    color: #9ca3af !important; /* Gray-400 in Tailwind */
+    opacity: 1;
+}
