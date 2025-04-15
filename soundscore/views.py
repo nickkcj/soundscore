@@ -10,6 +10,7 @@ import json
 from django.db.models import Avg, Q # Import Q for complex lookups
 from .apis.spotify import search_albums # Assuming this returns a list of dicts
 from django.http import HttpResponseForbidden
+from django.views.decorators.http import require_POST
 
 # Create your views here.
 def home(request):
@@ -476,4 +477,11 @@ def edit_review(request, review_id):
     }
     return render(request, 'edit_review.html', context)
 
-# ... rest of your views ...
+
+
+@login_required
+@require_POST
+def delete_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    review.delete()
+    return JsonResponse({'status': 'success'})
