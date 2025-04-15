@@ -14,25 +14,33 @@ rgba(201,24,74,0.5) 60%,
 rgba(201,24,74,0.3) 70%,
 rgba(0,0,0,0.7) 90%,
 #000000 100%)">
-  <div class="flex justify-between items-center p-10 mx-auto max-md:flex-col max-md:p-5 container">
-    <div class="max-w-[650px] max-md:text-center">
-      <h1 class="text-white text-6xl font-bold tracking-[-1px] mb-5 max-md:text-[36px] max-sm:text-3xl ml-8 md:ml-48 w-full">
+  <!-- Changed justify-between to justify-center and removed container class -->
+  <div class="flex justify-center items-center p-10 mx-auto max-md:flex-col max-md:p-5 w-full max-w-7xl">
+    <!-- Removed max-w limitation and added text-center -->
+    <div class="w-full md:w-1/2 text-center md:text-left px-4">
+      <!-- Removed ml-8 md:ml-48 margins that were offsetting content -->
+      <h1 class="text-white text-6xl font-bold tracking-[-1px] mb-5 max-md:text-[36px] max-sm:text-3xl">
         Rank your taste in music
       </h1>
-      <p class="text-white/75 text-xl mb-6 max-md:text-lg max-sm:text-base ml-8 md:ml-48">
+      <!-- Removed ml-8 md:ml-48 margins -->
+      <p class="text-white/75 text-xl mb-6 max-md:text-lg max-sm:text-base">
         SoundScore allows you to rank every album that has ever launched. You
         can discuss and review other people's score.
       </p>
+      <!-- Removed ml-8 md:ml-48 margins and added mx-auto for mobile centering -->
       <button onclick="window.location.href='/register/'"
-          class="text-black text-xl font-medium cursor-pointer bg-white px-6 py-3 rounded-md max-sm:w-full max-sm:text-lg ml-8 md:ml-48 hover:bg-gray-100 transition-colors">
+          class="text-black text-xl font-medium cursor-pointer bg-white px-6 py-3 rounded-md max-md:mx-auto max-md:block max-sm:w-full max-sm:text-lg hover:bg-gray-100 transition-colors">
         Start Ranking
       </button>
     </div>
-    <img
-      src="https://cdn.builder.io/api/v1/image/assets/TEMP/27032dba77e68e55a80db39bdfcbc3e2ccb4b98f"
-      class="w-[550px] h-[550px] max-md:w-full max-md:h-auto max-md:mt-6 mr-32"
-      alt="Music illustration"
-    />
+    <!-- Removed mr-32 margin that was pushing image to the right -->
+    <div class="w-full md:w-1/2 flex justify-center px-4">
+      <img
+        src="https://cdn.builder.io/api/v1/image/assets/TEMP/27032dba77e68e55a80db39bdfcbc3e2ccb4b98f"
+        class="w-[550px] h-[550px] max-md:w-full max-md:h-auto max-md:mt-6 object-contain"
+        alt="Music illustration"
+      />
+    </div>
   </div>
 </section>
 

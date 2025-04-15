@@ -6,13 +6,219 @@
     --soundscore-input: #1A1A1A;
 }
 
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+html, body {
+    width: 100%;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: black;
     color: white;
-    font-size: 14px; /* Reduced from default 16px */
+    font-size: 14px;
+}
+
+/* NAVIGATION BAR */
+header {
+    width: 100%;  /* Changed from 100vw to 100% */
+    background: white;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* Added for mobile menu positioning */
+}
+
+.header-inner {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 auto;
+}
+
+.navbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.navbar a, .navbar button {
+    color: #222;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: pointer;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.navbar a:hover, .navbar button:hover {
+    color: var(--soundscore-red);
+    background: #f3f3f3;
+}
+
+@media (max-width: 700px) {
+    .header-inner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        padding: 0;
+    }
+    .navbar {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+        align-items: stretch;
+    }
+    .navbar a, .navbar button {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem 0;
+        font-size: 1.1rem;
+    }
+}
+
+/* MOBILE NAVIGATION OVERRIDE - Modified to keep items in row */
+@media (max-width: 640px) {
+    header nav {
+        display: flex !important; /* Override Tailwind hidden class */
+        width: 100%;
+        flex-direction: row !important; /* Keep in row */
+        flex-wrap: wrap; /* Allow wrapping to next line */
+        justify-content: center; /* Center items */
+        align-items: center;
+        margin-top: 1rem;
+        gap: 0.5rem; /* Add gap between items */
+    }
+    
+    header nav a, 
+    header nav button,
+    header nav form {
+        width: auto; /* Items take their natural width */
+        text-align: center;
+        margin: 0.25rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem; /* Slightly smaller font on mobile */
+        white-space: nowrap;
+    }
+    
+    header {
+        flex-direction: column;
+        align-items: center; /* Center the logo and navigation */
+        padding: 0.75rem 0.5rem 1rem;
+    }
+    
+    header > div:first-child {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* HERO SECTION - Improved centering */
+.hero-section {
+    width: 100%;
+    background: var(--soundscore-red);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0 2rem 0; /* Removed horizontal padding */
+    margin: 0;
+    box-sizing: border-box;
+    text-align: center;
+    overflow: hidden; /* Prevent overflow */
+}
+
+.hero-content {
+    max-width: 500px;
+    width: 90%; /* Use percentage instead of 100% */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center; /* Ensure text is centered */
+}
+
+.hero-content h1 {
+    width: 100%;
+    text-align: center;
+    margin: 0 0 1rem;
+}
+
+.hero-content p {
+    width: 100%;
+    text-align: center;
+    margin: 0 0 1.5rem;
+}
+
+.hero-content .soundscore-btn,
+.hero-content a.soundscore-btn {
+    /* Center the button */
+    margin: 0 auto;
+    display: block;
+    text-align: center;
+}
+
+.hero-image {
+    max-width: 400px;
+    width: 90%; /* Use percentage instead of 100% */
+    margin: 2rem auto 0 auto;
+    display: flex;
+    justify-content: center;
+}
+
+.hero-image img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    margin: 0 auto; /* Center the image */
+}
+
+@media (max-width: 900px) {
+    .hero-section {
+        padding: 2rem 0.5rem 1.5rem 0.5rem;
+    }
+    .hero-content, .hero-image {
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 600px) {
+    .hero-section {
+        padding: 1.5rem 0 1rem 0; /* Removed horizontal padding */
+    }
+    
+    .hero-content, .hero-image {
+        width: 85%;
+    }
+    
+    .hero-image img {
+        max-width: 85%;
+    }
+    
+    /* Fix for the white space issue */
+    html, body, main, .hero-section, footer {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
 }
 
 /* Add max-width constraint for main content containers */
@@ -21,33 +227,21 @@ body {
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
-}
-
-/* Hero section specific styles */
-.hero-section {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem 4rem;
-    justify-content: center;
-    gap: 2rem;
-}
-
-.hero-content {
-    max-width: 500px;
-}
-
-.hero-image {
-    max-width: 400px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    box-sizing: border-box;
 }
 
 /* Regular utility classes */
 .soundscore-btn {
     background-color: var(--soundscore-red);
     color: white;
-    font-weight: 500;
-    transition: background-color 0.3s;
-    font-size: 0.875rem;
-    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
 .soundscore-btn:hover {
@@ -164,7 +358,14 @@ body {
 /* Mobile screens */
 @media (max-width: 640px) {
     .max-sm\:hidden {
-        display: none;
+        /* Override the class that's hiding the navbar */
+        display: flex !important; 
+    }
+    
+    /* Fix padding/margins for the hero-section */
+    .hero-section {
+        padding-left: 0;
+        padding-right: 0;
     }
     
     .max-sm\:text-4xl {
@@ -206,4 +407,15 @@ body {
 
 #rating-form, #success-message, #error-message {
     display: none;
+}
+
+/* Fix any remaining overflow issues */
+main {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+footer {
+    width: 100%;
+    overflow-x: hidden;
 }
