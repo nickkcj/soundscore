@@ -9,7 +9,7 @@ Welcome to **SoundScore** – your personal musical diary! Think **Letterboxd**,
 - 🧑‍🤝‍🧑 **Find and follow** other music lovers  
 - 💬 **Discuss** your favorite records  
 - ❤️ **Favorite albums** and build your musical identity  
-- 🔐 **Authentication system** (signup, login, logout)  
+- 🔐 **Authentication system**  
 - 🛠️ **Edit your account** information  
 
 ## 🛠️ Tech Stack
@@ -17,9 +17,34 @@ Welcome to **SoundScore** – your personal musical diary! Think **Letterboxd**,
 - **Backend**: Django (Python)  
 - **Frontend**: Django Templates  
 - **API Integration**: Spotify API  
-- **Database**: SQLite3   
+- **Database**: SQLite3  
+- **Containerization**: Docker 🐳
 
-## 🚀 Getting Started
+---
+
+## 🚀 Running with Docker
+
+If you prefer not to install anything locally, you can spin up the app using Docker:
+
+```bash
+# Step 1: Build the image
+docker-compose build
+
+# Step 2: Run the containers
+docker-compose up
+```
+
+The app will be available at `http://localhost:8000`.
+
+> ℹ️ **Note**: The database included in this repo is a **DEMO DB** so you can test the app right away.  
+> It contains some existing users and reviews.  
+> **Users:** [nickkcj, cuniaa, nickderham] the password is the same for all of them: 123;
+
+---
+
+## 🧪 Local Setup (Optional)
+
+If you're not using Docker, you can still run the app locally:
 
 ### 1. Clone the repo
 
@@ -57,11 +82,13 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+---
+
 ## 📁 Project Structure
 
 ```bash
 soundscore/
-├── project/                   # Django project configuration
+├── config/                    # Django project configuration
 │   ├── .env                   # Environment variables (e.g., Spotify API keys)
 │   ├── asgi.py
 │   ├── settings.py
@@ -75,47 +102,25 @@ soundscore/
 │
 ├── soundscore/                # Main Django app
 │   ├── apis/                  # API-related logic
-│   │   └── spotify.py         # Spotify API integration
-│   │
-│   ├── migrations/            # Django migrations (DB schema versions)
-│   │   ├── __init__.py
-│   │   ├── 0001_initial.py
-│   │   └── ...
-│   │
-│   ├── static/                # Static files (CSS, JS, images)
-│   │   ├── css/
-│   │   │   └── styles.css
-│   │   │
-│   │   ├── js/
-│   │   │   ├── edit_review.js
-│   │   │   └── reviews.js
-│   │   │
-│   │   └── images/
-│   │       ├── album1.jpg
-│   │       └── ...
-│   │
-│   ├── templates/             # HTML templates
-│   │   ├── about.html
-│   │   ├── home.html
-│   │   ├── register.html
-│   │   ├── review.html
-│   │   └── ...
-│   │
-│   ├── admin.py               # Django admin configuration
-│   ├── apps.py                # App config
-│   ├── models.py              # Database models
-│   ├── tests.py               # Unit tests
-│   ├── urls.py                # App-specific URL routes
-│   └── views.py               # Request handling and logic
+│   │   └── spotify.py
+│   ├── migrations/
+│   ├── static/
+│   ├── templates/
+│   ├── admin.py
+│   ├── models.py
+│   ├── views.py
+│   └── ...
 │
-├── requirements.txt           # Python dependencies
-└── manage.py                  # Django project runner
-
+├── db.sqlite3                 # Demo database (optional, for testing)
+├── Dockerfile                 # Docker configuration
+├── docker-compose.yml
+├── .dockerignore
+├── .gitignore
+├── requirements.txt
+└── manage.py
 ```
 
-## 🧪 Tests
-
-Coming soon! 🚧
+---
 
 ## 🤝 Contributing
 
