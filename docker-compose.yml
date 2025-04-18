@@ -1,0 +1,14 @@
+version: "3.13"
+
+services:
+  web:
+    build: .
+    volumes:
+      - .:/soundscore  # Mount the whole project directory to /soundscore inside the container
+      - ./media:/soundscore/media  # This keeps media files persistent (e.g., profile pictures)
+      - ./db.sqlite3:/soundscore/db.sqlite3  # Mount the SQLite DB so it's persistent
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+    command: python manage.py runserver 0.0.0.0:8000

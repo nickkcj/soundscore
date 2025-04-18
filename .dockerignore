@@ -1,0 +1,9 @@
+# Ignore the following to avoid unnecessary files being added to the Docker image
+__pycache__/
+*.pyc
+*.log
+*.db
+*.sqlite3
+media/
+.env
+venv/

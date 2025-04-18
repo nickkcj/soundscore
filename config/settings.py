@@ -53,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'project.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -70,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'project.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
@@ -83,7 +83,7 @@ DATABASES = {
     }
 }
 
-ALLOWED_HOSTS = ['soundscore.onrender.com', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Password validation
