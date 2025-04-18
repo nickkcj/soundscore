@@ -18,11 +18,11 @@ Welcome to **SoundScore** – your personal musical diary! Think **Letterboxd**,
 - **Frontend**: Django Templates  
 - **API Integration**: Spotify API  
 - **Database**: SQLite3  
-- **Containerization**: Docker 🐳
+- **Containerization**: Docker 
 
 ---
 
-## 🚀 Running with Docker
+## 🐳 Running with Docker
 
 If you prefer not to install anything locally, you can spin up the app using Docker:
 
