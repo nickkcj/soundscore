@@ -1,0 +1,38 @@
+from supabase import create_client
+from decouple import config
+import jwt
+
+def get_supabase_client():
+    url = config("SUPABASE_URL")
+    key = config("SUPABASE_KEY")
+    supabase = create_client(url, key)
+
+    return supabase
+
+
+def authenticate_with_jwt():
+    client = get_supabase_client()
+    response = client.auth.sign_in_with_password({
+        'email': config("SUPABASE_EMAIL"),
+        'password': config("SUPABASE_PASSWORD")
+    })
+    try:
+        access_token = response.session.access_token
+        decoded = jwt.decode(access_token, options={"verify_signature": False})
+        # print(decoded)
+        refresh_token = response.session.refresh_token
+        # print(f"Access Token: {access_token}")
+        # print(f"Refresh Token: {refresh_token}")
+        client.postgrest.auth(access_token)
+        # Verify by retrieving user data
+        response = client.table('soundscore_user').select('*').limit(1).execute()
+        return client
+
+
+    except Exception as e:
+        print(f"JWT authentication error: {e}")
+        return False
+    
+
+
+print(authenticate_with_jwt())
