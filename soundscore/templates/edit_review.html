@@ -24,13 +24,13 @@
         <div class="p-6">
             <!-- Album Display -->
             <div class="flex items-center mb-6 p-4 bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl">
-                <img src="{{ review.album.cover_image|default:'/static/images/default_album.png' }}" 
+                <img src="{{ cover_image|default:'/static/images/default_album.png' }}" 
                      alt="{{ review.album.title }} Cover" 
                      class="w-20 h-20 object-cover rounded-lg shadow-md"
                      onerror="this.onerror=null; this.src='/static/images/default_album.png';">
                 <div class="ml-4">
-                    <h3 class="font-medium text-gray-800 text-lg">{{ review.album.title }}</h3>
-                    <p class="text-sm text-gray-500">{{ review.album.artist }}</p>
+                    <h3 class="font-medium text-gray-800 text-lg">{{ album_title }}</h3>
+                    <p class="text-sm text-gray-500">{{ album_artist }}</p>
                 </div>
             </div>
             

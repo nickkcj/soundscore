@@ -1,14 +1,16 @@
-version: "3.13"
+version: "3.13" # Use a valid version like "3.8" or "3.9" if 3.13 isn't supported
 
 services:
   web:
     build: .
     volumes:
-      - .:/soundscore  # Mount the whole project directory to /soundscore inside the container
-      - ./media:/soundscore/media  # This keeps media files persistent (e.g., profile pictures)
-      - ./db.sqlite3:/soundscore/db.sqlite3  # Mount the SQLite DB so it's persistent
+      - .:/soundscore
+      - ./media:/soundscore/media
+      - ./db.sqlite3:/soundscore/db.sqlite3
     ports:
       - "8000:8000"
     environment:
       - DEBUG=True
-    command: python manage.py runserver 0.0.0.0:8000
+    command: > # Use > for multi-line command
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"

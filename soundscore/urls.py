@@ -3,9 +3,12 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('home/', views.home, name='home'),
     path('about/', views.about, name='about'),
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
+    path('account/delete/', views.delete_account, name='delete_account'),
+    path('account/delete/confirm/', views.delete_account_confirm, name='delete_account_confirm'),
     path('account/<str:username>/', views.account, name='account'),
     path('logout/', views.logout_view, name='logout'),
     path('reviews/<str:username>/', views.reviews, name='reviews'),
@@ -16,5 +19,6 @@ urlpatterns = [
     path('profile/<str:username>/', views.user_profile, name='profile'),
     path('reviews/edit/<int:review_id>/', views.edit_review, name='edit_review'), 
     path('delete-review/<int:review_id>/', views.delete_review, name='delete_review'),   
+
 ]
 
