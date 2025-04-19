@@ -11,7 +11,13 @@ from django.db.models import Avg, Q # Import Q for complex lookups
 from .apis.spotify import search_albums # Assuming this returns a list of dicts
 from django.http import HttpResponseForbidden
 from django.views.decorators.http import require_POST
-
+from .services.review.add_review import add_review_supabase
+from datetime import datetime
+from .services.review.edit_review import edit_review_supabase
+from .services.review.delete_review import delete_review_supabase
+from .services.user.add_user import add_user_supabase
+from .services.user.supabase_client import authenticate_with_jwt
+from .services.user.delete_user import delete_user_data_supabase
 # Create your views here.
 def home(request):
     return render(request, 'home.html')
@@ -27,7 +33,6 @@ def register(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
-        print(username, email, password, confirm_password)
 
         if password != confirm_password:
             messages.error(request, "Passwords do not match")
@@ -42,6 +47,11 @@ def register(request):
             return redirect('register')
         
         try:
+            response = add_user_supabase(username, password, email)
+            if "error" in response:
+                messages.error(request, response["error"])
+                return redirect('register')
+            
             password = make_password(password) 
             user = User.objects.create(username=username, email=email, password=password)
             user.save()
@@ -65,7 +75,10 @@ def login(request):
 
         try:
             # First check if user exists
-            user = User.objects.get(username=username)
+            client = authenticate_with_jwt()
+            user_supabase = client.table('soundscore_user').select('id').eq('username', username).limit(1).execute()
+            if user_supabase:
+                user = User.objects.get(username=username)
             
             # Then verify password - use Django's built-in check_password
             if user.check_password(password):
@@ -91,7 +104,6 @@ def login(request):
     # GET request - show login form
     return render(request, 'login.html')
 
-# Remove the old account_update view
 
 @login_required
 def account(request, username):
@@ -144,25 +156,48 @@ def logout_view(request):
 
 def reviews(request, username):
     user = get_object_or_404(User, username=username)
-    
-    # Fetch all reviews
-    all_reviews = Review.objects.filter(user=user).order_by('-created_at')
-    
+
+    # Get Supabase client
+    client = authenticate_with_jwt()
+    if not client:
+        messages.error(request, "Could not connect to Supabase.")
+        return redirect('home')
+
+    # Get Supabase user ID by username
+    user_response = client.table('soundscore_user').select('id').eq('username', username).limit(1).execute()
+    if not user_response.data:
+        messages.error(request, f"User '{username}' not found in Supabase.")
+        return redirect('home')
+    supabase_user_id = user_response.data[0]['id']
+
+    # Fetch all reviews for this user, including album info
+    all_reviews_response = client.table('soundscore_review')\
+        .select('*, soundscore_album(title, artist, cover_image, spotify_id)')\
+        .eq('user_id', supabase_user_id)\
+        .order('created_at', desc=True)\
+        .execute()
+    all_reviews = all_reviews_response.data or []
+
+    for review in all_reviews:
+        if 'created_at' not in review:
+            review['created_at'] = datetime.now().isoformat()
+
     # Fetch favorite reviews
-    favorite_albums = Review.objects.filter(user=user, is_favorite=True).select_related('album')
-    
+    favorite_reviews = [review for review in all_reviews if review.get('is_favorite')]
+
     # Calculate average rating
-    average_rating = "N/A"
-    if all_reviews.exists():
-        avg = all_reviews.aggregate(Avg('rating'))['rating__avg']
+    if all_reviews:
+        avg = sum(r['rating'] for r in all_reviews) / len(all_reviews)
         average_rating = f"{avg:.1f}"
-    
+    else:
+        average_rating = "N/A"
+
     context = {
         'user': user,
         'all_reviews': all_reviews,
-        'favorite_albums': favorite_albums,
-        'total_reviews': all_reviews.count(),
-        'average_rating': average_rating
+        'favorite_albums': favorite_reviews,
+        'total_reviews': len(all_reviews),
+        'average_rating': average_rating,
     }
     return render(request, 'reviews.html', context)
 
@@ -206,9 +241,10 @@ def create_review_api(request):
         rating = data.get('rating')
         review_text = data.get('review_text', '')
         is_favorite = data.get('is_favorite', False)
-        
+                
         # Basic validation
         if not album_id or not rating:
+            print(f"[DEBUG] Validation failed: album_id={album_id}, rating={rating}")
             return JsonResponse({"error": "Album ID and rating are required"}, status=400)
         
         try:
@@ -218,37 +254,51 @@ def create_review_api(request):
         except ValueError:
             return JsonResponse({"error": "Rating must be a number"}, status=400)
         
-        # Get or create the album
-        album, created = Album.objects.get_or_create(
-            spotify_id=album_id,
-            defaults={
-                'title': album_title,
-                'artist': album_artist,
-                'cover_image': album_cover
-            }
+        # IMPORTANT: Look up the Supabase user ID by username instead of using Django's ID
+        
+        client = authenticate_with_jwt()
+        if not client:
+            return JsonResponse({"error": "Failed to authenticate with Supabase"}, status=500)
+        
+        # Get the username from Django's user object
+        username = request.user.username
+        
+        # Query Supabase to get the user ID
+        user_response = client.table('soundscore_user').select('id').eq('username', username).limit(1).execute()
+        
+        if not user_response.data:
+            return JsonResponse({"error": f"User '{username}' not found in Supabase"}, status=404)
+            
+        supabase_user_id = user_response.data[0]['id']
+        
+        # Call the Supabase function with the CORRECT user ID
+        result = add_review_supabase(
+            user_id=supabase_user_id,  # Use the Supabase user ID
+            album_id=album_id,
+            rating=rating,
+            album_title=album_title,
+            album_artist=album_artist, 
+            album_cover=album_cover,
+            text=review_text,
+            is_favorite=is_favorite
         )
         
-        # Create or update the review
-        review, created = Review.objects.update_or_create(
-            user=request.user,
-            album=album,
-            defaults={
-                'rating': rating,
-                'text': review_text,
-                'is_favorite': is_favorite
-            }
-        )
+        # Check if there was an error
+        if "error" in result:
+            return JsonResponse({"error": result["error"]}, status=400)
         
+        # Return success response
         return JsonResponse({
             "success": True,
             "message": "Review saved successfully",
-            "review_id": review.id
+            "review_id": result.get("review", {}).get("id")
         })
         
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+        
 
 
 # Helper function to get average rating for an album (optional, but cleans up the view)
@@ -289,12 +339,10 @@ def discover(request):
 
             # --- Ensure we have a list before proceeding ---
             if not isinstance(spotify_album_results, list):
-                 print(f"Warning: Expected list from search_albums, got {type(spotify_album_results)}. Treating as empty.")
                  spotify_album_results = [] # Force to empty list if not a list and not an error dict
 
         except Exception as e:
             # Catch errors during the search_albums call itself
-            print(f"Critical Error calling search_albums: {str(e)}")
             messages.error(request, "An unexpected error occurred while searching Spotify.")
             spotify_album_results = [] # Ensure it's an empty list on critical failure
             spotify_album_results_cache = spotify_album_results
@@ -302,71 +350,55 @@ def discover(request):
 
         # --- Process Albums (only if spotify_album_results is a list) ---
         if search_type in ['all', 'albums'] and isinstance(spotify_album_results, list):
-            print(f"DEBUG: Processing {len(spotify_album_results)} albums for 'Albums' section...") # <-- Add
             try:
                 processed_albums = []
                 # Use enumerate to get index for better debugging
                 for i, album_data in enumerate(spotify_album_results):
-                    print(f"DEBUG [Album {i}]: Processing album data: {album_data.get('title')} (ID: {album_data.get('id')})") # <-- Add
 
                     # Check for essential keys before proceeding
                     album_id = album_data.get('id')
                     if not album_id:
-                        print(f"DEBUG [Album {i}]: Skipping album due to missing 'id'.") # <-- Add
                         continue
 
                     current_album = album_data.copy()
 
                     # Debug the helper function call
                     try:
-                        print(f"DEBUG [Album {i}]: Calling get_album_avg_rating with ID: {album_id}") # <-- Add
                         avg_rating = get_album_avg_rating(album_id)
-                        print(f"DEBUG [Album {i}]: Result from get_album_avg_rating: {avg_rating}") # <-- Add
                     except Exception as helper_e:
-                        print(f"ERROR [Album {i}]: Error inside get_album_avg_rating for ID {album_id}: {helper_e}") # <-- Add specific error
                         avg_rating = None # Default to None if helper fails
 
                     current_album['avg_rating'] = avg_rating if avg_rating is not None else 'Not rated'
                     processed_albums.append(current_album)
 
                 results['albums'] = processed_albums
-                print(f"DEBUG: Finished processing albums. Added {len(processed_albums)} albums to results.") # <-- Add
             except KeyError as ke:
-                 print(f"ERROR during album processing loop (KeyError): Missing key {ke} in album data: {album_data}") # <-- Specific error
                  messages.error(request, f"Error processing album results due to missing data: {ke}")
             except Exception as e:
-                print(f"ERROR during album processing loop (General): {str(e)}") # <-- Modify existing
                 messages.error(request, "Error processing album results.")
 
         # --- Process Artists (only if spotify_album_results is a list) ---
         if search_type in ['all', 'artists'] and isinstance(spotify_album_results, list):
-            print(f"DEBUG: Processing {len(spotify_album_results)} albums for 'Artists' section...") # <-- Add
             try:
                 artists_dict = {}
                 # Use enumerate for better debugging
                 for i, album_data in enumerate(spotify_album_results):
-                    print(f"DEBUG [Artist Album {i}]: Processing album data for artist grouping: {album_data.get('title')}") # <-- Add
 
                     # Check for essential keys
                     artist_name = album_data.get('artist')
                     album_id = album_data.get('id')
 
                     if not artist_name:
-                        print(f"DEBUG [Artist Album {i}]: Skipping album due to missing 'artist'.") # <-- Add
                         continue
                     if not album_id:
-                        print(f"DEBUG [Artist Album {i}]: Skipping album due to missing 'id'.") # <-- Add
                         continue
 
                     current_album_for_artist = album_data.copy()
 
                     # Debug the helper function call
                     try:
-                        print(f"DEBUG [Artist Album {i}]: Calling get_album_avg_rating with ID: {album_id}") # <-- Add
                         avg_rating = get_album_avg_rating(album_id)
-                        print(f"DEBUG [Artist Album {i}]: Result from get_album_avg_rating: {avg_rating}") # <-- Add
                     except Exception as helper_e:
-                        print(f"ERROR [Artist Album {i}]: Error inside get_album_avg_rating for ID {album_id}: {helper_e}") # <-- Add specific error
                         avg_rating = None # Default to None if helper fails
 
                     current_album_for_artist['avg_rating'] = avg_rating if avg_rating is not None else 'Not rated'
@@ -377,12 +409,9 @@ def discover(request):
                     artists_dict[artist_name]['albums'].append(current_album_for_artist)
 
                 results['artists'] = list(artists_dict.values())
-                print(f"DEBUG: Finished processing artists. Found {len(results['artists'])} artists.") # <-- Add
             except KeyError as ke:
-                 print(f"ERROR during artist processing loop (KeyError): Missing key {ke} in album data: {album_data}") # <-- Specific error
                  messages.error(request, f"Error processing artist results due to missing data: {ke}")
             except Exception as e:
-                print(f"ERROR during artist processing loop (General): {str(e)}") # <-- Modify existing
                 messages.error(request, "Error processing artist results.")
 
         # --- Search Users ---
@@ -406,10 +435,8 @@ def discover(request):
                             'avg_rating': round(avg_rating, 1) if avg_rating is not None else 'No ratings'
                         })
                     except Exception as e_user:
-                        print(f"Error processing user {user.username}: {str(e_user)}")
-                results['users'] = user_list
+                        results['users'] = user_list
             except Exception as e:
-                print(f"Error searching users: {str(e)}")
                 messages.error(request, "Could not fetch user results.")
 
     context = {
@@ -435,45 +462,84 @@ def user_profile(request, username):
     avg_rating = avg_rating_data.get('rating__avg')
 
     context = {
-        'profile_user': profile_user, # The user whose profile is being viewed
+        'profile_user': profile_user,
         'user_reviews': user_reviews,
         'review_count': review_count,
         'avg_rating': round(avg_rating, 1) if avg_rating is not None else None,
-        'is_own_profile': request.user == profile_user # Flag to check if it's the logged-in user's profile
+        'is_own_profile': request.user == profile_user
     }
     return render(request, 'user_profile.html', context)
 
 
 @login_required
 def edit_review(request, review_id):
-    review = get_object_or_404(Review, id=review_id)
-
+    # Get Supabase client
+    client = authenticate_with_jwt()
+    if not client:
+        messages.error(request, "Could not connect to Supabase.")
+        return redirect('home')
+    
+    # Get the Supabase user ID for the current user
+    username = request.user.username
+    user_response = client.table('soundscore_user').select('id').eq('username', username).limit(1).execute()
+    
+    if not user_response.data:
+        messages.error(request, f"User '{username}' not found in Supabase.")
+        return redirect('home')
+    
+    supabase_user_id = user_response.data[0]['id']
+    
+    # Get the review from Supabase
+    review_response = client.table('soundscore_review')\
+        .select('*, soundscore_album(title, artist, cover_image, spotify_id)')\
+        .eq('id', review_id)\
+        .limit(1)\
+        .execute()
+    
+    if not review_response.data:
+        messages.error(request, "Review not found.")
+        return redirect('reviews', username=request.user.username)
+    
+    review = review_response.data[0]
+    
     # Ensure the logged-in user is the owner of the review
-    if review.user != request.user:
+    if review['user_id'] != supabase_user_id:
         return HttpResponseForbidden("You are not allowed to edit this review.")
 
+    # Handle POST request - editing the review
     if request.method == 'POST':
-        # Process the submitted form data
         try:
             rating = int(request.POST.get('rating'))
-            if not 1 <= rating <= 5:
-                raise ValueError("Rating must be between 1 and 5.")
-            review.rating = rating
+            text = request.POST.get('review_text', '')
+            is_favorite = 'is_favorite' in request.POST
+            
+            # Call the service function to update the review
+            result = edit_review_supabase(
+                review_id=review_id,
+                rating=rating,
+                text=text,
+                is_favorite=is_favorite
+            )
+            
+            if "error" in result:
+                messages.error(request, result["error"])
+            else:
+                messages.success(request, "Review updated successfully!")
+                
+            return redirect('reviews', username=request.user.username)
+            
         except (ValueError, TypeError):
-            # Handle invalid rating input (optional: add message)
-            pass # Keep existing rating if new one is invalid
-
-        review.text = request.POST.get('review_text', '')
-        review.is_favorite = 'is_favorite' in request.POST # Check if the checkbox was checked
-
-        review.save()
-        # Optional: Add a success message
-        # messages.success(request, "Review updated successfully!")
-        return redirect('reviews', username=request.user.username) # Redirect back to the main reviews page
-
+            messages.error(request, "Invalid rating value.")
+        except Exception as e:
+            messages.error(request, f"Error updating review: {str(e)}")
+    
     # If GET request, display the form pre-filled with review data
     context = {
-        'review': review
+        'review': review,
+        'album_data': review['soundscore_album'],
+        'cover_image': review['soundscore_album'].get('cover_image'),
+        'album_title': review['soundscore_album'].get('title'),
+        'album_artist': review['soundscore_album'].get('artist')
     }
     return render(request, 'edit_review.html', context)
 
@@ -482,6 +548,43 @@ def edit_review(request, review_id):
 @login_required
 @require_POST
 def delete_review(request, review_id):
-    review = get_object_or_404(Review, id=review_id, user=request.user)
-    review.delete()
-    return JsonResponse({'status': 'success'})
+    delete = delete_review_supabase(request.user.username, review_id)
+    if delete.get('error'):
+        messages.error(request, delete['error'])
+    else:
+        messages.success(request, "Review deleted successfully!")
+
+    return redirect('reviews', username=request.user.username)
+
+@login_required
+@require_POST # Ensure this view only accepts POST requests
+def delete_account(request):
+    print("REACHED HERE")
+    user_to_delete = request.user # Get the currently logged-in user
+
+    # Call the service function to delete user data from custom tables
+    result = delete_user_data_supabase(user_to_delete.username)
+
+    if result.get('error'):
+        messages.error(request, result['error'])
+        # Redirect back to account page if deletion fails
+        return redirect('account', username=user_to_delete.username)
+    elif result.get('warning'):
+         messages.warning(request, result['warning'])
+         # Log out even if only a warning occurred (e.g., user already partially deleted)
+    else:
+        messages.success(request, result.get('message', 'Account data deleted.'))
+
+    # Log the user out from Django session
+    auth_logout(request)
+
+    # Add a final message after logout
+    messages.info(request, "You have been logged out.")
+
+    # Redirect to the home page after successful deletion and logout
+    return redirect('home')
+
+
+@login_required # Ensure user is logged in
+def delete_account_confirm(request):
+    return render(request, 'delete_account_confirm.html')
