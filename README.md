@@ -79,10 +79,10 @@ DB_PASSWORD=your_db_password
 DB_HOST=localhost
 DB_PORT=5432
 ```
+
 > 🛑 **Important:** You need to provide your own PostgreSQL database or ask the maintainer for access credentials.
 > The project does not include a working `.env` file or a public demo database for security reasons.
 
-```
 
 ### 5. Run migrations and start the server
 
