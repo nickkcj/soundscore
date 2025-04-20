@@ -17,9 +17,6 @@ COPY . /soundscore/
 # Set environment variables (use .env if you have one)
 ENV PYTHONUNBUFFERED=1
 
-# Generate migrations during build
-RUN python manage.py makemigrations soundscore --no-input
-
 # Run migrations and collect static files before starting the server
 # Use exec form (JSON array) for CMD to handle signals properly
-CMD ["sh", "-c", "python manage.py collectstatic --noinput && python manage.py migrate --fake-initial && gunicorn config.wsgi:application"]
+CMD ["sh", "-c", "python manage.py makemigrations soundscore --no-input && python manage.py collectstatic --noinput && python manage.py migrate --fake-initial && gunicorn config.wsgi:application"]
