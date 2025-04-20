@@ -35,4 +35,8 @@ def authenticate_with_jwt():
     
 
 
-print(authenticate_with_jwt())
+def get_admin_client():
+    url = config("SUPABASE_URL")
+    key = config("SUPABASE_SERVICE_KEY")  # Service key, NOT anon key!
+    return create_client(url, key)
+
