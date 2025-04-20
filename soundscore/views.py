@@ -72,38 +72,47 @@ def login(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        # Print for debugging
         print(f"Login attempt for username: {username}")
 
         try:
-            # First check if user exists
+            # First check if user exists in Supabase
             client = authenticate_with_jwt()
-            user_supabase = client.table('soundscore_user').select('id').eq('username', username).limit(1).execute()
-            if user_supabase:
-                user = User.objects.get(username=username)
+            user_supabase = client.table('soundscore_user').select('id,username,email').eq('username', username).limit(1).execute()
             
-            # Then verify password - use Django's built-in check_password
-            if user.check_password(password):
-                # Log the user in
-                auth_login(request, user)
-                messages.success(request, "Login successful!")
-                return redirect('home')
+            # Check if Supabase returned data (fix this part)
+            if user_supabase.data and len(user_supabase.data) > 0:
+                # Try getting user from local DB
+                try:
+                    user = User.objects.get(username=username)
+                except User.DoesNotExist:
+                    # User exists in Supabase but not in local SQLite - create them locally
+                    print(f"User {username} found in Supabase but not locally - creating local record")
+                    user = User(
+                        username=username,
+                        email=user_supabase.data[0].get('email', ''),
+                        # Set an unusable password initially - will be updated when checked
+                        password=make_password(password)
+                    )
+                    user.save()
+            
+                # Then verify password
+                if user.check_password(password):
+                    auth_login(request, user)
+                    messages.success(request, "Login successful!")
+                    return redirect('home')
+                else:
+                    messages.error(request, "Invalid password")
+                    return redirect('login')
             else:
-                # Password doesn't match
-                messages.error(request, "Invalid password")
+                # User doesn't exist in Supabase
+                messages.error(request, "User does not exist")
                 return redirect('login')
                 
-        except User.DoesNotExist:
-            # User doesn't exist
-            messages.error(request, "User does not exist")
-            return redirect('login')
         except Exception as e:
-            # Catch any other errors
             print(f"Login error: {e}")
             messages.error(request, f"Error during login: {str(e)}")
             return redirect('login')
             
-    # GET request - show login form
     return render(request, 'login.html')
 
 
