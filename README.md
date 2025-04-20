@@ -17,7 +17,7 @@ Welcome to **SoundScore** – your personal musical diary! Think **Letterboxd**,
 - **Backend**: Django (Python)  
 - **Frontend**: Django Templates  
 - **API Integration**: Spotify API  
-- **Database**: SQLite3  
+- **Database**: PostgreSQL  
 - **Containerization**: Docker 
 
 ---
@@ -36,11 +36,11 @@ docker-compose up
 
 The app will be available at `http://localhost:8000`.
 
-> ℹ️ **Note**: The database included in this repo is a **DEMO DB** so you can test the app right away.  
-> It contains some existing users and reviews.  
-> **Users:** [nickkcj, cuniaa, nickderham] the password is the same for all of them: 123;
+> ℹ️ **Note**: This project uses a **PostgreSQL** database.  
+> To run the app successfully, you need to provide your own database credentials via a `.env` file.  
+> The database is not publicly accessible, so the listed demo users (`demo1`, `demo2`, `demo3`) will **not work by default** unless you have access to the same database instance.  
+> You can still create your own users after setting up the app locally.
 
----
 
 ## 🧪 Local Setup (Optional)
 
@@ -66,14 +66,23 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Add your Spotify API keys
+### 4. Add your environment variables
 
 Create a `.env` file in the root folder and add:
 
 ```env
 SPOTIFY_CLIENT_ID=your_client_id
 SPOTIFY_CLIENT_SECRET=your_client_secret
+DB_NAME=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_PORT=5432
 ```
+
+> 🛑 **Important:** You need to provide your own PostgreSQL database or ask the maintainer for access credentials.
+> The project does not include a working `.env` file or a public demo database for security reasons.
+
 
 ### 5. Run migrations and start the server
 
@@ -89,7 +98,7 @@ python manage.py runserver
 ```bash
 soundscore/
 ├── config/                    # Django project configuration
-│   ├── .env                   # Environment variables (e.g., Spotify API keys)
+│   ├── .env                   # Environment variables (e.g., Spotify API keys, DB settings)
 │   ├── asgi.py
 │   ├── settings.py
 │   ├── urls.py
@@ -111,7 +120,6 @@ soundscore/
 │   ├── views.py
 │   └── ...
 │
-├── db.sqlite3                 # Demo database (optional, for testing)
 ├── Dockerfile                 # Docker configuration
 ├── docker-compose.yml
 ├── .dockerignore
