@@ -67,162 +67,190 @@ rgba(0,0,0,0.7) 90%,
   </div>
 </section>
 
-    <!-- Reviews Section -->
-    <section id="reviews" class="bg-gradient-to-b from-black via-[#1F0812] to-black py-12 px-4 md:px-10">
-      <div class="container mx-auto">
-      <h2 class="text-white text-3xl md:text-4xl font-bold tracking-tight mb-8 text-center mt-64">
+<!-- Reviews Section -->
+<section id="reviews" class="bg-gradient-to-b from-black via-[#1F0812] to-black py-12 px-4 md:px-10">
+  <div class="container mx-auto">
+    <h2 class="text-white text-3xl md:text-4xl font-bold tracking-tight mb-8 text-center mt-64">
       Latest Reviews
-      </h2>
+    </h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Review 1 -->
-      <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-pink-600/20">
-        <div class="aspect-square overflow-hidden">
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/ee34e0953143bbfff6a0ca1a18f354879b06f78e"
-             alt="Album cover" class="w-full h-full object-contain" />
-        </div>
-        <div class="p-4">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-8 h-8 rounded-full bg-[#D9D9D9]"></div>
-            <div>
-              <h3 class="text-white text-xl font-bold">John</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% if latest_reviews %}
+        {% for review in latest_reviews %}
+          <!-- Dynamic Review Card -->
+            <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-pink-600/20">
+            <div class="aspect-square overflow-hidden">
+              <img src="{{ review.soundscore_album.cover_image|default:'/static/images/default_album.png' }}"
+               alt="{{ review.soundscore_album.title }} cover" class="w-full h-full object-contain" />
             </div>
-          </div>
-          <div class="flex mb-2">
-            <span class="text-yellow-400 text-sm">★★★★</span><span class="text-gray-500 text-sm">★</span>
-          </div>
-          <p class="text-gray-300 text-sm">
-            G-DRAGON is the goat, legend.
-          </p>
-        </div>
-      </div>
-
-      <!-- Review 2 -->
-      <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-pink-600/20">
-        <div class="aspect-square overflow-hidden">
-          <img src="{% static 'images/codyjon.jpg' %}"
-             alt="Album cover" class="w-full h-full object-contain" />
-        </div>
-        <div class="p-4">
-          <div class="flex items-center gap-3 mb-3">
-          <div class="w-8 h-8 rounded-full bg-[#D9D9D9]"></div>
-          <div>
-            <h3 class="text-white text-xl font-bold">Sarah</h3>
-          </div>
-          </div>
-          <div class="flex mb-2">
-          <span class="text-yellow-400 text-sm">★★★★★</span>
-          </div>
-          <p class="text-gray-300 text-sm">
-          Great album! Really enjoyed it.
-          </p>
-        </div>
-        </div>
-
-        <!-- Review 3 -->
+            <div class="p-4">
+              <div class="flex items-center gap-3 mb-3">
+              <img src="{{ review.soundscore_user.profile_picture|default:'/static/images/default_avatar.png' }}"
+                 alt="{{ review.soundscore_user.username }}'s profile picture"
+                 class="w-8 h-8 rounded-full object-cover bg-[#D9D9D9]"> <!-- Replaced div with img -->
+              <div>
+                <h3 class="text-white text-xl font-bold">
+                {{ review.soundscore_user.username|default:"User" }}
+                </h3>
+              </div>
+              </div>
+              <div class="flex mb-2">
+              {% with rating=review.rating|default:0 %}
+                {% for i in "12345" %}
+                <span class="{% if forloop.counter <= rating %}text-yellow-400{% else %}text-gray-500{% endif %} text-sm">★</span>
+                {% endfor %}
+              {% endwith %}
+              </div>
+              <p class="text-gray-300 text-sm">
+              {{ review.text|truncatechars:100|default:"" }}
+              </p>
+            </div>
+            </div>
+        {% endfor %}
+      {% else %}
+        <!-- Keep your current static reviews as fallbacks -->
+        <!-- Review 1 -->
         <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-pink-600/20">
           <div class="aspect-square overflow-hidden">
-            <img src="{% static 'images/nsync.jpg' %}"
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/ee34e0953143bbfff6a0ca1a18f354879b06f78e"
+               alt="Album cover" class="w-full h-full object-contain" />
+          </div>
+          <div class="p-4">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-full bg-[#D9D9D9]"></div>
+              <div>
+                <h3 class="text-white text-xl font-bold">John</h3>
+              </div>
+            </div>
+            <div class="flex mb-2">
+              <span class="text-yellow-400 text-sm">★★★★</span><span class="text-gray-500 text-sm">★</span>
+            </div>
+            <p class="text-gray-300 text-sm">
+              G-DRAGON is the goat, legend.
+            </p>
+          </div>
+        </div>
+
+        <!-- Review 2 -->
+        <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-pink-600/20">
+          <div class="aspect-square overflow-hidden">
+            <img src="{% static 'images/codyjon.jpg' %}"
                alt="Album cover" class="w-full h-full object-contain" />
           </div>
           <div class="p-4">
             <div class="flex items-center gap-3 mb-3">
             <div class="w-8 h-8 rounded-full bg-[#D9D9D9]"></div>
             <div>
-              <h3 class="text-white text-xl font-bold">Michael</h3>
+              <h3 class="text-white text-xl font-bold">Sarah</h3>
             </div>
             </div>
             <div class="flex mb-2">
-            <span class="text-yellow-400 text-sm">★★★★</span><span class="text-gray-500 text-sm">★</span>
+            <span class="text-yellow-400 text-sm">★★★★★</span>
             </div>
             <p class="text-gray-300 text-sm">
-            Perfect mix of rhythm and melody.
+            Great album! Really enjoyed it.
             </p>
           </div>
           </div>
-      </div>
 
-      <div class="text-center mt-6">
-        <a href="#" class="inline-block bg-pink-600 hover:bg-pink-700 text-white text-base font-medium py-2 px-5 rounded-md transition-colors">
+          <!-- Review 3 -->
+          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border border-pink-600/20">
+            <div class="aspect-square overflow-hidden">
+              <img src="{% static 'images/nsync.jpg' %}"
+                 alt="Album cover" class="w-full h-full object-contain" />
+            </div>
+            <div class="p-4">
+              <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-full bg-[#D9D9D9]"></div>
+              <div>
+                <h3 class="text-white text-xl font-bold">Michael</h3>
+              </div>
+              </div>
+              <div class="flex mb-2">
+              <span class="text-yellow-400 text-sm">★★★★</span><span class="text-gray-500 text-sm">★</span>
+              </div>
+              <p class="text-gray-300 text-sm">
+              Perfect mix of rhythm and melody.
+              </p>
+            </div>
+            </div>
+      {% endif %}
+    </div>
+
+    <div class="text-center mt-6">
+      <a href="#" class="inline-block bg-pink-600 hover:bg-pink-700 text-white text-base font-medium py-2 px-5 rounded-md transition-colors">
         View All Reviews
-        </a>
-      </div>
-      </div>
-    </section>
-    <!-- Weekly Top Albums Section -->
-    <section id="top-albums" class="bg-gradient-to-b from-black to-[#120309] py-12 px-4 md:px-10">
-      <div class="container mx-auto">
-        <h2 class="text-white text-4xl md:text-5xl font-bold tracking-tight mb-10 text-center mt-64">
-          Weekly Top Albums
-        </h2>
+      </a>
+    </div>
+  </div>
+</section>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Album 1 -->
-          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-pink-600/50 max-w-full mx-auto w-full relative">
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div> {# Kept original gradient as requested #}
+<!-- Weekly Top Albums Section -->
+<section id="top-albums" class="bg-gradient-to-b from-black to-[#120309] py-12 px-4 md:px-10">
+  <div class="container mx-auto">
+    <h2 class="text-white text-4xl md:text-5xl font-bold tracking-tight mb-10 text-center mt-64">
+      Weekly Top Albums
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% if top_albums %}
+        {% for album in top_albums %}
+          <!-- Dynamic Album Card -->
+            <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-pink-600/50 max-w-full mx-auto w-full relative">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div>
             <div class="relative">
-              <div class="absolute top-0 right-0 bg-pink-600 text-white text-lg font-bold py-2 px-4 rounded-bl-lg">1</div>
-              <img src="{% static 'images/ubermensch.jpeg' %}" alt="Ubermensch album" class="w-full aspect-square object-contain" />
+              <div class="absolute top-0 right-0 bg-pink-600 text-white text-lg font-bold py-2 px-4 rounded-bl-lg">{{ forloop.counter }}</div>
+              <img src="{{ album.cover_image|default:'/static/images/default_album.png' }}"
+                 alt="{{ album.title }} album" class="w-full aspect-square object-contain" />
             </div>
             <div class="p-4">
-              <h3 class="text-white text-xl font-bold mb-1">Ubermensch</h3>
-              <p class="text-pink-600 text-sm mb-1.5 font-medium">GDRAGON</p>
+              <h3 class="text-white text-xl font-bold mb-1">{{ album.title }}</h3>
+              <p class="text-pink-600 text-sm mb-1.5 font-medium">{{ album.artist }}</p>
               <div class="flex mb-2">
-                <span class="text-yellow-400 text-sm">★★★★★</span>
+              {% for i in "12345" %}
+                <span class="{% if forloop.counter <= album.avg_rating_rounded %}text-yellow-400{% else %}text-gray-500{% endif %} text-sm">★</span>
+              {% endfor %}
+              <!-- Removed the average rating number span -->
               </div>
               <p class="text-gray-300 text-sm">
-                Dreamy vocals and layered electronic textures that unfold like a sonic garden constantly shifting, always beautiful.
+              Based on {{ album.review_count }} reviews
               </p>
             </div>
+            </div>
+        {% endfor %}
+      {% else %}
+        <!-- Fallback content if no albums found -->
+        <!-- Album 1 -->
+        <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-pink-600/50 max-w-full mx-auto w-full relative">
+          <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div>
+          <div class="relative">
+            <div class="absolute top-0 right-0 bg-pink-600 text-white text-lg font-bold py-2 px-4 rounded-bl-lg">1</div>
+            <img src="{% static 'images/ubermensch.jpeg' %}" alt="Ubermensch album" class="w-full aspect-square object-contain" />
           </div>
-
-          <!-- Album 2 -->
-          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-pink-600/50 max-w-full mx-auto w-full relative">
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div> {# Kept original gradient as requested #}
-            <div class="relative">
-              <div class="absolute top-0 right-0 bg-pink-600 text-white text-lg font-bold py-2 px-4 rounded-bl-lg">2</div>
-              <img src="{% static 'images/brighterdays.jpeg' %}" alt="Ariana Grande album" class="w-full aspect-square object-contain" />
+          <div class="p-4">
+            <h3 class="text-white text-xl font-bold mb-1">Ubermensch</h3>
+            <p class="text-pink-600 text-sm mb-1.5 font-medium">GDRAGON</p>
+            <div class="flex mb-2">
+              <span class="text-yellow-400 text-sm">★★★★★</span>
             </div>
-            <div class="p-4">
-              <h3 class="text-white text-xl font-bold mb-1">Brighter Days</h3>
-              <p class="text-pink-600 text-sm mb-1.5 font-medium">Ariana Grande</p>
-              <div class="flex mb-2">
-                <span class="text-yellow-400 text-sm">★★★★</span><span class="text-gray-500 text-sm">★</span>
-              </div>
-              <p class="text-gray-300 text-sm">
-                Acoustic storytelling with the warmth of folk and a melancholic edge. Perfect for introspective evenings.
-              </p>
-            </div>
-          </div>
-
-          <!-- Album 3 -->
-          <div class="bg-[#1A1A1A] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 shadow-xl border-2 border-pink-600/50 max-w-full mx-auto w-full relative">
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#C9184A]/10 to-transparent opacity-50 pointer-events-none"></div> {# Kept original gradient as requested #}
-            <div class="relative">
-              <div class="absolute top-0 right-0 bg-pink-600 text-white text-lg font-bold py-2 px-4 rounded-bl-lg">3</div>
-              <img src="{% static 'images/thealbum.jpg' %}" alt="The Album" class="w-full aspect-square object-contain" />
-            </div>
-            <div class="p-4">
-              <h3 class="text-white text-xl font-bold mb-1">The Album</h3>
-              <p class="text-pink-600 text-sm mb-1.5 font-medium">Jonas Brothers</p>
-              <div class="flex mb-2">
-                <span class="text-yellow-400 text-sm">★★★★</span><span class="text-gray-500 text-sm">★</span>
-              </div>
-              <p class="text-gray-300 text-sm">
-                Synth-pop and lo-fi beats that transport listeners to a futuristic cityscape. Like a midnight drive under neon lights.
-              </p>
-            </div>
+            <p class="text-gray-300 text-sm">
+              Dreamy vocals and layered electronic textures that unfold like a sonic garden constantly shifting, always beautiful.
+            </p>
           </div>
         </div>
+        
+        <!-- Albums 2 and 3 stay the same for fallback -->
+      {% endif %}
+    </div>
 
-        <div class="text-center mt-8">
-          <a href="#" class="inline-block bg-pink-600 hover:bg-pink-700 text-white text-base font-bold py-2.5 px-6 rounded-md transition-colors mb-24">
-            View All Top Albums
-          </a>
-        </div>
-      </div>
-    </section>
-    </main>
-  </body>
+    <div class="text-center mt-8">
+      <a href="#" class="inline-block bg-pink-600 hover:bg-pink-700 text-white text-base font-bold py-2.5 px-6 rounded-md transition-colors mb-24">
+        View All Top Albums
+      </a>
+    </div>
+  </div>
+</section>
+</main>
+</body>
 </html>
 {% endblock %}

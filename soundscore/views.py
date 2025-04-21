@@ -19,12 +19,38 @@ from .services.user.add_user import add_user_supabase
 from .services.user.supabase_client import authenticate_with_jwt
 from .services.user.delete_user import delete_user_data_supabase
 from .services.user.update_user import update_user_supabase
+from .services.review.latest_reviews import get_latest_reviews
+from .services.review.top_albums import get_top_3_albums
 
 # Create your views here.
 def home(request):
-    return render(request, 'home.html')
+    # Get latest reviews
+    latest_reviews = get_latest_reviews(limit=3)
+    
+    # Get top albums
+    top_albums = get_top_3_albums()
+    
+    # Check if there was an error in latest reviews
+    if isinstance(latest_reviews, dict) and "error" in latest_reviews:
+        error_message = latest_reviews["error"]
+        latest_reviews = []
+        print(f"Error fetching latest reviews: {error_message}")
+    
+    # Check if there was an error in top albums
+    if isinstance(top_albums, dict) and "error" in top_albums:
+        error_message = top_albums["error"]
+        top_albums = []
+        print(f"Error fetching top albums: {error_message}")
+    
+    context = {
+        'latest_reviews': latest_reviews,
+        'top_albums': top_albums
+    }
+    return render(request, 'home.html', context)
+
 
 def about(request):
+    # This view is for the about page
     return render(request, 'about.html')
 
 #Whenever using a variable use double curly braces
