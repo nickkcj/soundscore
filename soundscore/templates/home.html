@@ -28,10 +28,16 @@ rgba(0,0,0,0.7) 90%,
         can discuss and review other people's score.
       </p>
       <!-- Removed ml-8 md:ml-48 margins and added mx-auto for mobile centering -->
-      <button onclick="window.location.href='/register/'"
-          class="text-black text-xl font-medium cursor-pointer bg-white px-6 py-3 rounded-md max-md:mx-auto max-md:block max-sm:w-full max-sm:text-lg hover:bg-gray-100 transition-colors">
-        Start Ranking
-      </button>
+      {% if user.is_authenticated %}
+        <a href="{% url 'reviews' username=user.username %}" class="cursor-pointer bg-white px-6 py-3 rounded-md max-md:mx-auto max-md:block max-sm:w-full max-sm:text-lg hover:bg-gray-100 transition-colors text-center">
+          Start Ranking
+        </a>
+      {% else %}
+        <a href="/register/" 
+           class="inline-block text-black text-xl font-medium cursor-pointer bg-white px-6 py-3 rounded-md max-md:mx-auto max-md:block max-sm:w-full max-sm:text-lg hover:bg-gray-100 transition-colors text-center">
+          Start Ranking
+        </a>
+      {% endif %}
     </div>
     <!-- Removed mr-32 margin that was pushing image to the right -->
     <div class="w-full md:w-1/2 flex justify-center px-4">

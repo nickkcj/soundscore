@@ -272,4 +272,93 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Error submitting review. Please try again.');
         });
     }
+    
+    // Review text "See more/less" functionality
+    function initializeReviewExpandButtons() {
+        console.log("[Reviews] Initializing review expand buttons...");
+        const reviewContainers = document.querySelectorAll('.review-container');
+        console.log(`[Reviews] Found ${reviewContainers.length} review containers.`);
+
+        reviewContainers.forEach((container, index) => {
+            const collapsedText = container.querySelector('.review-text-collapsed');
+
+            if (!collapsedText || container.classList.contains('review-processed')) {
+                return;
+            }
+            if (container.querySelector('.see-more-btn')) {
+                 container.classList.add('review-processed');
+                 return;
+            }
+
+            // Create expanded version - **Add break-words**
+            const expandedText = document.createElement('p');
+            expandedText.className = 'block w-full text-sm text-gray-600 italic mb-2 review-text-expanded hidden whitespace-normal break-words'; // <-- ADDED break-words
+            expandedText.innerHTML = collapsedText.innerHTML;
+
+            // Create buttons
+            const seeMoreBtn = document.createElement('button');
+            seeMoreBtn.type = 'button';
+            seeMoreBtn.className = 'see-more-btn text-xs font-medium text-pink-500 hover:text-pink-600 transition-colors duration-200 ml-1';
+            seeMoreBtn.textContent = 'See more';
+            seeMoreBtn.classList.add('hidden'); // Start hidden
+
+            const seeLessBtn = document.createElement('button');
+            seeLessBtn.type = 'button';
+            seeLessBtn.className = 'see-less-btn text-xs font-medium text-pink-500 hover:text-pink-600 transition-colors duration-200 ml-1 hidden';
+            seeLessBtn.textContent = 'See less';
+
+            // Append elements
+            container.appendChild(expandedText);
+            collapsedText.insertAdjacentElement('afterend', seeMoreBtn);
+            expandedText.insertAdjacentElement('afterend', seeLessBtn);
+
+            const textContent = collapsedText.textContent || "";
+            const textLength = textContent.trim().length;
+            // *** ADJUST THIS THRESHOLD AS NEEDED ***
+            // If text is longer than this, it *might* be clamped visually.
+            const MIN_LENGTH_FOR_POTENTIAL_CLAMP = 80;
+
+            console.log(`[Reviews] Container ${index + 1}: Text length = ${textLength}.`);
+
+            // *** Simplified Logic: Show button based on length only ***
+            if (textLength > MIN_LENGTH_FOR_POTENTIAL_CLAMP) {
+                // Assume long text *might* be clamped, so show the button.
+                // The user can click it if needed.
+                seeMoreBtn.classList.remove('hidden');
+                console.log(`[Reviews] Container ${index + 1}: Text long enough, showing "See more" button.`);
+
+                seeMoreBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    console.log(`[Reviews] Container ${index + 1}: "See more" clicked.`);
+                    collapsedText.classList.add('hidden');
+                    seeMoreBtn.classList.add('hidden');
+                    expandedText.classList.remove('hidden');
+                    seeLessBtn.classList.remove('hidden');
+                });
+
+                seeLessBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    console.log(`[Reviews] Container ${index + 1}: "See less" clicked.`);
+                    expandedText.classList.add('hidden');
+                    seeLessBtn.classList.add('hidden');
+                    collapsedText.classList.remove('hidden');
+                    seeMoreBtn.classList.remove('hidden');
+                });
+            } else {
+                 console.log(`[Reviews] Container ${index + 1}: Text too short, removing buttons.`);
+                 // Remove buttons if text is definitely too short
+                 seeMoreBtn.remove();
+                 seeLessBtn.remove();
+                 expandedText.remove();
+            }
+            container.classList.add('review-processed');
+        });
+         console.log("[Reviews] Finished initializing review expand buttons.");
+    }
+    
+    // Initialize on page load
+    initializeReviewExpandButtons();
+    
+    // Also initialize after ajax content loads (if you load reviews dynamically)
+    document.addEventListener('reviews-loaded', initializeReviewExpandButtons);
 });
