@@ -226,12 +226,16 @@ def reviews(request, username):
         messages.error(request, "Could not connect to Supabase.")
         return redirect('home')
 
-    # Get Supabase user ID by username
-    user_response = client.table('soundscore_user').select('id').eq('username', username).limit(1).execute()
+    # Get Supabase user ID by username - ADD profile_picture to select
+    user_response = client.table('soundscore_user').select('id, profile_picture').eq('username', username).limit(1).execute()
     if not user_response.data:
         messages.error(request, f"User '{username}' not found in Supabase.")
         return redirect('home')
     supabase_user_id = user_response.data[0]['id']
+    
+    # Add profile picture URL to user object
+    if user_response.data[0].get('profile_picture'):
+        user.profile_picture_url = user_response.data[0]['profile_picture']
 
     # Fetch all reviews for this user, including album info
     all_reviews_response = client.table('soundscore_review')\
