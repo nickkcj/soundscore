@@ -191,6 +191,21 @@ def account(request, username):
         except Exception as e:
             messages.error(request, f'Error updating profile: {e}')
 
+    # Get the user's profile picture URL from Supabase
+    client = authenticate_with_jwt()
+    if client:
+        try:
+            user_response = client.table('soundscore_user') \
+                .select('profile_picture') \
+                .eq('username', username) \
+                .limit(1) \
+                .execute()
+                
+            if user_response.data and user_response.data[0].get('profile_picture'):
+                user.profile_picture_url = user_response.data[0]['profile_picture']
+        except Exception as e:
+            print(f"Error fetching profile picture from Supabase: {e}")
+
     # --- Handle the initial page load (GET Request) ---
     context = {'user': user} # Pass the user object to the template
     return render(request, 'account.html', context)
