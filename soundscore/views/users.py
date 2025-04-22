@@ -80,7 +80,6 @@ def login(request):
             # Password check (local)
             if user.check_password(password):
                 auth_login(request, user)
-                messages.success(request, "Login successful!")
                 return redirect('home')
             else:
                 messages.error(request, "Invalid password")
@@ -161,7 +160,6 @@ def account(request, username):
 
 def logout_view(request):
     auth_logout(request)
-    messages.info(request, "You have been logged out successfully.")
     return redirect('home')
 
 @login_required
@@ -176,17 +174,9 @@ def delete_account(request):
         messages.error(request, result['error'])
         # Redirect back to account page if deletion fails
         return redirect('account', username=user_to_delete.username)
-    elif result.get('warning'):
-         messages.warning(request, result['warning'])
-         # Log out even if only a warning occurred (e.g., user already partially deleted)
-    else:
-        messages.success(request, result.get('message', 'Account data deleted.'))
 
     # Log the user out from Django session
     auth_logout(request)
-
-    # Add a final message after logout
-    messages.info(request, "You have been logged out.")
 
     # Redirect to the home page after successful deletion and logout
     return redirect('home')

@@ -38,7 +38,8 @@ def update_user_supabase(username, email=None, password=None, profile_picture=No
             storage_response = client.storage.from_('avatars').upload(
                 file=file_content,
                 path=file_name,
-                file_options={"content-type": profile_picture.content_type}
+                file_options={"content-type": profile_picture.content_type,
+                              "upsert": True}  
             )
             
             if hasattr(storage_response, 'error') and storage_response.error:
