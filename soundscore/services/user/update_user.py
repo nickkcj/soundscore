@@ -35,11 +35,13 @@ def update_user_supabase(username, email=None, password=None, profile_picture=No
             file_content = profile_picture.read()  # Read binary content
             
             # Upload to Supabase Storage
+            bucket = client.storage.from_('avatars')
+            bucket.remove(file_name)  # Try deleting if it already exists
+            # Upload the file
             storage_response = client.storage.from_('avatars').upload(
                 file=file_content,
                 path=file_name,
-                file_options={"content-type": profile_picture.content_type,
-                              "upsert": True}  
+                file_options={"content-type": profile_picture.content_type}  
             )
             
             if hasattr(storage_response, 'error') and storage_response.error:
