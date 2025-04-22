@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         
         // Send AJAX request to delete
-        fetch(`/delete-review/${reviewId}/`, {
+        fetch(`/reviews/delete-review/${reviewId}/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrfToken,

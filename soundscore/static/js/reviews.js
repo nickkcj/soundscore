@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Get CSRF token
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         
-        fetch('/api/create-review/', {
+        fetch('/reviews/api/create-review/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
