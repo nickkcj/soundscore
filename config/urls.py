@@ -21,8 +21,12 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('soundscore.urls'))  # Include the URLs from myapp
+    path('', include('soundscore.urls.home')),       # home.py for homepage/about
+    path('users/', include('soundscore.urls.users')),  # user-related routes
+    path('reviews/', include('soundscore.urls.reviews')),  # review-related routes
+    
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

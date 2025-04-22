@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
         searchSpinner.classList.remove('hidden');
         searchResults.innerHTML = '<p class="text-gray-500 text-center py-3">Searching...</p>';
         
-        fetch(`/api/search-albums/?q=${encodeURIComponent(query)}`)
+        fetch(`/reviews/api/search-albums/?q=${encodeURIComponent(query)}`)
             .then(response => {
                 if (!response.ok) throw new Error('Search failed');
                 return response.json();
