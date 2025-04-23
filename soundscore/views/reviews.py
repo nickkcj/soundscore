@@ -11,7 +11,9 @@ from ..services.spotify import search_albums
 from ..services.review.add_review import add_review_supabase
 from ..services.review.edit_review import edit_review_supabase
 from ..services.review.delete_review import delete_review_supabase
-from ..services.user.supabase_client import authenticate_with_jwt
+from ..services.user.supabase_client import authenticate_with_jwt, get_admin_client
+from ..services.comment.comment_service import get_comments_for_review  # You'll create this
+from django.views.decorators.cache import cache_page
 
 @login_required
 def create_review(request, username):
@@ -422,3 +424,101 @@ def get_album_avg_rating(spotify_id):
     except Album.DoesNotExist:
         pass
     return None
+
+@cache_page(60)
+def feed(request):
+    # Initialize reviews
+    reviews = []
+    
+    client = authenticate_with_jwt()
+    if not client:
+        return render(request, 'reviews/feed.html', {'error': "Could not connect to Supabase."})
+        
+    try:
+        # Fetch reviews - same as before
+        reviews_response = client.table('soundscore_review')\
+            .select('*, soundscore_album(*), soundscore_user(*)')\
+            .order('created_at', desc=True)\
+            .limit(10)  # REDUCED from 20 to 10
+            
+        # Execute the query
+        reviews_response = reviews_response.execute()
+        reviews = reviews_response.data or []
+        
+        # Get all review IDs at once
+        review_ids = [review["id"] for review in reviews]
+        
+        # OPTIMIZATION 1: Batch fetch all comments at once
+        if review_ids:
+            all_comments = {}
+            comments_response = client.table('soundscore_comment')\
+                .select('*, soundscore_user(id, username, profile_picture)')\
+                .in_('review_id', review_ids)\
+                .order('created_at', desc=False)\
+                .execute()
+                
+            # Group comments by review_id
+            for comment in comments_response.data or []:
+                review_id = comment['review_id']
+                if review_id not in all_comments:
+                    all_comments[review_id] = []
+                all_comments[review_id].append(comment)
+        
+        # OPTIMIZATION 2: Batch count all likes at once
+        all_likes = {}
+        if review_ids:
+            try:
+                likes_count_response = client.table("soundscore_review_like")\
+                    .select("review_id", count="exact")\
+                    .in_("review_id", review_ids)\
+                    .group_by('review_id')\
+                    .execute()
+                
+                if likes_count_response.data:
+                    for item in likes_count_response.data:
+                        all_likes[item['review_id']] = item['count']
+            except:
+                # Fallback if group by fails
+                for review_id in review_ids:
+                    count_query = client.table("soundscore_review_like")\
+                        .select("*", count="exact")\
+                        .eq("review_id", review_id)\
+                        .execute()
+                    all_likes[review_id] = count_query.count if hasattr(count_query, 'count') else 0
+                
+        # OPTIMIZATION 3: If logged in, batch fetch user likes in one query
+        user_liked_reviews = set()
+        if request.user.is_authenticated and review_ids:
+            user_resp = client.table("soundscore_user").select("id").eq("username", request.user.username).limit(1).execute()
+            if user_resp.data:
+                user_id = user_resp.data[0]["id"]
+                user_likes = client.table("soundscore_review_like")\
+                    .select("review_id")\
+                    .eq("user_id", user_id)\
+                    .in_("review_id", review_ids)\
+                    .execute()
+                
+                user_liked_reviews = {like["review_id"] for like in user_likes.data or []}
+
+        # Now assign all the data to each review
+        for review in reviews:
+            review_id = review["id"]
+            # Assign comments (limited to 3 most recent)
+            review["comments"] = all_comments.get(review_id, [])[:3] 
+            review["comment_count"] = len(all_comments.get(review_id, []))
+            
+            # Assign like count
+            review["like_count"] = all_likes.get(review_id, 0)
+            
+            # Assign liked status
+            review["is_liked"] = review_id in user_liked_reviews
+            
+        # Render with optimized data
+        return render(request, 'reviews/feed.html', {'reviews': reviews})
+    
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return render(request, 'reviews/feed.html', {'error': f"Error fetching reviews: {str(e)}"})
+
+

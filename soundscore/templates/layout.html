@@ -24,6 +24,7 @@
       <nav class="flex items-center gap-6 max-sm:hidden">
         {% if user.is_authenticated %}
           {# Links for authenticated users #}
+          <a href="{% url 'feed' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Feed</a>
           <a href="{% url 'account' user.username %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">My Account</a>
           {# Add other authenticated links like My Reviews, Discover here if needed #}
            <a href="/reviews/{{ user.username }}/" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">My Reviews</a> 
