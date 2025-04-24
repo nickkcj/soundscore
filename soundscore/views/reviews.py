@@ -426,6 +426,7 @@ def get_album_avg_rating(spotify_id):
     return None
 
 @cache_page(60)
+@login_required
 def feed(request):
     # Initialize reviews
     reviews = []
