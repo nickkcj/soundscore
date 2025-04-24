@@ -102,13 +102,15 @@ def account(request, username):
     user = request.user # Use the logged-in user for context and updates
 
     if request.method == 'POST':
+        new_username = request.POST.get('username')
         new_email = request.POST.get('email', user.email)
         new_password = request.POST.get('password')
         profile_pic = request.FILES.get('profile_picture')
         
         # First update in Supabase
         result = update_user_supabase(
-            username=username,
+            old_username=username,
+            new_username=new_username if new_username != user.username else user.username,
             email=new_email if new_email != user.email else None,
             password=new_password if new_password else None,
             profile_picture=profile_pic
@@ -119,6 +121,7 @@ def account(request, username):
             return render(request, 'users/account.html', {'user': user})
             
         # Then update the Django user
+        user.username = new_username  # ADD THIS LINE - update the username in Django
         user.email = new_email
         
         if profile_pic:
@@ -131,11 +134,12 @@ def account(request, username):
             user.save()
             messages.success(request, 'Profile updated successfully!')
             
-            # If password changed, re-login user to prevent logout
-            if new_password:
+            # If password or username changed, re-login user to prevent logout
+            if new_password or new_username != username:  # MODIFY THIS LINE
                 auth_login(request, user)
                 
-            return redirect('account', username=user.username)
+            # Use new username for redirect
+            return redirect('account', username=new_username)  # MODIFY THIS LINE
         except Exception as e:
             messages.error(request, f'Error updating profile: {e}')
 

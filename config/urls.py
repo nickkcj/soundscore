@@ -25,6 +25,7 @@ urlpatterns = [
     path('users/', include('soundscore.urls.users')),  # user-related routes
     path('reviews/', include('soundscore.urls.reviews')),  # review-related routes
     path('comments/', include('soundscore.urls.feed')),  # comment-related routes
+    path('chat/', include('soundscore.urls.chat')),  # chat-related routes
     
 ]
 

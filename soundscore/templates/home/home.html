@@ -178,9 +178,15 @@ rgba(0,0,0,0.7) 90%,
     </div>
 
     <div class="text-center mt-6">
-      <a href="#" class="inline-block bg-pink-600 hover:bg-pink-700 text-white text-base font-medium py-2 px-5 rounded-md transition-colors">
+      {% if user.is_authenticated %}
+        <a href="{% url 'feed' %}" class="inline-block bg-pink-600 hover:bg-pink-700 text-white text-base font-medium py-2 px-5 rounded-md transition-colors">
+          View All Reviews
+        </a>
+      {% else %}
+      <a href="{% url 'register' %}" class="inline-block bg-pink-600 hover:bg-pink-700 text-white text-base font-medium py-2 px-5 rounded-md transition-colors">
         View All Reviews
       </a>
+      {% endif %}
     </div>
   </div>
 </section>

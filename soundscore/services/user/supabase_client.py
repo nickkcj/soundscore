@@ -18,13 +18,7 @@ def authenticate_with_jwt():
     })
     try:
         access_token = response.session.access_token
-        decoded = jwt.decode(access_token, options={"verify_signature": False})
-        # print(decoded)
-        refresh_token = response.session.refresh_token
-        # print(f"Access Token: {access_token}")
-        # print(f"Refresh Token: {refresh_token}")
         client.postgrest.auth(access_token)
-        # Verify by retrieving user data
         response = client.table('soundscore_user').select('*').limit(1).execute()
         return client
 
