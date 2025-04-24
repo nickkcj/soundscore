@@ -125,5 +125,10 @@
         </div>
       </div>
     </footer>
+
+<!-- Add these before the closing </body> tag -->
+{% csrf_token %}
+{% include "chat/widget.html" %}
+<script src="{% static 'js/chat.js' %}"></script>
 </body>
 </html>
