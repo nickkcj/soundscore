@@ -66,15 +66,18 @@ def format_with_gemini(results, query, history=None):
         print("[DEBUG] Empty results list")
         return "Sorry, I could not find what you requested."
     
+    # Filter out sensitive data before processing
+    filtered_results = filter_sensitive_data(results)
+    
     # Print the exact results structure
-    print(f"[DEBUG] Detailed results structure: {results}")
+    print(f"[DEBUG] Filtered results structure (sensitive data removed)")
     
     # Clean up results to remove duplicates if needed
-    cleaned_results = results
-    if isinstance(results, list) and len(results) > 0:
+    cleaned_results = filtered_results
+    if isinstance(filtered_results, list) and len(filtered_results) > 0:
         # If results contain only usernames, de-duplicate them
-        if all(len(item) == 1 and 'username' in item for item in results):
-            unique_usernames = set(item['username'] for item in results if item['username'])
+        if all(len(item) == 1 and 'username' in item for item in filtered_results):
+            unique_usernames = set(item['username'] for item in filtered_results if item['username'])
             print(f"[DEBUG] Unique usernames: {unique_usernames}")
             cleaned_results = [{'username': username} for username in unique_usernames]
             print(f"[DEBUG] De-duplicated results: {cleaned_results}")
@@ -126,6 +129,7 @@ def format_with_gemini(results, query, history=None):
         - Focus on directly answering the question using only the information provided
         - If multiple items match, list them all
         - Don't explain database queries or how you got the information
+        - Use spaces nicely.
         """
         
         # Add a direct try for just the API call
@@ -157,3 +161,39 @@ def format_with_gemini(results, query, history=None):
         except Exception as fallback_error:
             # If all fails, return raw results
             return f"Here are the results: {str(cleaned_results)[:500]}..."
+
+
+def filter_sensitive_data(results):
+    """Remove sensitive data like passwords, emails, and IDs before sending to LLM."""
+    if not results:
+        return results
+        
+    # List of sensitive fields to filter out (case insensitive)
+    sensitive_fields = (
+        # Authentication related
+        'password', 'passwd', 'pass', 'hash', 'salt', 
+        # API access related
+        'secret', 'token', 'api_key', 'key',
+        # Personal identifiers
+        'email', 'id', 'user_id', 'recipient_id', 'sender_id'
+    )
+        
+    # Handle list of dictionaries
+    if isinstance(results, list):
+        filtered_results = []
+        for item in results:
+            if isinstance(item, dict):
+                # Remove sensitive fields
+                filtered_item = {k: v for k, v in item.items() 
+                               if k.lower() not in sensitive_fields}
+                filtered_results.append(filtered_item)
+            else:
+                filtered_results.append(item)
+        return filtered_results
+    
+    # Handle single dictionary
+    elif isinstance(results, dict):
+        return {k: v for k, v in results.items() 
+                if k.lower() not in sensitive_fields}
+    
+    return results

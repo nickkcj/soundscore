@@ -65,6 +65,7 @@ def convert_prompt_to_sql(prompt, history=None):
                             - NEVER use schema prefixes like `"public."` before table names
                             - Output only raw SQL (no explanations, no markdown)
                             - Never quote numeric values (e.g. use `id = 4`, not `'4'`)
+                            - NEVER use personal data (password, ID...)
                             - Always use `INNER JOIN` for cross-table queries
                             - Use `LIMIT` where appropriate
 
