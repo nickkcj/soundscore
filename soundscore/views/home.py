@@ -33,25 +33,18 @@ import requests
 def debug_check(request):
     debug_info = {}
 
-    # Test 1 - Outbound internet access (basic)
-    try:
-        r = requests.get("https://www.google.com", timeout=5)
-        debug_info['google_status'] = r.status_code
-    except Exception as e:
-        debug_info['google_status'] = f"Failed: {str(e)}"
-
-    # Test 2 - Gemini API access
-    try:
-        r = requests.get("https://generativelanguage.googleapis.com", timeout=5)
-        debug_info['gemini_status'] = r.status_code
-    except Exception as e:
-        debug_info['gemini_status'] = f"Failed: {str(e)}"
-
-    # Test 3 - Check installed google-generativeai version
     try:
         import google.generativeai as genai
-        debug_info['generativeai_version'] = getattr(genai, '__version__', 'Unknown')
+        from decouple import config
+
+        api_key = config("GOOGLE_API_KEY")
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        gemini_response = model.generate_content("Hello, are you alive?")
+
+        debug_info['gemini_api_response'] = gemini_response.text[:100] if hasattr(gemini_response, 'text') else "No text in response"
     except Exception as e:
-        debug_info['generativeai_version'] = f"Failed: {str(e)}"
+        debug_info['gemini_api_response'] = f"Error: {type(e).__name__}: {str(e)}"
 
     return JsonResponse(debug_info)
+
