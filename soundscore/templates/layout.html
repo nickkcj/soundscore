@@ -24,14 +24,48 @@
       <nav class="flex items-center gap-6 max-sm:hidden">
         {% if user.is_authenticated %}
           {# Links for authenticated users #}
+          <!-- Notification Bell - MOVED TO HERE -->
+          <div id="notification-bell" class="relative">
+            <button id="notification-button" class="p-2 text-gray-500 hover:text-pink-600 transition-colors relative">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <!-- Make sure this element exists with the correct positioning -->
+              <span class="notification-count absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+            </button>
+            
+            <!-- Dropdown content -->
+            <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div class="p-3 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-700">Notifications</h3>
+                <button id="mark-all-read" class="text-xs text-pink-600 hover:text-pink-800 hover:underline">Mark all as read</button>
+              </div>
+              <div class="max-h-96 overflow-y-auto" id="notification-list">
+                <!-- Notifications will be loaded here -->
+                <div class="p-8 text-center text-gray-500 text-sm notifications-loading">
+                  <svg class="animate-spin h-5 w-5 mx-auto mb-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading notifications...
+                </div>
+                <div class="p-8 text-center text-gray-500 text-sm hidden no-notifications">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  No notifications yet
+                </div>
+              </div>
+            </div>
+          </div>
+
           <a href="{% url 'feed' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Feed</a>
           <a href="{% url 'account' user.username %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">My Account</a>
-          {# Add other authenticated links like My Reviews, Discover here if needed #}
-           <a href="/reviews/{{ user.username }}/" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">My Reviews</a> 
-           <a href="{% url 'discover' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Discover</a> 
-
+          <a href="/reviews/{{ user.username }}/" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">My Reviews</a> 
+          <a href="{% url 'discover' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Discover</a>
+          
           {# Logout Button/Link #}
-          <form action="{% url 'logout' %}" method="post" class="inline"> {# Use a form for POST request logout #}
+          <form action="{% url 'logout' %}" method="post" class="inline">
               {% csrf_token %}
               <button type="submit" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200 bg-transparent border-none cursor-pointer p-0">
                   Logout
@@ -79,7 +113,7 @@
               <a href="#" aria-label="Instagram" class="text-gray-500 hover:text-pink-600">
                 <span class="sr-only">Instagram</span>
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.255 2 11.685 2zm.001 1.44c-2.373 0-2.69.01-3.633.053-.897.04-.1.48.182-.3.073.276-.47.698-.738 1.154-.267.456-.599.96-.743 1.553-.145.593-.18 1.24-.182 2.15-.003.91-.005 1.21-.005 3.506s.002 2.595.005 3.506c.002.91.037 1.557.182 2.15.144.593.476 1.097.743 1.553.268.456.665.878 1.154.738.488-.14.91-.308 1.807-.348.94-.043 1.236-.053 3.633-.053s2.69.01 3.633.053c.897.04 1.319.182 1.807.348.49.14.886.282 1.154.738.267.456.599.96.743 1.553.145.593.18 1.24.182 2.15.003.91.005 1.21.005 3.506s-.002 2.595-.005 3.506c-.002.91-.037 1.557-.182 2.15-.144.593-.476 1.097-.743 1.553-.268.456-.665.878-1.154.738-.488-.14-.91-.308-1.807-.348-.94-.043-1.236-.053-3.633-.053zm0 3.882a4.685 4.685 0 100 9.37 4.685 4.685 0 000-9.37zM12 15.43a3.43 3.43 0 110-6.86 3.43 3.43 0 010 6.86z" clip-rule="evenodd" />
+                  <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.255 2 11.685 2zm.001 1.44c-2.373 0-2.69.01-3.633.053-.897.04-.1.48.182-.3.073.276-.47.698-.738 1.154-.267.456-.599.96-.743 1.553-.145.593-.18 1.24-.182 2.15-.003.91-.005 1.21-.005 3.506s.002 2.595.005 3.506c.002.91.037 1.557.182 2.15.144.593.476 1.097.743 1.553.268.456.665.878 1.154.738.488-.14.91-.308 1.807-.348.94-.043 1.236-.053 3.633-.053s2.69.01 3.633.053c.897.04 1.319.182 1.807.348.49.14.886.282 1.154.738.267.456.599.96.743 1.553.145.593.18 1.24.182 2.15.003.91.005 1.21.005 3.506s-.002 2.595-.005 3.506c-.002.91-.037 1.557-.182 2.15-.144.593-.476 1.097-.743 1.553-.268.456-.665.878-1.154.738-.488-.14-.91-.308-1.807-.348-.94-.043-1.236-.053-3.633-.053zm0 3.882a4.685 4.685 0 100 9.37 4.685 4.685 0 000-9.37zM12 15.43a3.43 3.43 0 110-6.86 3.43 3.43 0 010 6.86z" clip-rule="evenodd" />
                   <path d="M16.95 7.572a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z" />
                 </svg>
               </a>
@@ -129,6 +163,9 @@
 <!-- Add these before the closing </body> tag -->
 {% csrf_token %}
 {% include "chat/widget.html" %}
-<script src="{% static 'js/chat.js' %}"></script>
+<script src="{% static 'js/agent/chat.js' %}"></script>
+{% if user.is_authenticated %}
+  <script src="{% static 'js/feed/notifications.js' %}"></script>
+{% endif %}
 </body>
 </html>
