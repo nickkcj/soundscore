@@ -29,92 +29,136 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(styleSheet);
     }
 
-    document.querySelectorAll('.like-button').forEach(button => {
-        // Set initial state based on data attribute
-        const isLiked = button.getAttribute('data-liked') === 'true';
-        const likeIcon = button.querySelector('.heart-icon');
-        
-        if (isLiked) {
-            button.classList.add('text-pink-600');
-            likeIcon.classList.add('text-pink-600');
-            likeIcon.setAttribute('fill', 'currentColor');
-        }
-        
-        button.addEventListener('click', async function(e) {
-            e.preventDefault();
+    // Track pending requests to prevent race conditions
+    const pendingRequests = new Map();
+
+    // Ensure each button only has one event listener
+    window.initLikeButtons = function() {
+        document.querySelectorAll('.like-button:not([data-initialized])').forEach(button => {
+            // Mark this button as initialized to prevent multiple bindings
+            button.setAttribute('data-initialized', 'true');
             
-            const reviewId = this.getAttribute('data-review-id');
-            const countDisplay = this.querySelector('.like-count');
-            const likeIcon = this.querySelector('.heart-icon');
+            // Set initial state based on data attribute
+            const isLiked = button.getAttribute('data-liked') === 'true';
+            const likeIcon = button.querySelector('.heart-icon');
             
-            // Start animation immediately for better UX
-            likeIcon.classList.add('animate-heart');
-            countDisplay.classList.add('animate-count');
-            
-            // Toggle visual state immediately (optimistic UI)
-            const wasLiked = this.classList.contains('text-pink-600');
-            
-            if (!wasLiked) {
-                this.classList.add('text-pink-600');
+            if (isLiked) {
+                button.classList.add('text-pink-600');
                 likeIcon.classList.add('text-pink-600');
                 likeIcon.setAttribute('fill', 'currentColor');
-                countDisplay.textContent = (parseInt(countDisplay.textContent || '0') + 1).toString();
-            } else {
-                this.classList.remove('text-pink-600');
-                likeIcon.classList.remove('text-pink-600');
-                likeIcon.setAttribute('fill', 'none');
-                const currentCount = parseInt(countDisplay.textContent || '0');
-                if (currentCount > 0) {
-                    countDisplay.textContent = (currentCount - 1).toString();
-                }
             }
             
-            try {
-                // Remove animation classes after animation completes
-                setTimeout(() => {
-                    likeIcon.classList.remove('animate-heart');
-                    countDisplay.classList.remove('animate-count');
-                }, 800);
+            button.addEventListener('click', async function(e) {
+                e.preventDefault();
                 
-                // Get CSRF token
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                
-                // Send the like/unlike request
-                const response = await fetch('/comments/likes/toggle/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({ review_id: reviewId })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                const reviewId = this.getAttribute('data-review-id');
+                if (!reviewId) {
+                    console.error('Like button missing review ID');
+                    return;
                 }
                 
-                const data = await response.json();
+                // Prevent multiple clicks while request is pending
+                if (pendingRequests.has(reviewId)) {
+                    console.log('Request already pending for review', reviewId);
+                    return;
+                }
                 
-                // Update the UI based on the response
-                countDisplay.textContent = data.count;
+                const countDisplay = this.querySelector('.like-count');
+                const likeIcon = this.querySelector('.heart-icon');
                 
-                if (data.liked) {
+                // Start animation
+                likeIcon.classList.add('animate-heart');
+                countDisplay.classList.add('animate-count');
+                
+                // Toggle visual state (optimistic UI)
+                const wasLiked = this.classList.contains('text-pink-600');
+                const originalCount = parseInt(countDisplay.textContent || '0');
+                
+                if (!wasLiked) {
                     this.classList.add('text-pink-600');
                     likeIcon.classList.add('text-pink-600');
                     likeIcon.setAttribute('fill', 'currentColor');
+                    countDisplay.textContent = (originalCount + 1).toString();
                 } else {
                     this.classList.remove('text-pink-600');
                     likeIcon.classList.remove('text-pink-600');
                     likeIcon.setAttribute('fill', 'none');
+                    countDisplay.textContent = Math.max(0, originalCount - 1).toString();
                 }
                 
-                // Update the data attribute to reflect current state
-                this.setAttribute('data-liked', data.liked);
+                // Mark this request as pending
+                pendingRequests.set(reviewId, true);
                 
-            } catch (error) {
-                console.error('Error toggling like:', error);
-                alert('Something went wrong with the like operation. Please try again.');
-            }
+                try {
+                    // Remove animation classes after animation completes
+                    setTimeout(() => {
+                        likeIcon.classList.remove('animate-heart');
+                        countDisplay.classList.remove('animate-count');
+                    }, 800);
+                    
+                    // Get CSRF token - Get it from the meta tag instead of form field
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                     document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    
+                    // Send request
+                    const response = await fetch('/comments/likes/toggle/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({ review_id: reviewId })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Trust the server's count completely
+                    countDisplay.textContent = data.count;
+                    
+                    // Set the correct visual state based on server response
+                    if (data.liked) {
+                        this.classList.add('text-pink-600');
+                        likeIcon.classList.add('text-pink-600');
+                        likeIcon.setAttribute('fill', 'currentColor');
+                    } else {
+                        this.classList.remove('text-pink-600');
+                        likeIcon.classList.remove('text-pink-600');
+                        likeIcon.setAttribute('fill', 'none');
+                    }
+                    
+                    // Update the data attribute to reflect current state
+                    this.setAttribute('data-liked', data.liked);
+                    
+                } catch (error) {
+                    console.error('Error toggling like:', error);
+                    
+                    // Revert to original state on error
+                    countDisplay.textContent = originalCount.toString();
+                    if (wasLiked) {
+                        this.classList.add('text-pink-600');
+                        likeIcon.classList.add('text-pink-600');
+                        likeIcon.setAttribute('fill', 'currentColor');
+                    } else {
+                        this.classList.remove('text-pink-600');
+                        likeIcon.classList.remove('text-pink-600');
+                        likeIcon.setAttribute('fill', 'none');
+                    }
+                } finally {
+                    // Clear the pending request
+                    pendingRequests.delete(reviewId);
+                }
+            });
         });
-    });
+    };
+
+    // Initialize like buttons when the page loads
+    initLikeButtons();
+    
+    // If you have a load more function, make sure it calls initLikeButtons() after adding new content
+    // Example: After adding new reviews to the DOM
+    // document.addEventListener('reviewsLoaded', initLikeButtons);
 });

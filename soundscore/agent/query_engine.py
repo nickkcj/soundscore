@@ -57,10 +57,14 @@ def format_with_gemini(results, query, history=None):
 
     start_time = time.time()
     
-    # Check if results is an error object
-    if isinstance(results, dict) and 'error' in results:
-        print(f"[DEBUG] Error detected in results: {results['error']}")
-        return f"I encountered an error trying to answer your question: {results['error']}"
+    # Check if results is an error object or empty
+    if not results or (isinstance(results, dict) and 'error' in results):
+        print(f"[DEBUG] Error or empty results detected: {results}")
+        return "Sorry, I could not find what you requested."
+    
+    if isinstance(results, list) and len(results) == 0:
+        print("[DEBUG] Empty results list")
+        return "Sorry, I could not find what you requested."
     
     # Print the exact results structure
     print(f"[DEBUG] Detailed results structure: {results}")

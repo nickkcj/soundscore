@@ -42,17 +42,22 @@ class SoundScoreBot:
         # 2. Execute the SQL query
         execution_result = execute_query(sql)
         if not execution_result.get("success"):
-            error_message = f"I encountered an error running that query: {execution_result.get('error', 'Unknown database error')}"
-            self.display_message(error_message)
+            # Use a more friendly error message instead of showing technical details
+            error_message = "Sorry, I could not find what you requested."
+            # Add bot error message to history before returning
             self.add_to_history("bot", error_message)
-            return
+            print(f"[DEBUG] Query execution failed: {execution_result.get('error', 'Unknown database error')}")
+            return {"message": "🤖 " + error_message}
 
         results = execution_result.get("results")
+        print(f"[DEBUG] Got {len(results) if results else 0} results")
+
         if not results:
-            response = "I couldn't find any results matching your query."
-            self.display_message(response)
+            response = "Sorry, I could not find what you requested."
+            # Add bot message to history before returning
             self.add_to_history("bot", response)
-            return
+            print("[DEBUG] No results found")
+            return {"message": "🤖 " + response}
 
         # 3. Format the results with Gemini
         try:
@@ -130,17 +135,18 @@ class SoundScoreBot:
             print(f"[DEBUG] execute_query success: {execution_result.get('success')}")
 
             if not execution_result.get("success"):
-                error_message = f"I encountered an error running that query: {execution_result.get('error', 'Unknown database error')}"
-                 # Add bot error message to history before returning
+                # Use a more friendly error message instead of showing technical details
+                error_message = "Sorry, I could not find what you requested."
+                # Add bot error message to history before returning
                 self.add_to_history("bot", error_message)
-                print(f"[DEBUG] Query execution failed: {error_message}")
+                print(f"[DEBUG] Query execution failed: {execution_result.get('error', 'Unknown database error')}")
                 return {"message": "🤖 " + error_message} # Add emoji here
 
             results = execution_result.get("results")
             print(f"[DEBUG] Got {len(results) if results else 0} results")
 
             if not results:
-                response = "I couldn't find any results matching your query."
+                response = "Sorry, I could not find what you requested."
                  # Add bot message to history before returning
                 self.add_to_history("bot", response)
                 print("[DEBUG] No results found")

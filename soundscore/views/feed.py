@@ -135,7 +135,10 @@ def load_more_reviews(request):
     try:
         page = int(request.GET.get("page", 0))
         page_size = int(request.GET.get("page_size", 5))
-        offset = page * page_size
+        comments_per_review = int(request.GET.get('comments_per_review', 10))
+        
+        # Calculate offset based on page and page_size
+        offset = page * page_size  # Add this line - offset wasn't defined before
         
         # Add sort order parameter
         sort_order = request.GET.get("sort_order", "desc").lower()
@@ -151,8 +154,9 @@ def load_more_reviews(request):
             exclude_ids = [int(id) for id in exclude_ids_param.split(',') if id.isdigit()]
         
         print(f"\n[DEBUG] ====== LOAD MORE REVIEWS ======")
-        print(f"[DEBUG] Request params: page={page}, page_size={5}, offset={offset}, sort_order={sort_order}")
+        print(f"[DEBUG] Request params: page={page}, page_size={page_size}, offset={offset}, sort_order={sort_order}")
         print(f"[DEBUG] Excluding {len(exclude_ids)} IDs: {exclude_ids}")
+        print(f"[DEBUG] Comments per review: {comments_per_review}")
         
         client = authenticate_with_jwt()
         if not client:
@@ -212,12 +216,12 @@ def load_more_reviews(request):
                     .execute()
                 review['comment_count'] = comment_count_response.count if hasattr(comment_count_response, 'count') else 0
                 
-                # Get a few comments for display
+                # Get comments for display - use comments_per_review instead of hardcoded 2
                 comments_response = client.table('soundscore_comment') \
                     .select('*, soundscore_user(username, profile_picture)') \
                     .eq('review_id', review_id) \
                     .order('created_at', desc=True) \
-                    .limit(2) \
+                    .limit(comments_per_review) \
                     .execute()
                 review['comments'] = comments_response.data if comments_response.data else []
             except Exception as e:
@@ -255,9 +259,11 @@ def load_more_reviews(request):
         return JsonResponse({"reviews": processed_reviews, "has_more": has_more})
 
     except Exception as e:
-        print(e)
-
-
+        import traceback
+        print(f"[DEBUG] Error in load_more_reviews: {str(e)}")
+        print(traceback.format_exc())
+        # IMPORTANT: Return a JsonResponse in the exception handler
+        return JsonResponse({"error": str(e), "reviews": [], "has_more": False}, status=500)
 
 @login_required
 @require_GET
@@ -348,4 +354,4 @@ def get_unread_count_view(request):
         return JsonResponse({"unread_count": count})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-    
+

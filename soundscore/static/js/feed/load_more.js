@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const excludeIds = [...window.loadedReviewIds];
             
             // Make AJAX request with the loaded IDs (as a comma-separated string)
-            fetch(`/comments/feed/load-more/?page=${currentPage}&page_size=5&exclude_ids=${excludeIds.join(',')}&sort_order=${sortOrder}`)
+            fetch(`/comments/feed/load-more/?page=${currentPage}&page_size=5&exclude_ids=${excludeIds.join(',')}&sort_order=${sortOrder}&comments_per_review=10`)
                 .then(response => response.json())
                 .then(data => {
                     console.log('Load more response:', data);
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 mx-4 mt-4 mb-4 overflow-hidden">
                     <div class="px-4 py-2 border-b border-pink-100 flex items-center justify-between bg-pink-50">
                         <div class="text-xs text-pink-700 font-medium">Comments (${review.comment_count})</div>
-                        ${review.comment_count > 2 ? '<a href="#" class="text-xs text-pink-600 hover:underline hover:text-pink-700">View all</a>' : ''}
+                        ${review.comment_count > review.comments?.length ? '<a href="#" class="text-xs text-pink-600 hover:underline hover:text-pink-700">View all</a>' : ''}
                     </div>
                     
                     <!-- Comments list -->
@@ -194,9 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 ` : ''}
                 
-                <!-- COMMENTS SECTION ADDED HERE with UPDATED STYLING -->
-                ${commentsHTML}
-                
                 <!-- Interaction bar -->
                 <div class="flex items-center justify-around px-6 py-3.5 border-t border-gray-100 bg-gray-50">
                     <button class="like-button flex items-center text-gray-500 hover:text-pink-600 transition-colors group" 
@@ -225,6 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="ml-2 text-xs font-medium">Share</span>
                     </button>
                 </div>
+                
+                <!-- ADD COMMENTS SECTION HERE INSTEAD -->
+                ${commentsHTML}
                 
                 <!-- Comment form (hidden by default) -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-4 mx-4 mb-4 comment-form-container hidden" data-review-id="${review.id}">
