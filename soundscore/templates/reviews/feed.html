@@ -156,7 +156,10 @@
       
       <!-- Load more -->
       <div class="mt-10 text-center">
-        <button class="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-full text-sm font-medium transition-all hover:shadow-md hover:from-pink-600 hover:to-pink-700">
+        <button id="load-more-btn" 
+                class="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-full text-sm font-medium transition-all hover:shadow-md hover:from-pink-600 hover:to-pink-700"
+                data-page="1" 
+                data-has-more="true">
           Load more
         </button>
       </div>
@@ -175,5 +178,6 @@
 {% block extra_js %}
 <script src="{% static 'js/comments.js' %}" defer></script>
 <script src="{% static 'js/like.js' %}" defer></script>
+<script src="{% static 'js/feed.js' %}" defer></script>
 {% endblock %}
 {% endblock %}
