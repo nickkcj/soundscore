@@ -63,6 +63,7 @@ def login(request):
                 .execute()
             
             user_data = response.data[0] if response.data else None
+            print(user_data)
             if not user_data:
                 messages.error(request, "User does not exist")
                 return redirect('login')
