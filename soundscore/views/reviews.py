@@ -12,7 +12,7 @@ from ..services.review.add_review import add_review_supabase
 from ..services.review.edit_review import edit_review_supabase
 from ..services.review.delete_review import delete_review_supabase
 from ..services.user.supabase_client import authenticate_with_jwt, get_admin_client
-from ..services.comment.comment_service import get_comments_for_review  # You'll create this
+from ..services.feed.comment_service import get_comments_for_review  # You'll create this
 from django.views.decorators.cache import cache_page
 
 @login_required

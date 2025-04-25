@@ -13,12 +13,13 @@
         </svg>
         Latest Reviews
       </h1>
-      <div class="text-sm text-pink-600 font-medium flex items-center px-3 py-1.5 bg-pink-50 rounded-full shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+      <!-- Replace the static badge with this clickable button -->
+      <button id="sort-toggle" class="text-sm text-pink-600 font-medium flex items-center px-3 py-1.5 bg-pink-50 rounded-full shadow-sm hover:bg-pink-100 transition-colors" data-sort-order="desc">
+        <svg id="sort-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1 transition-transform">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25" />
         </svg>
-        Latest first
-      </div>
+        <span id="sort-label">Latest first</span>
+      </button>
     </div>
 
     {% if error %}
@@ -92,8 +93,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                <span class="ml-2 text-xs font-medium">Comment</span>
-              </button>
+                <span class="ml-2 text-xs font-medium">Comment ({{ review.comment_count|default:'0' }})</span>              </button>
               
               <button class="flex items-center text-gray-500 hover:text-pink-600 transition-colors group">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -176,8 +176,9 @@
 </div>
 
 {% block extra_js %}
-<script src="{% static 'js/comments.js' %}" defer></script>
-<script src="{% static 'js/like.js' %}" defer></script>
-<script src="{% static 'js/feed.js' %}" defer></script>
+<script src="{% static 'js/feed/comments.js' %}" defer></script>
+<script src="{% static 'js/feed/like.js' %}" defer></script>
+<script src="{% static 'js/feed/load_more.js' %}" defer></script>
+<script src="{% static 'js/feed/filter_by.js' %}" defer></script>
 {% endblock %}
 {% endblock %}
