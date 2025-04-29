@@ -72,9 +72,27 @@
                       </svg>
                       <span class="notification-count absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden animate-bounce">0</span>
                     </button>
-                    
-                    <!-- Keep dropdown as is -->
                   </div>
+                  
+                  <!-- START: Add Notification Dropdown HTML -->
+                  <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+                    <div class="p-3 border-b border-gray-200 flex justify-between items-center">
+                      <h3 class="text-sm font-medium text-gray-700">Notifications</h3>
+                      <button id="mark-all-read" class="text-xs text-pink-600 hover:underline">Mark all as read</button>
+                    </div>
+                    <div id="notification-list" class="max-h-80 overflow-y-auto">
+                      <!-- Loading State -->
+                      <div class="notifications-loading p-4 text-center text-gray-500 text-sm hidden">Loading...</div>
+                      <!-- No Notifications State -->
+                      <div class="no-notifications p-4 text-center text-gray-500 text-sm hidden">No new notifications</div>
+                      <!-- Notification items will be added here by JS -->
+                    </div>
+                    <div class="p-2 bg-gray-50 border-t border-gray-200 text-center">
+                      <a href="#" class="text-xs text-pink-600 hover:underline">View all notifications</a>
+                    </div>
+                  </div>
+                  <!-- END: Add Notification Dropdown HTML -->
+                  
                 </div>
                 
                 <!-- Logout Button - Adjusted background/border -->
