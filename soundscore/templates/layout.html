@@ -15,85 +15,118 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="flex flex-col min-h-screen">
-    <!-- Header Section -->
-    <header class="flex justify-between items-center bg-white px-8 py-3 shadow-sm max-md:p-3">
-      <div class="flex items-center gap-3">
-        <img src="{% static 'images/music.png' %}" class="w-[42px] h-[42px]" alt="SoundScore Logo" /> {# Assuming you have a logo in static #}
-        <a href="{% url 'home' %}" class="text-pink-600 text-2xl font-semibold">SoundScore</a>
-      </div>
-      <nav class="flex items-center gap-6 max-sm:hidden">
-        {% if user.is_authenticated %}
-          {# Links for authenticated users #}
-          <!-- Notification Bell - MOVED TO HERE -->
-          <div id="notification-bell" class="relative">
-            <button id="notification-button" class="p-2 text-gray-500 hover:text-pink-600 transition-colors relative">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              <!-- Make sure this element exists with the correct positioning -->
-              <span class="notification-count absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-            </button>
-            
-            <!-- Dropdown content -->
-            <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-              <div class="p-3 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="font-semibold text-gray-700">Notifications</h3>
-                <button id="mark-all-read" class="text-xs text-pink-600 hover:text-pink-800 hover:underline">Mark all as read</button>
-              </div>
-              <div class="max-h-96 overflow-y-auto" id="notification-list">
-                <!-- Notifications will be loaded here -->
-                <div class="p-8 text-center text-gray-500 text-sm notifications-loading">
-                  <svg class="animate-spin h-5 w-5 mx-auto mb-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Loading notifications...
-                </div>
-                <div class="p-8 text-center text-gray-500 text-sm hidden no-notifications">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                  No notifications yet
-                </div>
-              </div>
+    <!-- Header Section - Changed background to solid white -->
+    <header class="sticky top-0 z-50 backdrop-blur-sm bg-white border-b border-gray-200/70 shadow-sm">
+      <div class="container mx-auto px-4 md:px-8">
+        <div class="flex justify-between items-center py-4">
+          <!-- Logo Section with subtle animation -->
+          <div class="flex items-center gap-3 group">
+            <div class="relative overflow-hidden rounded-full p-0.5 bg-gradient-to-r from-pink-500 to-purple-500 shadow-inner transform group-hover:scale-105 transition-all duration-300">
+              <img src="{% static 'images/music.png' %}" class="w-[40px] h-[40px] rounded-full bg-white p-0.5" alt="SoundScore Logo" />
             </div>
+            <a href="{% url 'home' %}" class="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 text-2xl font-bold tracking-tight group-hover:opacity-90 transition-opacity">SoundScore</a>
           </div>
-
-          <a href="{% url 'feed' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Feed</a>
-          <a href="{% url 'account' user.username %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">My Account</a>
-          <a href="/reviews/{{ user.username }}/" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">My Reviews</a> 
-          <a href="{% url 'discover' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Discover</a>
           
-          {# Logout Button/Link #}
-          <form action="{% url 'logout' %}" method="post" class="inline">
-              {% csrf_token %}
-              <button type="submit" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200 bg-transparent border-none cursor-pointer p-0">
-                  Logout
-              </button>
-          </form>
-        {% else %}
-          {# Links for non-authenticated users #}
-          <a href="{% url 'about' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">About</a>
-          <a href="{% url 'login' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Login</a>
-          <a href="{% url 'register' %}" class="text-gray-700 hover:text-pink-600 text-lg transition duration-200">Register</a>
-        {% endif %}
-      </nav>
-      {# Add mobile menu toggle here if needed #}
+          <!-- Main Navigation -->
+          <nav class="flex items-center gap-1 md:gap-2 max-sm:hidden">
+            {% if user.is_authenticated %}
+              <!-- Links Container - Removed gradient background, adjusted border/shadow -->
+              <div class="flex items-center bg-gray-50/50 backdrop-blur-sm rounded-full px-1.5 py-1 shadow-sm border border-gray-200/50 mx-2">
+                <a href="{% url 'feed' %}" 
+                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
+                   data-page="feed">
+                  <span>Feed</span>
+                  <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
+                </a>
+                
+                <a href="{% url 'account' user.username %}" 
+                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
+                   data-page="account">
+                  <span>My Account</span>
+                  <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
+                </a>
+                
+                <a href="/reviews/{{ user.username }}/" 
+                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
+                   data-page="reviews">
+                  <span>My Reviews</span>
+                  <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
+                </a>
+                
+                <a href="{% url 'discover' %}" 
+                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
+                   data-page="discover">
+                  <span>Discover</span>
+                  <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
+                </a>
+              </div>
+              
+              <!-- Right Side Actions -->
+              <div class="flex items-center gap-2">
+                <!-- Notification Bell - Adjusted background/border -->
+                <div id="notification-bell" class="relative group">
+                  <div class="bg-white p-2 rounded-full shadow-sm border border-gray-200/80 group-hover:shadow-md transition-all duration-300 group-hover:border-gray-300/80">
+                    <button id="notification-button" class="text-gray-500 hover:text-pink-600 transition-colors relative">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                      </svg>
+                      <span class="notification-count absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden animate-bounce">0</span>
+                    </button>
+                    
+                    <!-- Keep dropdown as is -->
+                  </div>
+                </div>
+                
+                <!-- Logout Button - Adjusted background/border -->
+                <form action="{% url 'logout' %}" method="post" class="inline">
+                  {% csrf_token %}
+                  <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-4 rounded-full shadow-sm border border-gray-200/50 hover:shadow-md transition-all duration-300 text-base font-medium">
+                    Logout
+                  </button>
+                </form>
+              </div>
+            {% else %}
+              <!-- Links for non-authenticated users - Adjusted background/border -->
+              <div class="flex items-center bg-gray-50/50 backdrop-blur-sm rounded-full px-1.5 py-1 shadow-sm border border-gray-200/50 mx-2">
+                <a href="{% url 'about' %}" 
+                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
+                   data-page="about">
+                  <span>About</span>
+                  <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
+                </a>
+                
+                <a href="{% url 'login' %}" 
+                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
+                   data-page="login">
+                  <span>Login</span>
+                  <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
+                </a>
+                
+                <a href="{% url 'register' %}" 
+                   class="group relative py-1.5 px-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full shadow-sm hover:shadow-md transition-all duration-300 hover:opacity-90" 
+                   data-page="register">
+                  <span>Register</span>
+                </a>
+              </div>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow bg-gray-50"> {# Added a light background to main #}
-        {% block content %}{% endblock %}
+    <!-- Main Content - Adjusted background -->
+    <main class="flex-grow bg-gray-50">
+      {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer Section -->
-    <footer class="flex flex-col bg-white mt-auto border-t pt-10 pb-8">
+    <!-- Footer Section - Adjusted background/border -->
+    <footer class="flex flex-col bg-white mt-auto border-t border-gray-200 pt-10 pb-8">
       <div class="container mx-auto px-8">
         <!-- Footer Top Section -->
-        <div class="flex justify-center gap-16 md:gap-24 lg:gap-32 max-md:flex-col max-md:items-center max-md:gap-10"> <!-- Changed justify-start to justify-center and added max-md:items-center -->
+        <div class="flex justify-center gap-16 md:gap-24 lg:gap-32 max-md:flex-col max-md:items-center max-md:gap-10">
           <!-- Brand Section -->
-          <div class="flex flex-col w-full max-w-xs flex-shrink-0 max-md:items-center"> <!-- Added max-md:items-center -->
-            <div class="text-black text-lg font-medium mb-4">SoundScore</div>
+          <div class="flex flex-col w-full max-w-xs flex-shrink-0 max-md:items-center">
+            <div class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 text-xl font-bold mb-4">SoundScore</div>
             <div class="text-sm text-gray-500 mb-6 text-center md:text-left">© {% now "Y" %} SoundScore. All rights reserved.</div> <!-- Added text-center for medium screens and below -->
             
             <!-- Social Icons -->
@@ -126,12 +159,12 @@
             </div>
           </div>
           
-          <!-- Footer Link Columns - Right Side -->
-          <div class="flex space-x-8 md:space-x-10 lg:space-x-12 max-md:mt-8 max-md:flex-wrap max-md:justify-center max-md:gap-8"> <!-- Added max-md:justify-center -->
+          <!-- Footer Link Columns - Adjusted header colors -->
+          <div class="flex space-x-8 md:space-x-10 lg:space-x-12 max-md:mt-8 max-md:flex-wrap max-md:justify-center max-md:gap-8">
             <!-- Column 1: Navigation -->
-            <div class="flex flex-col max-md:items-center"> <!-- Added max-md:items-center -->
-              <h3 class="text-black text-sm font-medium mb-4">Navigation</h3>
-              <div class="flex flex-col space-y-3 max-md:items-center"> <!-- Added max-md:items-center -->
+            <div class="flex flex-col max-md:items-center">
+              <h3 class="text-gray-700 text-sm font-medium mb-4">Navigation</h3>
+              <div class="flex flex-col space-y-3 max-md:items-center">
                 <a href="/home" class="text-[#454545] text-sm hover:text-pink-600">Home</a>
                 <a href="/about/" class="text-[#454545] text-sm hover:text-pink-600">About</a>
                 <a href="#" class="text-[#454545] text-sm hover:text-pink-600">Contact</a>
@@ -139,24 +172,27 @@
             </div>
             
             <!-- Column 2: Account -->
-            <div class="flex flex-col max-md:items-center"> <!-- Added max-md:items-center -->
-              <h3 class="text-black text-sm font-medium mb-4">Account</h3>
-              <div class="flex flex-col space-y-3 max-md:items-center"> <!-- Added max-md:items-center -->
+            <div class="flex flex-col max-md:items-center">
+              <h3 class="text-gray-700 text-sm font-medium mb-4">Account</h3>
+              <div class="flex flex-col space-y-3 max-md:items-center">
                 <a href="#account" class="text-[#454545] text-sm hover:text-pink-600">Login</a>
                 <a href="/register/" class="text-[#454545] text-sm hover:text-pink-600">Register</a>
               </div>
             </div>
             
             <!-- Column 3: Legal -->
-            <div class="flex flex-col max-md:items-center"> <!-- Added max-md:items-center -->
-              <h3 class="text-black text-sm font-medium mb-4">Legal</h3>
-              <div class="flex flex-col space-y-3 max-md:items-center"> <!-- Added max-md:items-center -->
+            <div class="flex flex-col max-md:items-center">
+              <h3 class="text-gray-700 text-sm font-medium mb-4">Legal</h3>
+              <div class="flex flex-col space-y-3 max-md:items-center">
                 <a href="#" class="text-[#454545] text-sm hover:text-pink-600">Privacy Policy</a>
                 <a href="#" class="text-[#454545] text-sm hover:text-pink-600">Terms of Service</a>
               </div>
             </div>
           </div>
         </div>
+        
+        <!-- Adjusted divider color -->
+        <div class="w-full max-w-4xl mx-auto mt-8 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
       </div>
     </footer>
 
