@@ -93,36 +93,38 @@ python manage.py migrate
 python manage.py runserver
 ```
 
----
-
 ## 📁 Project Structure
 
 ```
 soundscore/
-├── config/                    # Django project settings
-│   ├── .env                   # Environment variables (Spotify, DB)
-│   ├── settings.py
-│   ├── urls.py
-│   └── ...
+├── config/                      # Django project settings
 │
-├── media/                     # Uploaded media (e.g., profile pictures)
+├── media/
+│   └── profile_pictures/        # Uploaded profile images
 │
-├── soundscore/                # Main Django app
-│   ├── services/              # Spotify + Supabase Communication
-│   ├── templates/             # HTML templates
-│   ├── static/                # Static files (CSS, JS)
-│   ├── urls/
-│   ├── views/
-│   ├── agent/
-│   └── ...
+├── soundscore/                 # Main Django app
+│   ├── agent/                  # AI Chatbot logic
+│   ├── migrations/             # Django migrations
+│   ├── services/               # API integrations, helper services
+│   ├── static/                 # CSS, JS, images
+│   ├── templates/              # HTML templates
+│   ├── urls/                   # URL routing modules
+│   ├── views/                  # View logic (controllers)
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── tests.py
 │
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-└── manage.py
+├── .dockerignore
+├── .gitignore
+├── Dockerfile                  # Docker image definition
+├── docker-compose.yml          # Docker orchestration
+├── manage.py                   # Django command-line tool
+├── requirements.txt            # Python dependencies
+├── db.sqlite3                  # Local SQLite database (dev only)
+├── README.md                   # Project documentation
 ```
-
----
 
 ## 🤝 Contributing
 
