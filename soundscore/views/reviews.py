@@ -7,7 +7,7 @@ from django.db.models import Avg
 from datetime import datetime
 import json
 from ..models import User, Album, Review
-from ..services.spotify import search_albums
+from ..services.review.spotify import search_albums
 from ..services.review.add_review import add_review_supabase
 from ..services.review.edit_review import edit_review_supabase
 from ..services.review.delete_review import delete_review_supabase

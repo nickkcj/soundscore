@@ -149,3 +149,16 @@ LOGIN_URL = 'login'
 
 SPOTIFY_CLIENT_ID = config('SPOTIFY_CLIENT_ID')
 SPOTIFY_CLIENT_SECRET = config('SPOTIFY_CLIENT_SECRET')
+
+INSTALLED_APPS += ['channels']
+
+ASGI_APPLICATION = 'soundscore.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('localhost', 6379)],  # Redis deve estar rodando
+        },
+    },
+}

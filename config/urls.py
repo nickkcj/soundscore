@@ -27,7 +27,8 @@ urlpatterns = [
     path('comments/', include('soundscore.urls.feed')),  # comment-related routes
     path('chat/', include('soundscore.urls.chat')),  # chat-related routes
     path('notifications/', include('soundscore.urls.notifications')),  # notification-related routes
-    
+    path('groups/', include('soundscore.urls.group')), 
+
 ]
 
 

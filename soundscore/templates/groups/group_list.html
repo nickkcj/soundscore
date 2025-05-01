@@ -1,0 +1,241 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Soundscore - Groups{% endblock %}
+{% block description %}Join music fan groups or create your own{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Page Header Section -->
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Music Groups</h1>
+    
+    <!-- Create Group Button -->
+    <button data-modal-target="create-group-modal" data-modal-toggle="create-group-modal" 
+            class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-5 py-2.5 rounded-full
+                   flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:opacity-90">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span>Create Group</span>
+    </button>
+  </div>
+
+  <!-- Search and Filter Bar -->
+  <div class="flex flex-col md:flex-row gap-4 mb-8">
+    <div class="relative flex-grow">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+        </svg>
+      </div>
+      <input type="text" id="group-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-full block w-full pl-10 p-2.5 focus:ring-pink-500 focus:border-pink-500" placeholder="Search for groups...">
+    </div>
+    
+    <select id="group-filter" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-full block p-2.5 focus:ring-pink-500 focus:border-pink-500">
+      <option selected value="">All Categories</option>
+      <option value="rock">Rock</option>
+      <option value="pop">Pop</option>
+      <option value="hip-hop">Hip-Hop</option>
+      <option value="indie">Indie</option>
+      <option value="electronic">Electronic</option>
+      <option value="classical">Classical</option>
+      <option value="jazz">Jazz</option>
+    </select>
+  </div>
+
+  <!-- Trending Groups Section -->
+  <h2 class="text-xl font-semibold mb-4 text-gray-700">Trending Groups</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+    <!-- Example Trending Group Cards -->
+    {% for group in trending_groups %}
+      {% include "groups/components/group_card.html" with group=group %}
+    {% empty %}
+      <!-- Placeholder for trending groups -->
+      <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col h-full group hover:shadow-lg transition-all duration-300">
+        <div class="relative mb-4 rounded-lg overflow-hidden">
+          <img class="w-full h-40 object-cover" src="{% static 'images/groups/rock-fans.jpg' %}" alt="Rock Fans">
+          <div class="absolute top-2 right-2 bg-pink-500 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">Rock</div>
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+            <span class="text-white text-sm flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              1.2k members
+            </span>
+          </div>
+        </div>
+        <h3 class="text-lg font-bold mb-1 text-gray-800 group-hover:text-pink-600 transition-colors">Rock Music Fans</h3>
+        <p class="text-gray-600 text-sm mb-4 flex-grow">A community for discussing rock music, sharing albums, and connecting with other rock enthusiasts.</p>
+        <a href="{% url 'group_room' group_id=1 %}" class="text-center py-2 px-4 rounded-full text-pink-600 border border-pink-500 hover:bg-pink-50 transition-colors">
+          Join Group
+        </a>
+      </div>
+      
+      <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col h-full group hover:shadow-lg transition-all duration-300">
+        <div class="relative mb-4 rounded-lg overflow-hidden">
+          <img class="w-full h-40 object-cover" src="{% static 'images/groups/vinyl-collectors.jpg' %}" alt="Vinyl Collectors">
+          <div class="absolute top-2 right-2 bg-purple-500 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">Collectors</div>
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+            <span class="text-white text-sm flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              876 members
+            </span>
+          </div>
+        </div>
+        <h3 class="text-lg font-bold mb-1 text-gray-800 group-hover:text-pink-600 transition-colors">Vinyl Collectors Club</h3>
+        <p class="text-gray-600 text-sm mb-4 flex-grow">Share your vinyl collection, discuss rare finds, and connect with fellow record enthusiasts.</p>
+        <a href="{% url 'group_room' group_id=2 %}" class="text-center py-2 px-4 rounded-full text-pink-600 border border-pink-500 hover:bg-pink-50 transition-colors">
+          Join Group
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- All Groups Section -->
+  <h2 class="text-xl font-semibold mb-4 text-gray-700">All Groups</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+    {% for group in groups %}
+      {% include "groups/components/group_card.html" with group=group %}
+    {% empty %}
+      <!-- Empty state when no groups are found -->
+      <div class="col-span-full text-center py-16">
+        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-800 mb-2">No groups found</h3>
+        <p class="text-gray-500 mb-6">Try changing your search criteria or create a new group</p>
+        <button data-modal-target="create-group-modal" data-modal-toggle="create-group-modal" 
+                class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-5 py-2.5 rounded-full
+                      inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:opacity-90">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Create a Group</span>
+        </button>
+      </div>
+    {% endfor %}
+    
+    <!-- More example groups can be added here -->
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex justify-center mt-8">
+    <nav aria-label="Page navigation">
+      <ul class="inline-flex -space-x-px">
+        <li>
+          <a href="#" class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-pink-600">Previous</a>
+        </li>
+        <li>
+          <a href="#" class="px-3 py-2 leading-tight text-white bg-pink-500 border border-pink-500 hover:bg-pink-600 hover:border-pink-600">1</a>
+        </li>
+        <li>
+          <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-pink-600">2</a>
+        </li>
+        <li>
+          <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-pink-600">3</a>
+        </li>
+        <li>
+          <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-pink-600">Next</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- Create Group Modal -->
+<div id="create-group-modal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative w-full max-w-md max-h-full">
+    <!-- Modal content -->
+    <div class="relative bg-white rounded-lg shadow">
+      <!-- Modal header -->
+      <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+        <h3 class="text-xl font-medium text-gray-900">Create New Group</h3>
+        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="create-group-modal">
+          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+          </svg>
+          <span class="sr-only">Close modal</span>
+        </button>
+      </div>
+      <!-- Modal body -->
+      <div class="p-4 md:p-5">
+        <form action="{% url 'create_group' %}" method="post" enctype="multipart/form-data" class="space-y-4">
+          {% csrf_token %}
+          <div>
+            <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Group Name</label>
+            <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-pink-500 focus:border-pink-500 block w-full p-2.5" placeholder="Enter group name" required>
+          </div>
+          <div>
+            <label for="description" class="block mb-2 text-sm font-medium text-gray-900">Description</label>
+            <textarea id="description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-pink-500 focus:border-pink-500" placeholder="Describe what your group is about..."></textarea>
+          </div>
+          <div>
+            <label for="category" class="block mb-2 text-sm font-medium text-gray-900">Category</label>
+            <select id="category" name="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-pink-500 focus:border-pink-500 block w-full p-2.5">
+              <option selected value="">Select a category</option>
+              <option value="rock">Rock</option>
+              <option value="pop">Pop</option>
+              <option value="hip-hop">Hip-Hop</option>
+              <option value="indie">Indie</option>
+              <option value="electronic">Electronic</option>
+              <option value="classical">Classical</option>
+              <option value="jazz">Jazz</option>
+            </select>
+          </div>
+          <div>
+            <label for="privacy" class="block mb-2 text-sm font-medium text-gray-900">Privacy Setting</label>
+            <div class="flex gap-4">
+              <div class="flex items-center">
+                <input id="public" type="radio" value="public" name="privacy" class="w-4 h-4 text-pink-600 bg-gray-100 border-gray-300 focus:ring-pink-500" checked>
+                <label for="public" class="ml-2 text-sm font-medium text-gray-900">Public</label>
+              </div>
+              <div class="flex items-center">
+                <input id="private" type="radio" value="private" name="privacy" class="w-4 h-4 text-pink-600 bg-gray-100 border-gray-300 focus:ring-pink-500">
+                <label for="private" class="ml-2 text-sm font-medium text-gray-900">Private</label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="block mb-2 text-sm font-medium text-gray-900" for="cover_image">Cover Image</label>
+            <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" id="cover_image" name="cover_image" type="file" accept="image/*">
+          </div>
+          <button type="submit" class="w-full text-white bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Create Group</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add the required JavaScript for the modal functionality -->
+<script>
+  // Simple modal functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const modalToggles = document.querySelectorAll('[data-modal-toggle]');
+    modalToggles.forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-modal-target');
+        const modal = document.getElementById(targetId);
+        if (modal) {
+          modal.classList.toggle('hidden');
+        }
+      });
+    });
+    
+    const modalHides = document.querySelectorAll('[data-modal-hide]');
+    modalHides.forEach(hide => {
+      hide.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-modal-hide');
+        const modal = document.getElementById(targetId);
+        if (modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

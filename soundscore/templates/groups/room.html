@@ -1,0 +1,272 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}{{ group.name }} | SoundScore Groups{% endblock %}
+{% block description %}Chat with other members in {{ group.name }}{% endblock %}
+
+{% block content %}
+<!-- Group Chat Room Container -->
+<div class="container mx-auto px-4 py-6">
+  <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+    <!-- Group Header -->
+    <div class="bg-gradient-to-r from-pink-500 to-purple-500 p-4 text-white flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <a href="{% url 'all_groups' %}" class="hover:bg-white/20 rounded-full p-1.5 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div>
+          <h1 class="text-xl font-bold">{{ group.name|default:"Group Chat" }}</h1>
+          <p class="text-sm text-white/80">{{ member_count|default:"0" }} members</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button class="hover:bg-white/20 rounded-full p-1.5 transition-colors" title="Group Info">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+        <button class="hover:bg-white/20 rounded-full p-1.5 transition-colors" title="Members">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </button>
+        <button class="hover:bg-white/20 rounded-full p-1.5 transition-colors" title="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4">
+      <!-- Members Sidebar (Hidden on mobile) -->
+      <div class="hidden lg:block lg:col-span-1 border-r border-gray-200 p-4 h-[70vh] overflow-y-auto">
+        <h3 class="text-sm font-medium text-gray-500 mb-4">MEMBERS</h3>
+        
+        <!-- Online members -->
+        <h4 class="text-xs font-medium text-gray-400 mb-2">ONLINE - 3</h4>
+        <ul class="space-y-2 mb-6">
+          <li class="flex items-center gap-2">
+            <div class="relative">
+              <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/avatar-1.jpg' %}" alt="User">
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+            </div>
+            <span class="text-sm font-medium">Jane Cooper</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <div class="relative">
+              <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/avatar-2.jpg' %}" alt="User">
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+            </div>
+            <span class="text-sm font-medium">Wade Warren</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <div class="relative">
+              <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/avatar-3.jpg' %}" alt="User">
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+            </div>
+            <span class="text-sm font-medium">Robert Fox</span>
+          </li>
+        </ul>
+        
+        <!-- Offline members -->
+        <h4 class="text-xs font-medium text-gray-400 mb-2">OFFLINE - 12</h4>
+        <ul class="space-y-2">
+          <li class="flex items-center gap-2">
+            <div class="relative">
+              <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/avatar-4.jpg' %}" alt="User">
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-gray-300 rounded-full border-2 border-white"></span>
+            </div>
+            <span class="text-sm font-medium text-gray-600">Leslie Alexander</span>
+          </li>
+          <!-- More offline members can be listed here -->
+        </ul>
+      </div>
+      
+      <!-- Chat Main Content -->
+      <div class="col-span-1 lg:col-span-3 flex flex-col h-[70vh]">
+        <!-- Chat Messages -->
+        <div id="chat-log" class="flex-grow p-4 overflow-y-auto space-y-4">
+          <!-- Date separator -->
+          <div class="flex items-center justify-center my-4">
+            <span class="px-3 py-1 text-xs bg-gray-100 rounded-full text-gray-500">Today</span>
+          </div>
+          
+          <!-- Example messages -->
+          <div class="flex items-start gap-2.5">
+            <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/avatar-1.jpg' %}" alt="Jane">
+            <div class="flex flex-col gap-1 max-w-[80%]">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-gray-900">Jane Cooper</span>
+                <span class="text-xs text-gray-500">11:42 AM</span>
+              </div>
+              <div class="bg-gray-100 rounded-lg py-2 px-3 text-gray-900">
+                <p>Hey everyone! Has anyone listened to the new Coldplay album?</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex items-start gap-2.5">
+            <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/avatar-2.jpg' %}" alt="Wade">
+            <div class="flex flex-col gap-1 max-w-[80%]">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-gray-900">Wade Warren</span>
+                <span class="text-xs text-gray-500">11:44 AM</span>
+              </div>
+              <div class="bg-gray-100 rounded-lg py-2 px-3 text-gray-900">
+                <p>Yes! It's amazing. My favorite track is definitely "Higher Power".</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- User's own message, right-aligned -->
+          <div class="flex items-start gap-2.5 justify-end">
+            <div class="flex flex-col gap-1 items-end max-w-[80%]">
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-500">11:45 AM</span>
+                <span class="text-sm font-semibold text-gray-900">You</span>
+              </div>
+              <div class="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg py-2 px-3">
+                <p>I'm still listening to it! I think "Coloratura" might be my favorite though.</p>
+              </div>
+            </div>
+            <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/avatar-3.jpg' %}" alt="You">
+          </div>
+          
+          <!-- Shared image message -->
+          <div class="flex items-start gap-2.5">
+            <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/avatar-2.jpg' %}" alt="Wade">
+            <div class="flex flex-col gap-1 max-w-[80%]">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-gray-900">Wade Warren</span>
+                <span class="text-xs text-gray-500">11:47 AM</span>
+              </div>
+              <div class="bg-gray-100 rounded-lg py-2 px-3 text-gray-900">
+                <p class="mb-2">Check out their album cover! I love the desert aesthetic.</p>
+                <img class="rounded-lg max-h-[200px] w-auto" src="https://m.media-amazon.com/images/I/71UoVQb7BZL._UF1000,1000_QL80_.jpg" alt="Album Cover">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Message Input Form -->
+        <div class="border-t border-gray-200 p-4 bg-gray-50">
+          <form class="flex items-end gap-2">
+            <button type="button" class="text-gray-400 hover:text-pink-500 p-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </button>
+            <div class="flex-grow">
+              <input id="chat-message-input" type="text" class="w-full border border-gray-300 rounded-full py-2 px-4 focus:ring-pink-500 focus:border-pink-500" placeholder="Type your message...">
+            </div>
+            <button id="chat-message-submit" type="button" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full p-2 hover:opacity-90 transition-opacity">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WebSocket Connection Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const roomId = "{{ group_id }}";
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const chatSocket = new WebSocket(
+        wsScheme + '://' + window.location.host + '/ws/group/' + roomId + '/');
+    
+    const chatLog = document.getElementById('chat-log');
+    const messageInput = document.getElementById('chat-message-input');
+    const submitButton = document.getElementById('chat-message-submit');
+    
+    // Function to create message HTML
+    function createMessage(data) {
+      const isOwnMessage = data.user === "{{ request.user.username }}";
+      const messageTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      
+      // Create message container
+      const messageContainer = document.createElement('div');
+      messageContainer.className = `flex items-start gap-2.5 ${isOwnMessage ? 'justify-end' : ''}`;
+      
+      // Create avatar and message content based on sender
+      if (isOwnMessage) {
+        messageContainer.innerHTML = `
+          <div class="flex flex-col gap-1 items-end max-w-[80%]">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500">${messageTime}</span>
+              <span class="text-sm font-semibold text-gray-900">You</span>
+            </div>
+            <div class="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg py-2 px-3">
+              <p>${data.message}</p>
+            </div>
+          </div>
+          <img class="w-8 h-8 rounded-full" src="${data.avatar || '{% static "images/avatars/default.jpg" %}'}" alt="You">
+        `;
+      } else {
+        messageContainer.innerHTML = `
+          <img class="w-8 h-8 rounded-full" src="${data.avatar || '{% static "images/avatars/default.jpg" %}'}" alt="${data.user}">
+          <div class="flex flex-col gap-1 max-w-[80%]">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-semibold text-gray-900">${data.user}</span>
+              <span class="text-xs text-gray-500">${messageTime}</span>
+            </div>
+            <div class="bg-gray-100 rounded-lg py-2 px-3 text-gray-900">
+              <p>${data.message}</p>
+            </div>
+          </div>
+        `;
+      }
+      
+      return messageContainer;
+    }
+    
+    // Handle received messages
+    chatSocket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      chatLog.appendChild(createMessage(data));
+      chatLog.scrollTop = chatLog.scrollHeight;
+    };
+    
+    // Handle WebSocket errors
+    chatSocket.onclose = function(e) {
+      console.error('Chat socket closed unexpectedly');
+      // Attempt to reconnect after a delay
+      setTimeout(function() {
+        window.location.reload();
+      }, 3000);
+    };
+    
+    // Send message on button click
+    submitButton.onclick = function(e) {
+      if (messageInput.value.trim()) {
+        chatSocket.send(JSON.stringify({
+          'message': messageInput.value
+        }));
+        messageInput.value = '';
+      }
+    };
+    
+    // Send message on Enter key
+    messageInput.onkeyup = function(e) {
+      if (e.key === 'Enter' && messageInput.value.trim()) {
+        submitButton.click();
+      }
+    };
+    
+    // Focus on the input field when page loads
+    messageInput.focus();
+    
+    // Scroll to the bottom of the chat log
+    chatLog.scrollTop = chatLog.scrollHeight;
+  });
+</script>
+{% endblock %}

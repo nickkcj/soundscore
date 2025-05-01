@@ -1,4 +1,4 @@
-version: "3.13" # Use a valid version like "3.8" or "3.9" if 3.13 isn't supported
+version: "3.13" 
 
 services:
   web:
@@ -11,6 +11,13 @@ services:
       - "8000:8000"
     environment:
       - DEBUG=True
-    command: > # Use > for multi-line command
+    depends_on:
+      - redis  # 🟢 Adiciona dependência do Redis
+    command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"  # Expor não é obrigatório, mas pode ajudar para debug
