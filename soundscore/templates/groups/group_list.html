@@ -49,7 +49,27 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
     <!-- Example Trending Group Cards -->
     {% for group in trending_groups %}
-      {% include "groups/components/group_card.html" with group=group %}
+      <!-- Group Card - directly in the main template -->
+      <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col h-full group hover:shadow-lg transition-all duration-300">
+        <div class="relative mb-4 rounded-lg overflow-hidden">
+          <img class="w-full h-40 object-cover" 
+               src="{{ group.cover_image|default:'static/images/groups/default-cover.jpg' }}" 
+               alt="{{ group.name }}">
+          <div class="absolute top-2 right-2 bg-pink-500 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
+            {{ group.category|default:"Music" }}
+          </div>
+        </div>
+        <h3 class="text-lg font-bold mb-1 text-gray-800 group-hover:text-pink-600 transition-colors">
+          {{ group.name }}
+        </h3>
+        <p class="text-gray-600 text-sm mb-4 flex-grow">
+          {{ group.description|truncatechars:100 }}
+        </p>
+        <a href="{% url 'group_room' group_id=group.id %}" 
+           class="text-center py-2 px-4 rounded-full text-pink-600 border border-pink-500 hover:bg-pink-50 transition-colors">
+          Join Group
+        </a>
+      </div>
     {% empty %}
       <!-- Placeholder for trending groups -->
       <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col h-full group hover:shadow-lg transition-all duration-300">
@@ -98,7 +118,27 @@
   <h2 class="text-xl font-semibold mb-4 text-gray-700">All Groups</h2>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
     {% for group in groups %}
-      {% include "groups/components/group_card.html" with group=group %}
+      <!-- Group Card - directly in the main template -->
+      <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col h-full group hover:shadow-lg transition-all duration-300">
+        <div class="relative mb-4 rounded-lg overflow-hidden">
+          <img class="w-full h-40 object-cover" 
+               src="{{ group.cover_image|default:'static/images/groups/default-cover.jpg' }}" 
+               alt="{{ group.name }}">
+          <div class="absolute top-2 right-2 bg-pink-500 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
+            {{ group.category|default:"Music" }}
+          </div>
+        </div>
+        <h3 class="text-lg font-bold mb-1 text-gray-800 group-hover:text-pink-600 transition-colors">
+          {{ group.name }}
+        </h3>
+        <p class="text-gray-600 text-sm mb-4 flex-grow">
+          {{ group.description|truncatechars:100 }}
+        </p>
+        <a href="{% url 'group_room' group_id=group.id %}" 
+           class="text-center py-2 px-4 rounded-full text-pink-600 border border-pink-500 hover:bg-pink-50 transition-colors">
+          Join Group
+        </a>
+      </div>
     {% empty %}
       <!-- Empty state when no groups are found -->
       <div class="col-span-full text-center py-16">
@@ -212,30 +252,7 @@
 </div>
 
 <!-- Add the required JavaScript for the modal functionality -->
-<script>
-  // Simple modal functionality
-  document.addEventListener('DOMContentLoaded', function() {
-    const modalToggles = document.querySelectorAll('[data-modal-toggle]');
-    modalToggles.forEach(toggle => {
-      toggle.addEventListener('click', function() {
-        const targetId = this.getAttribute('data-modal-target');
-        const modal = document.getElementById(targetId);
-        if (modal) {
-          modal.classList.toggle('hidden');
-        }
-      });
-    });
-    
-    const modalHides = document.querySelectorAll('[data-modal-hide]');
-    modalHides.forEach(hide => {
-      hide.addEventListener('click', function() {
-        const targetId = this.getAttribute('data-modal-hide');
-        const modal = document.getElementById(targetId);
-        if (modal) {
-          modal.classList.add('hidden');
-        }
-      });
-    });
-  });
-</script>
+{% block extra_js %}
+<script src="{% static 'js/groups/create_group.js' %}" defer></script>
+{% endblock %}
 {% endblock %}

@@ -5,7 +5,7 @@ import uuid
 
 @login_required
 def group_chat_page(request, group_id):
-    return render(request, 'groups/room.html', {
+    return render(request, 'groups/group_room.html', {
         'group_id': group_id
     })
 
@@ -24,9 +24,11 @@ def all_groups(request):
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 
+@login_required
 @csrf_exempt
 def create_group(request):
     if request.method == "POST":
+        print(f"USER ID CHECK: {request.user.id}")
         name = request.POST.get("name")
         description = request.POST.get("description", "")
         category = request.POST.get("category")
@@ -73,15 +75,83 @@ def create_group(request):
 
 def group_room(request, group_id):
     supabase = authenticate_with_jwt()
+    user_id = request.user.id
 
+    # Auto-join the user to the group if not already a member
+    existing = supabase.table("chat_group_member").select("*") \
+        .eq("group_id", group_id) \
+        .eq("user_id", user_id) \
+        .execute()
+    
+    if not existing.data:
+        supabase.table("chat_group_member").insert({
+            "group_id": group_id,
+            "user_id": user_id
+        }).execute()
+
+    # Get group details
     group = supabase.table("chat_group").select("*").eq("id", group_id).execute().data[0]
+    
+    # Get all members
     members = supabase.table("chat_group_member").select("user_id").eq("group_id", group_id).execute().data
     member_count = len(members)
-
+    
+    # Get online members
+    online_members = supabase.table("group_user_online_detailed") \
+        .select("username") \
+        .eq("group_id", group_id) \
+        .eq("is_online", True) \
+        .execute().data
+    
+    # Get recent messages - without ordering by created_at
+    recent_messages = supabase.table("chat_group_message") \
+        .select("*, soundscore_user(username)") \
+        .eq("group_id", group_id) \
+        .limit(50) \
+        .execute().data
+    
+    # Format messages for template - update to match the new structure
+    formatted_messages = []
+    for msg in recent_messages:
+        username = msg["soundscore_user"]["username"] if "soundscore_user" in msg else "Unknown User"
+        formatted_messages.append({
+            "content": msg["content"],
+            "username": username,
+            "created_at": msg["created_at"],
+            "user_id": msg["user_id"]
+        })
+    
+    formatted_messages.reverse()  # Show oldest messages first
+    
     return render(request, "groups/group_room.html", {
         "group": group,
         "group_id": group_id,
-        "member_count": member_count
+        "member_count": member_count,
+        "online_members": online_members,
+        "recent_messages": formatted_messages
     })
+
+
+@login_required
+def join_group(request, group_id):
+    """Add the current user to a group if not already a member"""
+    user_id = request.user.id
+    
+    # Check if the user is already a member
+    supabase = authenticate_with_jwt()
+    existing = supabase.table("chat_group_member").select("*") \
+        .eq("group_id", group_id) \
+        .eq("user_id", user_id) \
+        .execute()
+    
+    # If not already a member, add them
+    if not existing.data:
+        supabase.table("chat_group_member").insert({
+            "group_id": group_id,
+            "user_id": user_id
+        }).execute()
+    
+    # Redirect to the group room
+    return redirect("group_room", group_id=group_id)
 
 

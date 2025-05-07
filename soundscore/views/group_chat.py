@@ -96,7 +96,6 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
         }).eq("group_id", group_id).eq("user_id", user_id).execute()
 
     @database_sync_to_async
-    
     def get_online_users(self, group_id):
         supabase = authenticate_with_jwt()
         res = supabase.table("group_user_online_detailed") \
@@ -110,10 +109,10 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
     def get_last_seen(self, user_id, group_id):
         supabase = authenticate_with_jwt()
         res = supabase.table("chat_group_online_status") \
-            .select("updated_at") \
+            .select("last_seen") \
             .eq("group_id", group_id) \
             .eq("user_id", user_id) \
             .execute()
-        return res.data[0]["updated_at"] if res.data else None
+        return res.data[0].get("last_seen") if res.data else None
 
 
