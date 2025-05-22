@@ -9,42 +9,57 @@ from ..services.user.supabase_client import authenticate_with_jwt
 from ..services.user.add_user import add_user_supabase
 from ..services.user.update_user import update_user_supabase
 from ..services.user.delete_user import delete_user_data_supabase
+from ..pydantic_schemas import RegisterSchema
+from pydantic import ValidationError
 
 def register(request):
     if request.method == "POST":
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
+        data = {
+            "username": request.POST.get('username'),
+            "email": request.POST.get('email'),
+            "password": request.POST.get('password'),
+            "confirm_password": request.POST.get('confirm_password')
+        }
 
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match")
-            return redirect('register')
-        
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists")
-            return redirect('register')
-        
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already exists")
-            return redirect('register')
-        
         try:
-            response = add_user_supabase(username, password, email)
+            # Validação com Pydantic
+            validated = RegisterSchema(**data)
+
+            # Checa se usuário ou email já existem
+            if User.objects.filter(username=validated.username).exists():
+                messages.error(request, "Username already exists")
+                return redirect('register')
+            if User.objects.filter(email=validated.email).exists():
+                messages.error(request, "Email already exists")
+                return redirect('register')
+
+            # Criação no Supabase
+            response = add_user_supabase(validated.username, validated.password, validated.email)
             if "error" in response:
                 messages.error(request, response["error"])
                 return redirect('register')
-            
-            password = make_password(password) 
-            user = User.objects.create(username=username, email=email, password=password)
+
+            # Criação local
+            user = User.objects.create(
+                username=validated.username,
+                email=validated.email,
+                password=make_password(validated.password)
+            )
             user.save()
+
             auth_logout(request)
             messages.success(request, "User registered successfully!")
             return redirect('login')
-        except Exception as e:
-            messages.error(request, f"Error: {e}")
+
+        except ValidationError as e:
+            for error in e.errors():
+                messages.error(request, f"{error['loc'][0]}: {error['msg']}")
             return redirect('register')
-        
+
+        except Exception as e:
+            messages.error(request, f"Unexpected error: {e}")
+            return redirect('register')
+
     return render(request, 'auth/register.html')
 
 def login(request):
