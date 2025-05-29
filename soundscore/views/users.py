@@ -180,6 +180,7 @@ def account(request, username):
 
 def logout_view(request):
     auth_logout(request)
+    
     return redirect('home')
 
 @login_required
