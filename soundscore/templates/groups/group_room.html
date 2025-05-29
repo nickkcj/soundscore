@@ -12,66 +12,34 @@
     <div class="bg-gradient-to-r from-pink-500 to-purple-500 p-4 text-white flex justify-between items-center">
       <div class="flex items-center gap-3">
         <a href="{% url 'all_groups' %}" class="hover:bg-white/20 rounded-full p-1.5 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
+          <!-- ... SVG ... -->
         </a>
         <div>
           <h1 class="text-xl font-bold">{{ group.name|default:"Group Chat" }}</h1>
           <p class="text-sm text-white/80">{{ member_count|default:"0" }} members</p>
         </div>
       </div>
-      
-      <div class="flex items-center gap-2">
-        <button class="hover:bg-white/20 rounded-full p-1.5 transition-colors" title="Group Info">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </button>
-        <button class="hover:bg-white/20 rounded-full p-1.5 transition-colors" title="Members">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-        </button>
-        <button class="hover:bg-white/20 rounded-full p-1.5 transition-colors" title="Settings">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </button>
-      </div>
+      <!-- ... header buttons ... -->
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4">
       <!-- Members Sidebar (Hidden on mobile) -->
       <div class="hidden lg:block lg:col-span-1 border-r border-gray-200 p-4 h-[70vh] overflow-y-auto">
         <h3 class="text-sm font-medium text-gray-500 mb-4">MEMBERS</h3>
-        
-        <!-- Online members - Initial server-side render -->
-        <h4 class="text-xs font-medium text-gray-400 mb-2">ONLINE - <span id="online-count">{{ online_members|length }}</span></h4>
-        <ul id="online-users-list" class="space-y-2 mb-6">
-          {% for member in online_members %}
+        <ul class="space-y-2 mb-6">
+          {% for member in members %}
             <li class="flex items-center gap-2">
               <div class="relative">
-                <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/default.jpg' %}" alt="{{ member.username }}">
-                <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                <img class="w-8 h-8 rounded-full" src="{{ member.profile_picture|default:'/static/images/default.jpg' }}" alt="{{ member.username }}">
+                {% if member.is_online %}
+                  <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                {% else %}
+                  <span class="absolute bottom-0 right-0 w-3 h-3 bg-gray-300 rounded-full border-2 border-white"></span>
+                {% endif %}
               </div>
               <span class="text-sm font-medium">{{ member.username }}</span>
             </li>
           {% endfor %}
-        </ul>
-        
-        <!-- Offline members -->
-        <h4 class="text-xs font-medium text-gray-400 mb-2">OFFLINE - 12</h4>
-        <ul class="space-y-2">
-          <li class="flex items-center gap-2">
-            <div class="relative">
-              <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/avatar-4.jpg' %}" alt="User">
-              <span class="absolute bottom-0 right-0 w-3 h-3 bg-gray-300 rounded-full border-2 border-white"></span>
-            </div>
-            <span class="text-sm font-medium text-gray-600">Leslie Alexander</span>
-          </li>
-          <!-- More offline members can be listed here -->
         </ul>
       </div>
       
@@ -79,30 +47,25 @@
       <div class="col-span-1 lg:col-span-3 flex flex-col h-[70vh]">
         <!-- Chat Messages -->
         <div id="chat-log" class="flex-grow p-4 overflow-y-auto space-y-4">
-          <!-- Date separator -->
           <div class="flex items-center justify-center my-4">
             <span class="px-3 py-1 text-xs bg-gray-100 rounded-full text-gray-500">Today</span>
           </div>
-          
-          <!-- Example messages -->
           {% for message in recent_messages %}
-          <div class="flex items-start gap-2.5 {% if message.user_id == request.user.id %}justify-end{% endif %}">
-            {% if message.user_id != request.user.id %}
-            <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/default.jpg' %}" alt="{{ message.username }}">
+          <div class="flex items-start gap-2.5 {% if message.username == current_username %}justify-end{% endif %}">
+            {% if message.username != current_username %}
+            <img class="w-8 h-8 rounded-full" src="{{ message.profile_picture|default:'/static/images/default.jpg' }}" alt="{{ message.username }}">
             {% endif %}
-            
-            <div class="flex flex-col gap-1 {% if message.user_id == request.user.id %}items-end{% endif %} max-w-[80%]">
-              <div class="flex items-center gap-2 {% if message.user_id == request.user.id %}flex-row-reverse{% endif %}">
-                <span class="text-sm font-semibold text-gray-900">{% if message.user_id == request.user.id %}You{% else %}{{ message.username }}{% endif %}</span>
-                <span class="text-xs text-gray-500">{{ message.created_at|date:"H:i" }}</span>
+            <div class="flex flex-col gap-1 {% if message.username == current_username %}items-end{% endif %} max-w-[80%]">
+              <div class="flex items-center gap-2 {% if message.username == current_username %}flex-row-reverse{% endif %}">
+                <span class="text-sm font-semibold text-gray-900">{% if message.username == current_username %}You{% else %}{{ message.username }}{% endif %}</span>
+                <!-- If you have a timestamp, show it here -->
               </div>
-              <div class="{% if message.user_id == request.user.id %}bg-gradient-to-r from-pink-500 to-purple-500 text-white{% else %}bg-gray-100 text-gray-900{% endif %} rounded-lg py-2 px-3">
+              <div class="{% if message.username == current_username %}bg-gradient-to-r from-pink-500 to-purple-500 text-white{% else %}bg-gray-100 text-gray-900{% endif %} rounded-lg py-2 px-3">
                 <p>{{ message.content }}</p>
               </div>
             </div>
-            
-            {% if message.user_id == request.user.id %}
-            <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/default.jpg' %}" alt="You">
+            {% if message.username == current_username %}
+            <img class="w-8 h-8 rounded-full" src="{{ message.profile_picture|default:'/static/images/default.jpg' }}" alt="You">
             {% endif %}
           </div>
           {% endfor %}
@@ -111,18 +74,14 @@
         <!-- Message Input Form -->
         <div class="border-t border-gray-200 p-4 bg-gray-50">
           <form class="flex items-end gap-2">
-            <button type="button" class="text-gray-400 hover:text-pink-500 p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </button>
             <div class="flex-grow">
-              <input id="chat-message-input" type="text" class="w-full border border-gray-300 rounded-full py-2 px-4 focus:ring-pink-500 focus:border-pink-500" placeholder="Type your message...">
+              <textarea id="chat-message-input" placeholder="Type your message..." 
+                       class="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                       rows="1"></textarea>
             </div>
-            <button id="chat-message-submit" type="button" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full p-2 hover:opacity-90 transition-opacity">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
+            <button id="chat-message-submit" type="button" 
+                   class="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full p-2 hover:opacity-90 transition-opacity">
+              Send
             </button>
           </form>
         </div>
@@ -131,77 +90,78 @@
   </div>
 </div>
 
-<!-- WebSocket Connection Script -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Minimal WebSocket code - still required
+    const currentUserId = "{{ request.user.id }}";
+    const storedUserId = localStorage.getItem('chatUserId');
+    if (storedUserId && storedUserId !== currentUserId) {
+      window.location.reload();
+    }
+    localStorage.setItem('chatUserId', currentUserId);
+  });
+</script>
+
+<script>
+  let globalChatLog;
+  document.addEventListener('DOMContentLoaded', function() {
     const roomId = "{{ group_id }}";
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    let chatSocket = new WebSocket(
-        wsScheme + '://' + window.location.host + '/ws/group/' + roomId + '/');
-    
-    // 1. Define DOM elements
     const chatLog = document.getElementById('chat-log');
+    globalChatLog = chatLog;
     const messageInput = document.getElementById('chat-message-input');
     const submitButton = document.getElementById('chat-message-submit');
-    
-    // Handle incoming messages
+    if (!chatLog || !messageInput || !submitButton) return;
+
+    let chatSocket = new WebSocket(
+        wsScheme + '://' + window.location.host + '/ws/group/' + roomId + '/');
+
+    chatSocket.onopen = function(e) { console.log('Chat socket connected'); };
     chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        
-        if (!data.type) {
-            // Handle new chat message
-            addMessageToChat(data);
-        } else if (data.type === 'online_users') {
-            // Update online users count and list
-            updateOnlineUsers(data.users);
+        try {
+            const data = JSON.parse(e.data);
+            if (!data.type || data.type === "message") {
+                addMessageToChat(data, chatLog);
+            } else if (data.type === 'online_users') {
+                updateOnlineUsers(data.users);
+            }
+        } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
         }
     };
-    
-    // Handle WebSocket closure
-    chatSocket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
-        // Try to reconnect without page reload
-        setTimeout(function() {
-            window.location = window.location;
-        }, 3000);
-    };
-    
-    // Send message on button click
+    chatSocket.onclose = function(e) { console.error('Chat socket closed unexpectedly'); };
+    chatSocket.onerror = function(e) { console.error('WebSocket error:', e); };
+
     submitButton.onclick = function(e) {
       if (messageInput.value.trim()) {
         chatSocket.send(JSON.stringify({
-          'message': messageInput.value
+          'message': messageInput.value,
+          'refresh_user': true
         }));
         messageInput.value = '';
       }
     };
-    
-    // Send message on Enter key
     messageInput.onkeyup = function(e) {
-      if (e.key === 'Enter' && messageInput.value.trim()) {
-        submitButton.click();
-      }
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (messageInput.value.trim()) {
+                submitButton.click();
+            }
+        }
     };
-    
-    // Focus on the input field when page loads
     messageInput.focus();
-    
-    // Scroll to the bottom of the chat log
     chatLog.scrollTop = chatLog.scrollHeight;
   });
-  
-  // 2. Function to add messages to chat
-  function addMessageToChat(data) {
+
+  function addMessageToChat(data, chatLogElement) {
+    const chatLog = chatLogElement || globalChatLog;
+    if (!chatLog) return;
+    const profilePic = data.profile_pic || "/static/images/default.jpg";
     const isCurrentUser = data.user === "{{ request.user.username }}";
-    
     const messageElement = document.createElement('div');
-    messageElement.className = isCurrentUser ? 
-      'flex items-start gap-2.5 justify-end' : 
+    messageElement.className = isCurrentUser ?
+      'flex items-start gap-2.5 justify-end' :
       'flex items-start gap-2.5';
-    
-    // Format the message HTML based on whether it's the current user or not
-    messageElement.innerHTML = isCurrentUser ? 
+    messageElement.innerHTML = isCurrentUser ?
       `<div class="flex flex-col gap-1 items-end max-w-[80%]">
         <div class="flex items-center gap-2">
           <span class="text-xs text-gray-500">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
@@ -211,8 +171,8 @@
           <p>${data.message}</p>
         </div>
       </div>
-      <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/default.jpg' %}" alt="You">` :
-      `<img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/default.jpg' %}" alt="${data.user}">
+      <img class="w-8 h-8 rounded-full" src="${profilePic}" alt="You">` :
+      `<img class="w-8 h-8 rounded-full" src="${profilePic}" alt="${data.user}">
       <div class="flex flex-col gap-1 max-w-[80%]">
         <div class="flex items-center gap-2">
           <span class="text-sm font-semibold text-gray-900">${data.user}</span>
@@ -222,29 +182,22 @@
           <p>${data.message}</p>
         </div>
       </div>`;
-    
     chatLog.appendChild(messageElement);
     chatLog.scrollTop = chatLog.scrollHeight;
   }
-  
-  // 3. Function to update online users list
+
   function updateOnlineUsers(users) {
     const onlineList = document.getElementById('online-users-list');
     const onlineCount = document.getElementById('online-count');
-    
-    // Update the count
+    if (!onlineList || !onlineCount) return;
     onlineCount.textContent = users.length;
-    
-    // Clear the list
     onlineList.innerHTML = '';
-    
-    // Add each user to the list
     users.forEach(username => {
       const li = document.createElement('li');
       li.className = 'flex items-center gap-2';
       li.innerHTML = `
         <div class="relative">
-          <img class="w-8 h-8 rounded-full" src="{% static 'images/avatars/default.jpg' %}" alt="${username}">
+          <img class="w-8 h-8 rounded-full" src="/static/images/default.jpg" alt="${username}">
           <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
         </div>
         <span class="text-sm font-medium">${username}</span>
@@ -252,5 +205,41 @@
       onlineList.appendChild(li);
     });
   }
+</script>
+
+<script>
+const groupId = "{{ group_id }}";
+function setOnlineStatus(isOnline) {
+  fetch("{% url 'set_online_status' %}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": "{{ csrf_token }}"
+    },
+    body: JSON.stringify({
+      group_id: groupId,
+      is_online: isOnline
+    })
+  });
+}
+
+let onlineInterval = null;
+function startOnlinePing() {
+  setOnlineStatus(true);
+  if (onlineInterval) clearInterval(onlineInterval);
+  onlineInterval = setInterval(() => setOnlineStatus(true), 60000); // every 1 minute
+}
+function stopOnlinePing() {
+  setOnlineStatus(false);
+  if (onlineInterval) clearInterval(onlineInterval);
+}
+
+window.addEventListener("focus", startOnlinePing);
+window.addEventListener("blur", stopOnlinePing);
+document.addEventListener("visibilitychange", function() {
+  if (document.visibilityState === "visible") startOnlinePing();
+  else stopOnlinePing();
+});
+startOnlinePing();
 </script>
 {% endblock %}

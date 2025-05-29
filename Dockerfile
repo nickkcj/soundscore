@@ -19,4 +19,4 @@ ENV PYTHONUNBUFFERED=1
 
 # Run migrations and collect static files before starting the server
 # Use exec form (JSON array) for CMD to handle signals properly
-CMD ["sh", "-c", "python manage.py makemigrations soundscore --no-input && python manage.py collectstatic --noinput && python manage.py migrate --fake-initial && gunicorn config.wsgi:application"]
+CMD ["sh", "-c", "python manage.py makemigrations soundscore --no-input && python manage.py collectstatic --noinput && python manage.py migrate --fake-initial && uvicorn config.asgi:application --host 0.0.0.0 --port 8000"]

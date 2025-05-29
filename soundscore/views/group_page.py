@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from soundscore.services.user.supabase_client import authenticate_with_jwt
 import uuid
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 @login_required
 def group_chat_page(request, group_id):
@@ -20,9 +22,6 @@ def all_groups(request):
         "trending_groups": trending
     })
 
-
-from django.shortcuts import redirect
-from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 @csrf_exempt
@@ -73,72 +72,93 @@ def create_group(request):
         return redirect("group_room", group_id=group_id)
 
 
+@login_required
 def group_room(request, group_id):
     supabase = authenticate_with_jwt()
-    user_id = request.user.id
+    user_id = supabase.table("soundscore_user") \
+        .select("id") \
+        .eq("username", request.user.username) \
+        .execute().data[0]["id"]
 
-    # Auto-join the user to the group if not already a member
+    # Auto-join logic...
     existing = supabase.table("chat_group_member").select("*") \
         .eq("group_id", group_id) \
         .eq("user_id", user_id) \
         .execute()
-    
     if not existing.data:
         supabase.table("chat_group_member").insert({
             "group_id": group_id,
             "user_id": user_id
         }).execute()
 
-    # Get group details
     group = supabase.table("chat_group").select("*").eq("id", group_id).execute().data[0]
-    
-    # Get all members
-    members = supabase.table("chat_group_member").select("user_id").eq("group_id", group_id).execute().data
-    member_count = len(members)
-    
-    # Get online members
-    online_members = supabase.table("group_user_online_detailed") \
-        .select("username") \
+    members = supabase.table("chat_group_member") \
+        .select("user_id, soundscore_user(username,profile_picture)") \
+        .eq("group_id", group_id).execute().data
+
+    # Get online members (user_id list)
+    online_rows = supabase.table("group_user_online") \
+        .select("user_id") \
         .eq("group_id", group_id) \
         .eq("is_online", True) \
         .execute().data
-    
-    # Get recent messages - without ordering by created_at
+    online_ids = {row["user_id"] for row in online_rows}
+
+    # Prepare member list for template
+    member_list = []
+    for m in members:
+        user = m.get("soundscore_user", {})
+        member_list.append({
+            "user_id": m["user_id"],
+            "username": user.get("username", "Unknown"),
+            "profile_picture": user.get("profile_picture", "/static/images/default.jpg"),
+            "is_online": m["user_id"] in online_ids,
+        })
+
+    # Get recent messages, including profile_picture
     recent_messages = supabase.table("chat_group_message") \
-        .select("*, soundscore_user(username)") \
+        .select("*, soundscore_user(username,profile_picture)") \
         .eq("group_id", group_id) \
-        .limit(50) \
         .execute().data
-    
-    # Format messages for template - update to match the new structure
+
     formatted_messages = []
     for msg in recent_messages:
         username = msg["soundscore_user"]["username"] if "soundscore_user" in msg else "Unknown User"
+        profile_picture = (
+            msg["soundscore_user"].get("profile_picture")
+            if "soundscore_user" in msg and msg["soundscore_user"].get("profile_picture")
+            else "/static/images/default.jpg"
+        )
         formatted_messages.append({
             "content": msg["content"],
             "username": username,
-            "created_at": msg["created_at"],
-            "user_id": msg["user_id"]
+            "user_id": msg["user_id"],
+            "profile_picture": profile_picture,
         })
-    
-    formatted_messages.reverse()  # Show oldest messages first
-    
+
     return render(request, "groups/group_room.html", {
         "group": group,
         "group_id": group_id,
-        "member_count": member_count,
-        "online_members": online_members,
-        "recent_messages": formatted_messages
+        "member_count": len(member_list),
+        "members": member_list,
+        "recent_messages": formatted_messages,
+        "current_username": request.user.username,
     })
 
 
 @login_required
 def join_group(request, group_id):
     """Add the current user to a group if not already a member"""
-    user_id = request.user.id
+    supabase = authenticate_with_jwt()
+
+    user_id = supabase.table("soundscore_user") \
+        .select("id") \
+        .eq("username", request.user.username) \
+        .execute().data[0]["id"]
+    
+    print(f"Joining group {group_id} for user {user_id}")
     
     # Check if the user is already a member
-    supabase = authenticate_with_jwt()
     existing = supabase.table("chat_group_member").select("*") \
         .eq("group_id", group_id) \
         .eq("user_id", user_id) \
@@ -153,5 +173,53 @@ def join_group(request, group_id):
     
     # Redirect to the group room
     return redirect("group_room", group_id=group_id)
+
+
+#@login_required
+@csrf_exempt
+def set_online_status(request):
+    import json as pyjson
+    print("=== set_online_status called ===")
+    print("Request method:", request.method)
+    print("Request body:", request.body)
+    data = pyjson.loads(request.body)
+    print("Parsed data:", data)
+
+    group_id = int(data.get("group_id"))  # Ensure integer
+    is_online = bool(data.get("is_online", False))
+    print("group_id (int):", group_id)
+    print("is_online (bool):", is_online)
+
+    supabase = authenticate_with_jwt()
+    user_query = supabase.table("soundscore_user") \
+        .select("id") \
+        .eq("username", request.user.username) \
+        .execute()
+    print("User query result:", user_query.data)
+    user_id = int(user_query.data[0]["id"])
+    print("user_id (int):", user_id)
+
+    upsert_data = {
+        "group_id": group_id,
+        "user_id": user_id,
+        "is_online": is_online
+    }
+    print("Upsert data:", upsert_data)
+
+    try:
+        result = supabase.rpc("upsert_group_user_online", {
+            "_group_id": group_id,
+            "_user_id": user_id,
+            "_is_online": is_online
+        }).execute()
+        print("RPC upsert result:", result)
+    except Exception as e:
+        print("RPC upsert exception:", e)
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+    print("=== set_online_status finished ===")
+    return JsonResponse({"ok": True})
 
 

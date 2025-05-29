@@ -14,7 +14,7 @@
     <!-- Include Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex flex-col min-h-screen">
+<body data-user-id="{{ request.user.id|default:'anonymous' }}" class="flex flex-col min-h-screen">
     <!-- Header Section - Changed background to solid white -->
     <header class="sticky top-0 z-50 backdrop-blur-sm bg-white border-b border-gray-200/70 shadow-sm">
       <div class="container mx-auto px-4 md:px-8">

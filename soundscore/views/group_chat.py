@@ -1,7 +1,9 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from soundscore.services.user.supabase_client import authenticate_with_jwt 
+from django.contrib.auth import get_user_model
+from soundscore.services.user.supabase_client import authenticate_with_jwt
+from datetime import datetime
 
 
 class GroupChatConsumer(AsyncWebsocketConsumer):
@@ -13,62 +15,61 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
 
-        await self.set_user_online(self.user.id, self.group_id)
-        await self.send_online_users()
-
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
-        await self.set_user_offline(self.user.id, self.group_id)
-        await self.send_online_users()
 
     async def receive(self, text_data):
-        data = json.loads(text_data)
-        message = data["message"]
+        try:
+            data = json.loads(text_data)
+            if "message" in data:
+                message = data["message"]
+                username = self.user.username
 
-        if data.get("type") == "typing":
-            await self.channel_layer.group_send(
-                self.group_name,
-                {
-                    "type": "user_typing",
-                    "user": self.user.username
-                }
-            )
+                # Get user data from Supabase using username
+                user_data = await self.get_user_data_by_username(username)
+                user_id = user_data.get("id") if user_data else self.user.id
+                profile_pic = user_data.get("profile_picture", "/static/images/default.jpg")
 
+                # Save message with correct user_id
+                await self.save_message(self.group_id, user_id, message)
 
-        await self.save_message(self.group_id, self.user.id, message)
-
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                "type": "chat_message",
-                "message": message,
-                "user": self.user.username
-            }
-        )
+                # Broadcast to group (including sender)
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {
+                        "type": "chat_message",
+                        "message": message,
+                        "user": username,
+                        "user_id": user_id,
+                        "profile_pic": profile_pic
+                    }
+                )
+        except Exception as e:
+            import traceback
+            print("Exception in receive:", e)
+            print(traceback.format_exc())
+            await self.send(text_data=json.dumps({
+                "type": "error",
+                "error": str(e)
+            }))
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
+            "type": "message",
             "message": event["message"],
-            "user": event["user"]
+            "user": event["user"],
+            "user_id": event["user_id"],
+            "profile_pic": event.get("profile_pic", "/static/images/default.jpg")
         }))
 
-    async def user_typing(self, event):
-        await self.send(text_data=json.dumps({
-            "type": "typing",
-            "user": event["user"]
-        }))
-
-
-    async def send_online_users(self):
-        users = await self.get_online_users(self.group_id)
-        await self.send(text_data=json.dumps({
-            "type": "online_users",
-            "users": users  # retorna lista de user_id por enquanto
-        }))
-
-    # -----------------------------
-    # SUPABASE INTEGRATIONS
-    # -----------------------------
+    @database_sync_to_async
+    def get_user_data_by_username(self, username):
+        supabase = authenticate_with_jwt()
+        result = supabase.table("soundscore_user").select("id, username, profile_picture").eq("username", username).limit(1).execute()
+        if result.data and len(result.data) > 0:
+            return result.data[0]
+        else:
+            return None
 
     @database_sync_to_async
     def save_message(self, group_id, user_id, content):
@@ -78,41 +79,5 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
             "user_id": user_id,
             "content": content,
         }).execute()
-
-    @database_sync_to_async
-    def set_user_online(self, user_id, group_id):
-        supabase = authenticate_with_jwt()
-        supabase.table("chat_group_online_status").upsert({
-            "group_id": group_id,
-            "user_id": user_id,
-            "is_online": True
-        }, on_conflict=["group_id", "user_id"]).execute()
-
-    @database_sync_to_async
-    def set_user_offline(self, user_id, group_id):
-        supabase = authenticate_with_jwt()
-        supabase.table("chat_group_online_status").update({
-            "is_online": False
-        }).eq("group_id", group_id).eq("user_id", user_id).execute()
-
-    @database_sync_to_async
-    def get_online_users(self, group_id):
-        supabase = authenticate_with_jwt()
-        res = supabase.table("group_user_online_detailed") \
-            .select("username") \
-            .eq("group_id", group_id) \
-            .eq("is_online", True) \
-            .execute()
-        return [row["username"] for row in res.data]
-    
-    @database_sync_to_async
-    def get_last_seen(self, user_id, group_id):
-        supabase = authenticate_with_jwt()
-        res = supabase.table("chat_group_online_status") \
-            .select("last_seen") \
-            .eq("group_id", group_id) \
-            .eq("user_id", user_id) \
-            .execute()
-        return res.data[0].get("last_seen") if res.data else None
 
 
