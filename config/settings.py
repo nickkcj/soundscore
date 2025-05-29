@@ -162,10 +162,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': REDIS_HOST,
-            'port': REDIS_PORT,
-            'password': REDIS_PASSWORD if REDIS_PASSWORD else None,
-            'db': 0,
+            'hosts': [f"rediss://default:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"],
         },
     },
 }
