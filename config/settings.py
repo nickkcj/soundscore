@@ -157,12 +157,15 @@ ASGI_APPLICATION = 'soundscore.asgi.application'
 # Redis configuration
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
-
+REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD')
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [(REDIS_HOST, REDIS_PORT)],
+            'host': REDIS_HOST,
+            'port': REDIS_PORT,
+            'password': REDIS_PASSWORD if REDIS_PASSWORD else None,
+            'db': 0,
         },
     },
 }
