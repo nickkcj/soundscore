@@ -22,10 +22,10 @@ def register(request):
         }
 
         try:
-            # Validação com Pydantic
+            # Validation with Pydantic
             validated = RegisterSchema(**data)
 
-            # Checa se usuário ou email já existem
+            # Check if username or email already exists
             if User.objects.filter(username=validated.username).exists():
                 messages.error(request, "Username already exists")
                 return redirect('register')
@@ -33,13 +33,13 @@ def register(request):
                 messages.error(request, "Email already exists")
                 return redirect('register')
 
-            # Criação no Supabase
+            # Create in Supabase
             response = add_user_supabase(validated.username, validated.password, validated.email)
             if "error" in response:
                 messages.error(request, response["error"])
                 return redirect('register')
 
-            # Criação local
+            # Create locally
             user = User.objects.create(
                 username=validated.username,
                 email=validated.email,
@@ -53,11 +53,15 @@ def register(request):
 
         except ValidationError as e:
             for error in e.errors():
-                messages.error(request, f"{error['loc'][0]}: {error['msg']}")
+                msg = error['msg']
+                if msg.lower().startswith("value error, "):
+                    msg = msg[13:]
+            messages.error(request, msg)  
             return redirect('register')
 
         except Exception as e:
-            messages.error(request, f"Unexpected error: {e}")
+            # Show only the error message, not technical details
+            messages.error(request, str(e))
             return redirect('register')
 
     return render(request, 'auth/register.html')
@@ -103,7 +107,7 @@ def login(request):
 
         except Exception as e:
             print(f"Login error: {e}")
-            messages.error(request, f"Error during login: {str(e)}")
+            messages.error(request, str(e))
             return redirect('login')
 
     return render(request, 'auth/login.html')
@@ -137,7 +141,7 @@ def account(request, username):
             return render(request, 'users/account.html', {'user': user})
             
         # Then update the Django user
-        user.username = new_username  # ADD THIS LINE - update the username in Django
+        user.username = new_username
         user.email = new_email
         
         if profile_pic:
@@ -151,13 +155,13 @@ def account(request, username):
             messages.success(request, 'Profile updated successfully!')
             
             # If password or username changed, re-login user to prevent logout
-            if new_password or new_username != username:  # MODIFY THIS LINE
+            if new_password or new_username != username:
                 auth_login(request, user)
                 
             # Use new username for redirect
-            return redirect('account', username=new_username)  # MODIFY THIS LINE
+            return redirect('account', username=new_username)
         except Exception as e:
-            messages.error(request, f'Error updating profile: {e}')
+            messages.error(request, str(e))
 
     # Get the user's profile picture URL from Supabase
     client = authenticate_with_jwt()
@@ -175,18 +179,17 @@ def account(request, username):
             print(f"Error fetching profile picture from Supabase: {e}")
 
     # --- Handle the initial page load (GET Request) ---
-    context = {'user': user} # Pass the user object to the template
+    context = {'user': user}
     return render(request, 'users/account.html', context)
 
 def logout_view(request):
     auth_logout(request)
-    
     return redirect('home')
 
 @login_required
 @require_POST
 def delete_account(request):
-    user_to_delete = request.user # Get the currently logged-in user
+    user_to_delete = request.user
 
     # Call the service function to delete user data from custom tables
     result = delete_user_data_supabase(user_to_delete.username)

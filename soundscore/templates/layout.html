@@ -6,64 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SoundScore{% endblock %}</title>
     <meta name="description" content="{% block description %}Rank your taste in music{% endblock %}">
-    
-    <!-- Favicon -->
     <link rel="icon" href="{% static 'images/music.png' %}" type="image/x-icon">
     <link rel="shortcut icon" href="{% static 'images/music.png' %}" type="image/x-icon">
-    
-    <!-- Include Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body data-user-id="{{ request.user.id|default:'anonymous' }}" class="flex flex-col min-h-screen">
-    <!-- Header Section - Changed background to solid white -->
+    <!-- Header Section -->
     <header class="sticky top-0 z-50 backdrop-blur-sm bg-white border-b border-gray-200/70 shadow-sm">
       <div class="container mx-auto px-4 md:px-8">
         <div class="flex justify-between items-center py-4">
-          <!-- Logo Section with subtle animation -->
           <div class="flex items-center gap-3 group">
             <div class="relative overflow-hidden rounded-full p-0.5 bg-gradient-to-r from-pink-500 to-purple-500 shadow-inner transform group-hover:scale-105 transition-all duration-300">
               <img src="{% static 'images/music.png' %}" class="w-[40px] h-[40px] rounded-full bg-white p-0.5" alt="SoundScore Logo" />
             </div>
             <a href="{% url 'home' %}" class="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 text-2xl font-bold tracking-tight group-hover:opacity-90 transition-opacity">SoundScore</a>
           </div>
-          
-          <!-- Main Navigation -->
           <nav class="flex items-center gap-1 md:gap-2 max-sm:hidden">
             {% if user.is_authenticated %}
-              <!-- Links Container - Removed gradient background, adjusted border/shadow -->
               <div class="flex items-center bg-gray-50/50 backdrop-blur-sm rounded-full px-1.5 py-1 shadow-sm border border-gray-200/50 mx-2">
-                <a href="{% url 'feed' %}" 
-                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
-                   data-page="feed">
+                <a href="{% url 'feed' %}" class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" data-page="feed">
                   <span>Feed</span>
                   <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
                 </a>
-                
-                <a href="{% url 'account' user.username %}" 
-                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
-                   data-page="account">
+                <a href="{% url 'account' user.username %}" class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" data-page="account">
                   <span>My Account</span>
                   <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
                 </a>
-                
-                <a href="/reviews/{{ user.username }}/" 
-                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
-                   data-page="reviews">
+                <a href="/reviews/{{ user.username }}/" class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" data-page="reviews">
                   <span>My Reviews</span>
                   <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
                 </a>
-                
-                <a href="{% url 'discover' %}" 
-                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
-                   data-page="discover">
+                <a href="{% url 'discover' %}" class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" data-page="discover">
                   <span>Discover</span>
                   <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
                 </a>
               </div>
-              
-              <!-- Right Side Actions -->
               <div class="flex items-center gap-2">
-                <!-- Notification Bell - Adjusted background/border -->
                 <div id="notification-bell" class="relative group">
                   <div class="bg-white p-2 rounded-full shadow-sm border border-gray-200/80 group-hover:shadow-md transition-all duration-300 group-hover:border-gray-300/80">
                     <button id="notification-button" class="text-gray-500 hover:text-pink-600 transition-colors relative">
@@ -73,29 +51,21 @@
                       <span class="notification-count absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden animate-bounce">0</span>
                     </button>
                   </div>
-                  
-                  <!-- START: Add Notification Dropdown HTML -->
+                  <!-- Notification Dropdown -->
                   <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
                     <div class="p-3 border-b border-gray-200 flex justify-between items-center">
                       <h3 class="text-sm font-medium text-gray-700">Notifications</h3>
                       <button id="mark-all-read" class="text-xs text-pink-600 hover:underline">Mark all as read</button>
                     </div>
                     <div id="notification-list" class="max-h-80 overflow-y-auto">
-                      <!-- Loading State -->
                       <div class="notifications-loading p-4 text-center text-gray-500 text-sm hidden">Loading...</div>
-                      <!-- No Notifications State -->
                       <div class="no-notifications p-4 text-center text-gray-500 text-sm hidden">No new notifications</div>
-                      <!-- Notification items will be added here by JS -->
                     </div>
                     <div class="p-2 bg-gray-50 border-t border-gray-200 text-center">
                       <a href="#" class="text-xs text-pink-600 hover:underline">View all notifications</a>
                     </div>
                   </div>
-                  <!-- END: Add Notification Dropdown HTML -->
-                  
                 </div>
-                
-                <!-- Logout Button - Adjusted background/border -->
                 <form action="{% url 'logout' %}" method="post" class="inline">
                   {% csrf_token %}
                   <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 px-4 rounded-full shadow-sm border border-gray-200/50 hover:shadow-md transition-all duration-300 text-base font-medium">
@@ -104,25 +74,16 @@
                 </form>
               </div>
             {% else %}
-              <!-- Links for non-authenticated users - Adjusted background/border -->
               <div class="flex items-center bg-gray-50/50 backdrop-blur-sm rounded-full px-1.5 py-1 shadow-sm border border-gray-200/50 mx-2">
-                <a href="{% url 'about' %}" 
-                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
-                   data-page="about">
+                <a href="{% url 'about' %}" class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" data-page="about">
                   <span>About</span>
                   <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
                 </a>
-                
-                <a href="{% url 'login' %}" 
-                   class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" 
-                   data-page="login">
+                <a href="{% url 'login' %}" class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" data-page="login">
                   <span>Login</span>
                   <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
                 </a>
-                
-                <a href="{% url 'register' %}" 
-                   class="group relative py-1.5 px-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full shadow-sm hover:shadow-md transition-all duration-300 hover:opacity-90" 
-                   data-page="register">
+                <a href="{% url 'register' %}" class="group relative py-1.5 px-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full shadow-sm hover:shadow-md transition-all duration-300 hover:opacity-90" data-page="register">
                   <span>Register</span>
                 </a>
               </div>
@@ -132,23 +93,17 @@
       </div>
     </header>
 
-    <!-- Main Content - Adjusted background -->
     <main class="flex-grow bg-gray-50">
       {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer Section - Adjusted background/border -->
     <footer class="flex flex-col bg-white mt-auto border-t border-gray-200 pt-10 pb-8">
       <div class="container mx-auto px-8">
-        <!-- Footer Top Section -->
         <div class="flex justify-center gap-16 md:gap-24 lg:gap-32 max-md:flex-col max-md:items-center max-md:gap-10">
-          <!-- Brand Section -->
           <div class="flex flex-col w-full max-w-xs flex-shrink-0 max-md:items-center">
             <div class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 text-xl font-bold mb-4">SoundScore</div>
-            <div class="text-sm text-gray-500 mb-6 text-center md:text-left">© {% now "Y" %} SoundScore. All rights reserved.</div> <!-- Added text-center for medium screens and below -->
-            
-            <!-- Social Icons -->
-            <div class="flex gap-3 mt-2 justify-center md:justify-start"> <!-- Added justify-center for medium screens and below -->
+            <div class="text-sm text-gray-500 mb-6 text-center md:text-left">© {% now "Y" %} SoundScore. All rights reserved.</div>
+            <div class="flex gap-3 mt-2 justify-center md:justify-start">
               <a href="#" aria-label="Twitter" class="text-gray-500 hover:text-pink-600">
                 <span class="sr-only">Twitter</span>
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -161,11 +116,10 @@
                   <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
                 </svg>
               </a>
-              <a href="#" aria-label="Instagram" class="text-gray-500 hover:text-pink-600">
+                <a href="#" aria-label="Instagram" class="text-gray-500 hover:text-pink-600">
                 <span class="sr-only">Instagram</span>
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.255 2 11.685 2zm.001 1.44c-2.373 0-2.69.01-3.633.053-.897.04-.1.48.182-.3.073.276-.47.698-.738 1.154-.267.456-.599.96-.743 1.553-.145.593-.18 1.24-.182 2.15-.003.91-.005 1.21-.005 3.506s.002 2.595.005 3.506c.002.91.037 1.557.182 2.15.144.593.476 1.097.743 1.553.268.456.665.878 1.154.738.488-.14.91-.308 1.807-.348.94-.043 1.236-.053 3.633-.053s2.69.01 3.633.053c.897.04 1.319.182 1.807.348.49.14.886.282 1.154.738.267.456.599.96.743 1.553.145.593.18 1.24.182 2.15.003.91.005 1.21.005 3.506s-.002 2.595-.005 3.506c-.002.91-.037 1.557-.182 2.15-.144.593-.476 1.097-.743 1.553-.268.456-.665.878-1.154.738-.488-.14-.91-.308-1.807-.348-.94-.043-1.236-.053-3.633-.053zm0 3.882a4.685 4.685 0 100 9.37 4.685 4.685 0 000-9.37zM12 15.43a3.43 3.43 0 110-6.86 3.43 3.43 0 010 6.86z" clip-rule="evenodd" />
-                  <path d="M16.95 7.572a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z" />
+                  <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.25a5.25 5.25 0 1 1 0 10.5 5.25 5.25 0 0 1 0-10.5zm0 1.5a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5zm5.25.75a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
                 </svg>
               </a>
               <a href="#" aria-label="LinkedIn" class="text-gray-500 hover:text-pink-600">
@@ -176,29 +130,22 @@
               </a>
             </div>
           </div>
-          
-          <!-- Footer Link Columns - Adjusted header colors -->
           <div class="flex space-x-8 md:space-x-10 lg:space-x-12 max-md:mt-8 max-md:flex-wrap max-md:justify-center max-md:gap-8">
-            <!-- Column 1: Navigation -->
             <div class="flex flex-col max-md:items-center">
               <h3 class="text-gray-700 text-sm font-medium mb-4">Navigation</h3>
               <div class="flex flex-col space-y-3 max-md:items-center">
                 <a href="/home" class="text-[#454545] text-sm hover:text-pink-600">Home</a>
                 <a href="/about/" class="text-[#454545] text-sm hover:text-pink-600">About</a>
-                <a href="#" class="text-[#454545] text-sm hover:text-pink-600">Contact</a>
+                <a href="https://www.linkedin.com/in/nicholas-jasper-6388902b9/" class="text-[#454545] text-sm hover:text-pink-600">Contact</a>
               </div>
             </div>
-            
-            <!-- Column 2: Account -->
             <div class="flex flex-col max-md:items-center">
               <h3 class="text-gray-700 text-sm font-medium mb-4">Account</h3>
               <div class="flex flex-col space-y-3 max-md:items-center">
-                <a href="#account" class="text-[#454545] text-sm hover:text-pink-600">Login</a>
-                <a href="/register/" class="text-[#454545] text-sm hover:text-pink-600">Register</a>
+                <a href="{% url 'login' %}" class="text-[#454545] text-sm hover:text-pink-600">Login</a>
+                <a href="{% url 'register' %}" class="text-[#454545] text-sm hover:text-pink-600">Register</a>
               </div>
             </div>
-            
-            <!-- Column 3: Legal -->
             <div class="flex flex-col max-md:items-center">
               <h3 class="text-gray-700 text-sm font-medium mb-4">Legal</h3>
               <div class="flex flex-col space-y-3 max-md:items-center">
@@ -208,18 +155,51 @@
             </div>
           </div>
         </div>
-        
-        <!-- Adjusted divider color -->
         <div class="w-full max-w-4xl mx-auto mt-8 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
       </div>
     </footer>
 
-<!-- Add these before the closing </body> tag -->
 {% csrf_token %}
 {% include "chat/widget.html" %}
 <script src="{% static 'js/agent/chat.js' %}"></script>
 {% if user.is_authenticated %}
   <script src="{% static 'js/feed/notifications.js' %}"></script>
 {% endif %}
+
+<!-- Modal for notification details -->
+<div id="notification-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
+    <div class="modal-body text-sm text-gray-800"></div>
+    <button onclick="document.getElementById('notification-detail-modal').classList.add('hidden')" class="mt-4 px-4 py-2 bg-pink-500 text-white rounded">Close</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Notification details click handler
+  document.querySelectorAll('.notification-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      const notificationId = this.getAttribute('data-notification-id');
+      fetch(`/feed/notification/${notificationId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.notification) {
+            showNotificationDetails(data.notification);
+          } else {
+            alert(data.error || "Could not load notification details.");
+          }
+        });
+    });
+  });
+});
+
+function showNotificationDetails(notification) {
+  const modal = document.getElementById('notification-detail-modal');
+  if (modal) {
+    modal.querySelector('.modal-body').textContent = JSON.stringify(notification, null, 2);
+    modal.classList.remove('hidden');
+  }
+}
+</script>
 </body>
 </html>

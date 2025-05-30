@@ -14,12 +14,23 @@ def group_chat_page(request, group_id):
 
 def all_groups(request):
     supabase = authenticate_with_jwt()
-    groups = supabase.table("chat_group").select("*").execute().data
-    trending = groups[:4]  # Você pode melhorar isso depois com base em membros ou mensagens
-
+    
+    # Fetch all groups
+    groups_response = supabase.table("chat_group").select("*").execute()
+    all_groups = groups_response.data
+    
+    # For each group, fetch and count its members
+    for group in all_groups:
+        members_response = supabase.table("chat_group_member").select("*").eq("group_id", group["id"]).execute()
+        group["member_count"] = len(members_response.data)
+    
+    # Sort groups by member count in Python (not in SQL)
+    # Get top 4 groups with most members
+    trending_groups = sorted(all_groups.copy(), key=lambda x: x.get("member_count", 0), reverse=True)[:4]
+    
     return render(request, "groups/group_list.html", {
-        "groups": groups,
-        "trending_groups": trending
+        "groups": all_groups,
+        "trending_groups": trending_groups
     })
 
 
@@ -27,7 +38,6 @@ def all_groups(request):
 @csrf_exempt
 def create_group(request):
     if request.method == "POST":
-        print(f"USER ID CHECK: {request.user.id}")
         name = request.POST.get("name")
         description = request.POST.get("description", "")
         category = request.POST.get("category")
@@ -79,17 +89,6 @@ def group_room(request, group_id):
         .select("id") \
         .eq("username", request.user.username) \
         .execute().data[0]["id"]
-
-    # Auto-join logic...
-    existing = supabase.table("chat_group_member").select("*") \
-        .eq("group_id", group_id) \
-        .eq("user_id", user_id) \
-        .execute()
-    if not existing.data:
-        supabase.table("chat_group_member").insert({
-            "group_id": group_id,
-            "user_id": user_id
-        }).execute()
 
     group = supabase.table("chat_group").select("*").eq("id", group_id).execute().data[0]
     members = supabase.table("chat_group_member") \

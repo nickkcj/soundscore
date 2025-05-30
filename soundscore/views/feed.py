@@ -354,4 +354,31 @@ def get_unread_count_view(request):
         return JsonResponse({"unread_count": count})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
 
+from ..services.feed.notification import get_user_notifications_with_details
+
+@login_required
+@require_GET
+def get_notification_details(request, notification_id):
+    try:
+        client = authenticate_with_jwt()
+        if not client:
+            return JsonResponse({"error": "Authentication failed"}, status=401)
+
+        # Get user ID from username
+        user_resp = client.table("soundscore_user").select("id").eq("username", request.user.username).limit(1).execute()
+        if not user_resp.data:
+            return JsonResponse({"error": "User not found"}, status=404)
+        user_id = user_resp.data[0]["id"]
+
+        # Get the notification with details
+        notifications = get_user_notifications_with_details(user_id, limit=1, offset=0, unread_only=False)
+        # Find the notification with the given ID
+        notification = next((n for n in notifications if n["id"] == int(notification_id)), None)
+        if not notification:
+            return JsonResponse({"error": "Notification not found"}, status=404)
+
+        return JsonResponse({"notification": notification})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
