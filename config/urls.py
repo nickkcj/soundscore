@@ -28,6 +28,7 @@ urlpatterns = [
     path('chat/', include('soundscore.urls.chat')),  # chat-related routes
     path('notifications/', include('soundscore.urls.notifications')),  # notification-related routes
     path('groups/', include('soundscore.urls.group')), 
+    path('api/', include('soundscore.api.urls')),  # API routes
 
 ]
 

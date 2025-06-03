@@ -42,7 +42,11 @@ def create_group(request):
         description = request.POST.get("description", "")
         category = request.POST.get("category")
         privacy = request.POST.get("privacy")
-        user_id = request.user.id
+        supabase = authenticate_with_jwt()
+        user_id = supabase.table("soundscore_user") \
+            .select("id") \
+            .eq("username", request.user.username) \
+            .execute().data[0]["id"]
 
         cover_image = request.FILES.get("cover_image")
         cover_url = None
@@ -61,8 +65,10 @@ def create_group(request):
 
             cover_url = supabase.storage.from_("chat-media").get_public_url(filename)
 
+        else:
+            cover_url = "/static/images/default.jpg"  
+
         # Agora criamos o grupo com a URL da imagem
-        supabase = authenticate_with_jwt()
         res = supabase.table("chat_group").insert({
             "name": name,
             "description": description,

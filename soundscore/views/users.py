@@ -9,7 +9,7 @@ from ..services.user.supabase_client import authenticate_with_jwt
 from ..services.user.add_user import add_user_supabase
 from ..services.user.update_user import update_user_supabase
 from ..services.user.delete_user import delete_user_data_supabase
-from ..pydantic_schemas import RegisterSchema
+from ..validation.pydantic_schemas import RegisterSchema
 from pydantic import ValidationError
 
 def register(request):
