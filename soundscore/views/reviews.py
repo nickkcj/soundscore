@@ -14,6 +14,7 @@ from ..services.review.delete_review import delete_review_supabase
 from ..services.user.supabase_client import authenticate_with_jwt, get_admin_client
 from ..services.feed.comment_service import get_comments_for_review  # You'll create this
 from django.views.decorators.cache import cache_page
+from ..services.review.top_albums import get_top_3_albums
 
 @login_required
 def create_review(request, username):
@@ -501,6 +502,9 @@ def feed(request):
                 
                 user_liked_reviews = {like["review_id"] for like in user_likes.data or []}
 
+        top_albums = get_top_3_albums()
+
+
         # Now assign all the data to each review
         for review in reviews:
             review_id = review["id"]
@@ -513,9 +517,14 @@ def feed(request):
             
             # Assign liked status
             review["is_liked"] = review_id in user_liked_reviews
+
+        context = {
+            'reviews': reviews,
+            'top_albums': top_albums,
+        }
             
         # Render with optimized data
-        return render(request, 'reviews/feed.html', {'reviews': reviews})
+        return render(request, 'reviews/feed.html', context)
     
     except Exception as e:
         import traceback

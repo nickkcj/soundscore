@@ -4,6 +4,8 @@ from soundscore.services.user.supabase_client import authenticate_with_jwt
 import uuid
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from channels.layers import get_channel_layer # Import
+from asgiref.sync import async_to_sync      # Import
 
 @login_required
 def group_chat_page(request, group_id):
@@ -183,48 +185,84 @@ def join_group(request, group_id):
 #@login_required
 @csrf_exempt
 def set_online_status(request):
-    import json as pyjson
+    import json as pyjson # Keep local import if preferred
     print("=== set_online_status called ===")
     print("Request method:", request.method)
     print("Request body:", request.body)
-    data = pyjson.loads(request.body)
-    print("Parsed data:", data)
+    
+    try:
+        data = pyjson.loads(request.body)
+        print("Parsed data:", data)
+    except Exception as e:
+        print("Error parsing request body:", e)
+        return JsonResponse({"ok": False, "error": "Invalid request body"}, status=400)
 
-    group_id = int(data.get("group_id"))  # Ensure integer
-    is_online = bool(data.get("is_online", False))
-    print("group_id (int):", group_id)
-    print("is_online (bool):", is_online)
+    # Get group_id
+    try:
+        group_id = int(data.get("group_id"))
+        # print("group_id (int):", group_id) # Already have this
+    except (ValueError, TypeError) as e:
+        print("Invalid group_id:", e)
+        return JsonResponse({"ok": False, "error": "Invalid group_id"}, status=400)
 
-    supabase = authenticate_with_jwt()
+    # Get is_online - use strict boolean check
+    is_online_from_request = data.get("is_online")
+    if is_online_from_request is True:
+        is_online_for_db = True
+    else:
+        is_online_for_db = False
+    # print(f"is_online (STRICT bool for DB): {is_online_for_db}") # Already have this
+
+    # Get user ID
+    supabase = authenticate_with_jwt() # Ensure this is correctly configured
+    if not request.user.is_authenticated: # Important check
+         print("User not authenticated in set_online_status")
+         return JsonResponse({"ok": False, "error": "User not authenticated"}, status=401)
+
     user_query = supabase.table("soundscore_user") \
         .select("id") \
         .eq("username", request.user.username) \
         .execute()
-    print("User query result:", user_query.data)
+    if not user_query.data:
+        print(f"User not found in Supabase: {request.user.username}")
+        return JsonResponse({"ok": False, "error": "User not found"}, status=404)
+        
     user_id = int(user_query.data[0]["id"])
-    print("user_id (int):", user_id)
+    # print("user_id (int):", user_id) # Already have this
 
-    upsert_data = {
-        "group_id": group_id,
-        "user_id": user_id,
-        "is_online": is_online
-    }
-    print("Upsert data:", upsert_data)
+    # Update status in database
+    # print("Upsert data:", upsert_data) # Already have this
 
     try:
         result = supabase.rpc("upsert_group_user_online", {
             "_group_id": group_id,
             "_user_id": user_id,
-            "_is_online": is_online
+            "_is_online": is_online_for_db
         }).execute()
-        print("RPC upsert result:", result)
+        print("RPC upsert result:", result) # Log the raw result
+
+        # CRITICAL: After successful DB update, trigger a broadcast
+        # Check if the RPC call was successful. This depends on your Supabase client.
+        # A simple check is that no exception was raised.
+        # For supabase-py, you might check result.error or result.status_code
+        # Assuming no exception means success for now:
+        
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"group_{group_id}",  # This must match the group_name in your consumer
+            {
+                "type": "trigger_broadcast_online_users", # A new custom message type
+            }
+        )
+        print(f"SUCCESS: Sent trigger_broadcast_online_users to channel group: group_{group_id}")
+
     except Exception as e:
-        print("RPC upsert exception:", e)
+        print(f"ERROR: RPC upsert or channel layer send exception in set_online_status: {e}")
         import traceback
         traceback.print_exc()
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
     print("=== set_online_status finished ===")
-    return JsonResponse({"ok": True})
+    return JsonResponse({"ok": True, "status": "online" if is_online_for_db else "offline"})
 
 

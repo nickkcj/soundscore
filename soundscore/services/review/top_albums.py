@@ -41,18 +41,24 @@ def get_top_3_albums():
         # Build list with rating info
         albums_with_ratings = []
         for aid, total in rating_sum.items():
-            if aid in albums:
-                avg = total / rating_count[aid]
-                album = albums[aid]
-                album.update({
-                    'avg_rating': avg,
-                    'avg_rating_rounded': round(avg),
-                    'review_count': rating_count[aid]
-                })
-                albums_with_ratings.append(album)
+            if aid in albums: # Make sure album ID from reviews exists in fetched albums
+                if rating_count[aid] > 0: # Ensure there's at least one review to avoid division by zero
+                    avg = total / rating_count[aid]
+                    album = albums[aid].copy() # Use .copy() to avoid modifying the original dict in 'albums' if it's used elsewhere
+                    album.update({
+                        'avg_rating': avg,
+                        'avg_rating_rounded': round(avg), # This is for display, not sorting
+                        'review_count': rating_count[aid]
+                    })
+                    albums_with_ratings.append(album)
 
         # Sort & return top 3
-        albums_with_ratings.sort(key=lambda x: x['avg_rating'], reverse=True)
+        # Primary sort: avg_rating (descending), Secondary sort: review_count (descending)
+        albums_with_ratings.sort(key=lambda x: (x['avg_rating'], x['review_count']), reverse=True)
+        
+        # For debugging: print the full sorted list before slicing
+        print("Full sorted albums with ratings:", albums_with_ratings) 
+
         return albums_with_ratings[:3]
 
     except Exception as e:
