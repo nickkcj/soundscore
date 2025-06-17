@@ -1,0 +1,337 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Account - SoundScore{% endblock %}
+{% block description %}Update your SoundScore account profile.{% endblock %}
+
+{% block content %}
+<!-- Decorative background elements -->
+<div class="absolute inset-0 bg-gradient-to-br from-pink-50 to-purple-50 -z-10"></div>
+<div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjM2LCA3MiwgMTUzLCAwLjA1KSIvPjwvc3ZnPg==')] opacity-30 -z-10"></div>
+
+<main class="container mx-auto max-w-6xl px-4 py-8 relative">
+    {# Display Messages #}
+    {% if messages %}
+    <div class="mb-6 max-w-3xl mx-auto">
+        {% for message in messages %}
+        <div class="flex p-4 mb-4 text-sm rounded-lg items-center
+            {% if message.tags == 'success' %} bg-green-100 text-green-800 border border-green-200
+            {% elif message.tags == 'error' %} bg-red-100 text-red-800 border border-red-200
+            {% else %} bg-gray-100 text-gray-800 border border-gray-200
+            {% endif %}" role="alert">
+            <div class="flex-shrink-0 mr-3">
+                {% if message.tags == 'success' %}
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                {% elif message.tags == 'error' %}
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                {% else %}
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 01-1-1v-4a1 1 0 112 0v4a1 1 0 01-1 1z" clip-rule="evenodd"></path></svg>
+                {% endif %}
+            </div>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Account page header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">My Account</h1>
+        <p class="text-gray-500 mt-2">Manage your profile and preferences</p>
+    </div>
+
+    <!-- Account Content -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Tabs Navigation -->
+        <div class="bg-gray-50 border-b border-gray-200">
+            <nav class="flex" aria-label="Tabs">
+                <button type="button" class="tab-button active px-6 py-4 text-pink-600 border-b-2 border-pink-600 font-medium text-sm" data-tab="profile">
+                    <svg class="w-5 h-5 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                    </svg>
+                    Profile
+                </button>
+                <button type="button" class="tab-button px-6 py-4 text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="security">
+                    <svg class="w-5 h-5 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    Security
+                </button>
+                <button type="button" class="tab-button px-6 py-4 text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="danger">
+                    <svg class="w-5 h-5 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Danger Zone
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Tab Content Areas -->
+        <div class="p-6">
+            <!-- Profile Tab (visible by default) -->
+            <div id="profile-tab" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <!-- Profile Picture Section -->
+                    <div class="md:col-span-1">
+                        <div class="flex flex-col items-center">
+                            <div class="relative group">
+                                <div class="w-52 h-52 rounded-full overflow-hidden bg-gray-100 ring-4 ring-pink-100 shadow-lg">
+                                    <img src="{% if user.profile_picture_url %}{{ user.profile_picture_url }}{% else %}{% static 'images/default.jpg' %}{% endif %}"
+                                        class="w-full h-full object-cover"
+                                        alt="{{ user.username }}'s profile"
+                                    />
+                                </div>
+                                <div class="absolute inset-0 rounded-full bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
+                                    <label class="cursor-pointer p-4 text-white">
+                                        <svg class="w-10 h-10 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                                        </svg>
+                                        <span class="block text-sm text-center mt-1">Update Photo</span>
+                                        <input form="profile-form" type="file" name="profile_picture" accept="image/*" class="hidden"/>
+                                    </label>
+                                </div>
+                            </div>
+                            <h2 class="text-2xl font-bold mt-6">{{ user.username }}</h2>
+                            <span class="text-gray-500 mb-4">Account Member</span>
+                            
+                            <!-- Profile Stats -->
+                            <div class="grid grid-cols-2 gap-4 w-full mt-2">
+                                <div class="text-center p-3 bg-pink-50 rounded-lg">
+                                    <span class="block text-2xl font-bold text-pink-600">{{ reviews_count|default:"0" }}</span>
+                                    <span class="text-xs text-gray-600 uppercase tracking-wide">Reviews</span>
+                                </div>
+                                <div class="text-center p-3 bg-purple-50 rounded-lg">
+                                    <span class="block text-2xl font-bold text-purple-600">{{ avg_rating|default:"0.0" }}</span>
+                                    <span class="text-xs text-gray-600 uppercase tracking-wide">Avg Rating</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Form Section -->
+                    <div class="md:col-span-2">
+                        <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                            </h3>
+                            
+                            <form id="profile-form" class="space-y-5" method="POST" action="{% url 'account' user.username %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <div>
+                                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                    <input
+                                        type="text"
+                                        id="username"
+                                        name="username"
+                                        value="{{ user.username }}"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition-colors"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        value="{{ user.email }}"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition-colors"
+                                        required
+                                    />
+                                </div>
+
+                                <div class="pt-4">
+                                    <button
+                                        type="submit"
+                                        class="px-6 py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white font-medium rounded-lg hover:from-pink-600 hover:to-pink-700 transition duration-200 flex items-center shadow-md"
+                                    >
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Save Profile
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Tab (hidden by default) -->
+            <div id="security-tab" class="tab-content hidden">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            Password Update
+                        </h3>
+                        
+                        <form id="security-form" class="space-y-5" method="POST" action="{% url 'account' user.username %}">
+                            {% csrf_token %}
+                            
+                            <div>
+                                <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                                <input
+                                    type="password"
+                                    id="current_password"
+                                    name="current_password"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition-colors"
+                                    placeholder="Enter your current password"
+                                />
+                            </div>
+
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition-colors"
+                                    placeholder="Enter new password"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    id="confirm_password"
+                                    name="confirm_password"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition-colors"
+                                    placeholder="Confirm new password"
+                                />
+                            </div>
+
+                            <div class="pt-4">
+                                <button
+                                    type="submit"
+                                    class="px-6 py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white font-medium rounded-lg hover:from-pink-600 hover:to-pink-700 transition duration-200 flex items-center shadow-md"
+                                >
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                                    </svg>
+                                    Update Password
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="mt-8 bg-blue-50 rounded-lg p-5 border border-blue-100">
+                        <div class="flex gap-4 items-start">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-blue-800">Password Security Tips</h4>
+                                <ul class="mt-2 text-sm text-blue-700 list-disc list-inside">
+                                    <li>Use a mix of letters, numbers, and symbols</li>
+                                    <li>Make your password at least 8 characters long</li>
+                                    <li>Avoid using personal information</li>
+                                    <li>Don't use the same password across multiple sites</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Danger Zone Tab (hidden by default) -->
+            <div id="danger-tab" class="tab-content hidden">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-red-50 rounded-xl p-6 border border-red-200">
+                        <h3 class="text-xl font-semibold text-red-800 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            Delete Account
+                        </h3>
+                        
+                        <div class="bg-white rounded-lg p-5 border border-red-200 mb-6">
+                            <p class="text-gray-700 mb-4">Permanently delete your account and all your data, including:</p>
+                            
+                            <ul class="space-y-3 mb-6">
+                                <li class="flex items-start">
+                                    <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>All your reviews and ratings</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Your profile information</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>All comments and interactions</span>
+                                </li>
+                            </ul>
+                            
+                            <div class="bg-red-100 p-4 rounded-lg border border-red-200 mb-6">
+                                <p class="text-sm text-red-800 font-medium">⚠️ This action cannot be undone. Please be certain.</p>
+                            </div>
+                            
+                            <a href="{% url 'delete_account_confirm' username=user.username %}" 
+                               class="inline-flex items-center px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-200 shadow-sm">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Delete My Account
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('text-gray-500');
+                btn.classList.remove('text-pink-600');
+                btn.classList.remove('border-b-2');
+                btn.classList.remove('border-pink-600');
+            });
+            
+            // Add active class to clicked button
+            button.classList.add('active');
+            button.classList.remove('text-gray-500');
+            button.classList.add('text-pink-600');
+            button.classList.add('border-b-2');
+            button.classList.add('border-pink-600');
+            
+            // Hide all tab content
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Show selected tab content
+            const tabId = button.getAttribute('data-tab');
+            document.getElementById(tabId + '-tab').classList.remove('hidden');
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }}'s Profile - SoundScore{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+  <!-- Decorative elements -->
+  <div class="absolute top-0 left-0 right-0 h-64 bg-gradient-to-r from-pink-500/10 to-purple-500/10 z-0"></div>
+  <div class="absolute top-0 left-0 w-full h-64 overflow-hidden z-0">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjM2LCA3MiwgMTUzLCAwLjA1KSIvPjwvc3ZnPg==')] opacity-50"></div>
+  </div>
+  
+  <main class="container mx-auto px-4 py-12 relative z-10">
+    <div class="max-w-5xl mx-auto"> <!-- Wider container for content -->
+      
+      <!-- Profile Header Section -->
+      <section class="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <!-- Profile Card -->
+        <div class="md:col-span-1">
+          <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col items-center relative overflow-hidden">
+            <!-- Decorative corner accent -->
+            <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-pink-100 to-transparent rounded-bl-full opacity-60"></div>
+            
+            <!-- Profile Picture -->
+            <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md ring-2 ring-pink-200 ring-offset-1 mb-5 relative z-10">
+              <img
+                src="{{ profile_user.profile_picture|default:'/static/images/default.jpg' }}"
+                alt="{{ profile_user.username }}"
+                class="w-full h-full object-cover"
+              >
+            </div>
+            
+            <!-- Username -->
+            <h1 class="text-2xl font-bold text-gray-800 mb-3">{{ profile_user.username }}</h1>
+            
+            <!-- Stats -->
+            <div class="flex justify-center gap-6 mb-6 w-full">
+              <div class="text-center px-4 py-3 bg-gray-50 rounded-lg">
+                <span class="block text-xl font-bold text-pink-500">{{ review_count }}</span>
+                <span class="text-xs text-gray-500 font-medium uppercase tracking-wide">Review{{ review_count|pluralize }}</span>
+              </div>
+              
+              {% if avg_rating is not None %}
+              <div class="text-center px-4 py-3 bg-gray-50 rounded-lg">
+                <span class="flex items-center justify-center text-xl font-bold text-amber-500">
+                  {{ avg_rating }}
+                  <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                  </svg>
+                </span>
+                <span class="text-xs text-gray-500 font-medium uppercase tracking-wide">Rating</span>
+              </div>
+              {% endif %}
+            </div>
+            
+            <!-- Edit Profile Button -->
+            {% if is_own_profile %}
+            <a href="{% url 'account' username=request.user.username %}"
+               class="w-full inline-flex items-center justify-center px-5 py-2.5 bg-pink-500 text-white rounded-lg text-sm font-medium shadow-sm transition-all duration-200 hover:bg-pink-600 hover:shadow">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+              Edit Profile
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Reviews Header Card - Replace the current header with this -->
+        <div class="md:col-span-2">
+          <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 relative overflow-hidden">
+            <!-- Decorative music note pattern in background -->
+            <div class="absolute top-0 right-0 w-32 h-32 opacity-5 pointer-events-none">
+              <svg viewBox="0 0 80 80" fill="currentColor" class="text-pink-500">
+                <path d="M30,10 L30,50 C27,48 22,49 20,52 C18,55 19,60 22,62 C25,64 30,63 32,60 C33,58 34,55 34,52 L34,26 L55,20 L55,45 C52,43 47,44 45,47 C43,50 44,55 47,57 C50,59 55,58 57,55 C58,53 59,50 59,47 L59,10 L30,10 Z"></path>
+              </svg>
+            </div>
+
+            <!-- Title with music note icon -->
+            <div class="flex items-center justify-between mb-5 relative z-10">
+              <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path>
+                </svg>
+                Reviews by {{ profile_user.username }}
+              </h2>
+              
+              <!-- Star rating badges -->
+              <div class="flex items-center bg-pink-50 px-3 py-1 rounded-full">
+                <span class="font-semibold text-pink-600 text-sm mr-1">{{ avg_rating|default:"5.0" }}</span>
+                <svg class="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                </svg>
+              </div>
+            </div>
+            
+            <!-- Activity indicator bar -->
+            <div class="mb-4 relative z-10">
+              <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-pink-400 to-pink-500" style="width: {{ review_count|default:5|divisibleby:10|yesno:'100,calc(10% * '|add:review_count|stringformat:'d'|add:')' }}%; min-width: 15%"></div>
+              </div>
+              <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <span>{{ review_count }} review{{ review_count|pluralize }}</span>
+                <span>Latest activity: {% now "M d, Y" %}</span>
+              </div>
+            </div>
+            
+            <!-- Genre chips/tags - if you have genre data -->
+            <div class="flex flex-wrap gap-2 mb-3 relative z-10">
+              <span class="px-2 py-1 text-xs font-medium bg-purple-50 text-purple-600 rounded-full">Pop</span>
+              <span class="px-2 py-1 text-xs font-medium bg-blue-50 text-blue-600 rounded-full">Hip Hop</span>
+              <span class="px-2 py-1 text-xs font-medium bg-green-50 text-green-600 rounded-full">Rock</span>
+              <span class="px-2 py-1 text-xs font-medium bg-orange-50 text-orange-600 rounded-full">+2 more</span>
+            </div>
+            
+            <!-- Brief user review style -->
+            <p class="text-sm text-gray-600 italic relative z-10">
+              "{{ profile_user.username }}'s reviews offer thoughtful takes on recent music releases."
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Reviews Grid Section -->
+      {% if user_reviews %}
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for review in user_reviews %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
+          <div class="p-6">
+            <div class="flex items-start gap-4">
+              <!-- Album Cover -->
+              <div class="flex-shrink-0 w-16 h-16 rounded-lg shadow-sm overflow-hidden">
+                <img
+                  src="{{ review.soundscore_album.cover_image|default:'/static/images/default_album.png' }}"
+                  alt="{{ review.soundscore_album.title }} cover"
+                  class="w-full h-full object-cover"
+                  onerror="this.onerror=null; this.src='/static/images/default_album.png';"
+                >
+              </div>
+              
+              <!-- Album Info -->
+              <div class="flex-grow min-w-0">
+                <div class="flex justify-between items-start">
+                  <div class="min-w-0">
+                    <h3 class="text-base font-semibold text-gray-800 truncate">{{ review.soundscore_album.title }}</h3>
+                    <p class="text-xs text-gray-500">{{ review.soundscore_album.artist }}</p>
+                  </div>
+                  
+                  <!-- Star Rating -->
+                  <div class="flex items-center ml-2 bg-gray-50 px-2 py-1 rounded-md">
+                    {% with rating=review.rating %}
+                    {% for i in "12345" %}
+                      <svg class="w-3.5 h-3.5 {% if forloop.counter <= rating %}text-amber-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                      </svg>
+                    {% endfor %}
+                    {% endwith %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Review Text -->
+            {% if review.text %}
+            <div class="mt-4 bg-gray-50 p-4 rounded-lg border-l-3 border-pink-200">
+              <p class="text-gray-700 text-sm italic line-clamp-4">{{ review.text|linebreaksbr }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Review Date -->
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-xs text-gray-400 font-medium">
+                {% if review.created_at %}{{ review.created_at|slice:":10" }}{% else %}Unknown date{% endif %}
+              </span>
+              
+              <!-- View Details Link -->
+              <a href="#" class="text-xs font-medium text-pink-600 hover:text-pink-700 flex items-center">
+                View details
+                <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </section>
+      {% else %}
+      <!-- Empty State -->
+      <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-10 text-center">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-pink-50 mb-4">
+          <svg class="w-10 h-10 text-pink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">No reviews yet</h3>
+        <p class="text-gray-500 max-w-md mx-auto">{{ profile_user.username }} hasn't shared any music reviews yet. Check back later!</p>
+      </section>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}
