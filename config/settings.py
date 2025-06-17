@@ -42,6 +42,12 @@ INSTALLED_APPS = [
     'soundscore',
     'rest_framework',
     'drf_yasg',
+    'apps.users',
+    'apps.reviews',
+    'apps.feed',
+    'apps.groups',
+    'apps.chatbot',
+    'apps.core',
 ]
 
 MIDDLEWARE = [
