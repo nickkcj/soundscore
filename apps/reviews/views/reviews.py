@@ -4,12 +4,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 import json
-
+# Current imports are correct:
 from apps.reviews.services.review_service.add_review import add_review_supabase
 from apps.reviews.services.review_service.edit_review import edit_review_supabase
 from apps.reviews.services.review_service.delete_review import delete_review_supabase
 from apps.users.services.supabase_client import authenticate_with_jwt
-from apps.reviews.services.spotify import search_albums
+from apps.reviews.services.spotify_service.spotify import search_albums
 
 
 @login_required

@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.hashers import make_password
 from apps.users.models import User
-from apps.users.services.auth_service import register_user, authenticate_user
+from apps.users.services.auth.auth_service import register_user, authenticate_user
 
 
 def register_view(request):

@@ -17,7 +17,7 @@
         <div class="flex justify-between items-center py-4">
           <div class="flex items-center gap-3 group">
             <div class="relative overflow-hidden rounded-full p-0.5 bg-gradient-to-r from-pink-500 to-purple-500 shadow-inner transform group-hover:scale-105 transition-all duration-300">
-              <img src="{% static 'images/music.png' %}" class="w-[40px] h-[40px] rounded-full bg-white p-0.5" alt="SoundScore Logo" />
+              <img src="{% static 'core/images/music.png' %}" class="w-[40px] h-[40px] rounded-full bg-white p-0.5" alt="SoundScore Logo" />
             </div>
             <a href="{% url 'home' %}" class="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 text-2xl font-bold tracking-tight group-hover:opacity-90 transition-opacity">SoundScore</a>
           </div>
@@ -160,7 +160,7 @@
     </footer>
 
 {% csrf_token %}
-{% include "chat/widget.html" %}
+{% include "chatbot/widget.html" %}
 <script src="{% static 'js/agent/chat.js' %}"></script>
 {% if user.is_authenticated %}
   <script src="{% static 'js/feed/notifications.js' %}"></script>

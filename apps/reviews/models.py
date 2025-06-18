@@ -1,4 +1,5 @@
 from django.db import models
+from apps.users.models import User
 
 class Album(models.Model):
     spotify_id = models.CharField(max_length=255, unique=True, null=True)  

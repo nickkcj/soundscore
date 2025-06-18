@@ -1,4 +1,4 @@
-from ..user.supabase_client import authenticate_with_jwt
+from apps.users.services.supabase_client import authenticate_with_jwt
 
 def delete_review_supabase(user, review_id):
     client = authenticate_with_jwt()

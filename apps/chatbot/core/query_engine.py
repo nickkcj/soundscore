@@ -1,5 +1,9 @@
 import re
-from ..services.user.supabase_client import authenticate_with_jwt
+import json
+from apps.users.services.supabase_client import authenticate_with_jwt
+from .prompt_handler import convert_prompt_to_sql
+import google.generativeai as genai
+import os
 
 def execute_query(query):
     """Execute any SQL query through Supabase RPC."""

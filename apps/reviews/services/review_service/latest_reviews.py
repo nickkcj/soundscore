@@ -1,4 +1,4 @@
-from ..user.supabase_client import authenticate_with_jwt, get_admin_client
+from apps.users.services.supabase_client import authenticate_with_jwt, get_admin_client
 
 def get_latest_reviews(limit=3):
     try:

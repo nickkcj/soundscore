@@ -117,3 +117,25 @@ def get_group_room_data(group_id, username):
         "recent_messages": formatted_messages,
         "current_username": username,
     }
+
+
+def get_groups_by_user(username):
+    client = authenticate_with_jwt()
+
+    user_resp = client.table("soundscore_user").select("id").eq("username", username).limit(1).execute()
+    if not user_resp.data:
+        raise Exception("User not found")
+    user_id = user_resp.data[0]['id']
+
+    memberships = client.table("chat_group_member") \
+        .select("group_id") \
+        .eq("user_id", user_id).execute().data
+
+    group_ids = [m['group_id'] for m in memberships]
+
+    if not group_ids:
+        return []
+
+    groups = client.table("chat_group").select("*").in_("id", group_ids).execute().data
+
+    return groups

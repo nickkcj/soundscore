@@ -1,5 +1,5 @@
 from apps.users.services.supabase_client import authenticate_with_jwt
-from apps.feed.services.notification_service import create_notification
+from apps.feed.services.notification_service import create_notification_service
 
 
 def toggle_like_service(review_id, username):
@@ -38,7 +38,7 @@ def toggle_like_service(review_id, username):
             username = username_resp.data[0]['username'] if username_resp.data else "Someone"
 
             message = f"@{username} liked your review!"
-            create_notification(
+            create_notification_service(
                 recipient_id=author_id,
                 actor_id=user_id,
                 notification_type='like',

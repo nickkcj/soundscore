@@ -2,6 +2,8 @@
 
 import os
 import time
+import json
+from django.conf import settings
 
 def clear_screen():
     """Clear the terminal screen."""
@@ -40,3 +42,26 @@ def format_thinking():
             print(f"\r🧠 Thinking {frame}", end="", flush=True)
             time.sleep(0.1)
     print("\r" + " " * 20 + "\r", end="")  # Clear the line
+
+def get_chat_history(user_id):
+    """Get chat history for a user."""
+    history_file = os.path.join(settings.BASE_DIR, 'chat_history', f'{user_id}.json')
+    if os.path.exists(history_file):
+        with open(history_file, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_chat_message(user_id, message, is_bot=False):
+    """Save a chat message to the user's history."""
+    history_file = os.path.join(settings.BASE_DIR, 'chat_history', f'{user_id}.json')
+    os.makedirs(os.path.dirname(history_file), exist_ok=True)
+    
+    history = get_chat_history(user_id)
+    history.append({
+        'message': message,
+        'is_bot': is_bot,
+        'timestamp': time.time()
+    })
+    
+    with open(history_file, 'w') as f:
+        json.dump(history, f)

@@ -1,10 +1,10 @@
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET
-from apps.feed.services.auth_service import authenticate_with_jwt
-from apps.feed.services.album_service import get_top_3_albums
-from apps.feed.services.group_service import get_groups_by_user
-from apps.feed.services.user_service import get_suggested_users
+from apps.users.services.supabase_client import authenticate_with_jwt
+from apps.reviews.services.review_service.top_albums import get_top_3_albums
+from apps.groups.services.group_service import get_groups_by_user
+from apps.users.services.retrieve_users import get_suggested_users
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render
 

@@ -1,4 +1,4 @@
-from ..user.supabase_client import authenticate_with_jwt
+from apps.users.services.supabase_client import authenticate_with_jwt
 from datetime import datetime
 
 def add_review_supabase(user_id, album_id, rating, album_title=None, album_artist=None, 
