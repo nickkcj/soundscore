@@ -3,7 +3,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from apps.groups.services.message_service import save_message, get_recent_messages
 from apps.groups.services.user_status_service import set_online_status
-from apps.users.services.supabase_client import authenticate_with_jwt
+from apps.groups.models import GroupMember
+from apps.users.models import User
 
 
 class GroupChatConsumer(AsyncWebsocketConsumer):
@@ -78,34 +79,28 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
     async def trigger_broadcast_online_users(self, event):
         await self.broadcast_online_users()
 
-    # Helpers que acessam Supabase
     @database_sync_to_async
     def get_user_data_by_username(self, username):
-        supabase = authenticate_with_jwt()
-        result = supabase.table("soundscore_user") \
-            .select("id, username, profile_picture") \
-            .eq("username", username).limit(1).execute()
-        return result.data[0] if result.data else {}
+        try:
+            user = User.objects.get(username=username)
+            return {
+                "id": user.id,
+                "username": user.username,
+                "profile_picture": getattr(user, "profile_picture", "/static/images/default.jpg"),
+            }
+        except User.DoesNotExist:
+            return {}
 
     @database_sync_to_async
     def get_users_with_online_status(self, group_id):
-        supabase = authenticate_with_jwt()
-
-        members_response = supabase.table("chat_group_member") \
-            .select("user_id, soundscore_user(username, profile_picture)") \
-            .eq("group_id", group_id).execute().data
-
-        online_response = supabase.table("group_user_online") \
-            .select("user_id, is_online") \
-            .eq("group_id", group_id).execute().data
-
-        online_map = {item["user_id"]: item["is_online"] for item in online_response}
-
+        members = GroupMember.objects.filter(group_id=group_id).select_related('user')
+        # If you have a GroupUserOnline model, use it here to get online status
+        # Otherwise, set is_online to False or implement your own logic
         users = []
-        for m in members_response:
+        for m in members:
             users.append({
-                "username": m.get("soundscore_user", {}).get("username", "Unknown"),
-                "profile_picture": m.get("soundscore_user", {}).get("profile_picture", "/static/images/default.jpg"),
-                "is_online": online_map.get(m["user_id"], False)
+                "username": m.user.username,
+                "profile_picture": getattr(m.user, "profile_picture", "/static/images/default.jpg"),
+                "is_online": False  # Replace with actual online status if implemented
             })
         return users

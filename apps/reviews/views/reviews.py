@@ -4,7 +4,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 import json
-
+from django.shortcuts import get_object_or_404
+from apps.reviews.models import Review
+from apps.users.models import User
+from apps.reviews.services.review_service.profile_service import get_user_profile_data
 from apps.reviews.services.review_service.add_review import add_review
 from apps.reviews.services.review_service.edit_review import edit_review
 from apps.reviews.services.review_service.delete_review import delete_review
@@ -99,3 +102,51 @@ def delete_review_view(request, review_id):
         messages.success(request, "Review deleted successfully!")
 
     return redirect('reviews', username=request.user.username)
+
+
+
+@login_required
+def user_profile_view(request, username):
+    # Get user or 404
+    user = get_object_or_404(User, username=username)
+    # Get profile data (review count, avg rating, profile pic)
+    profile_data = get_user_profile_data(username)
+    # Get all reviews for this user
+    all_reviews = (
+        Review.objects
+        .filter(user=user)
+        .select_related('album')
+        .order_by('-created_at')
+    )
+    # Favorite albums: reviews marked as favorite
+    favorite_reviews = all_reviews.filter(is_favorite=True)
+    # Prepare favorite albums data
+    favorite_albums = [
+        {
+            "rating": review.rating,
+            "soundscore_album": review.album,
+        }
+        for review in favorite_reviews
+    ]
+    # Prepare all reviews data
+    all_reviews_data = [
+        {
+            "id": review.id,
+            "rating": review.rating,
+            "text": review.text,
+            "created_at": review.created_at,
+            "soundscore_album": review.album,
+        }
+        for review in all_reviews
+    ]
+    context = {
+        "profile_user": {
+            "username": user.username,
+            "profile_picture_url": profile_data.get("profile_picture_url", '/static/images/default.jpg'),
+        },
+        "total_reviews": profile_data.get("review_count", 0),
+        "average_rating": profile_data.get("avg_rating", 0),
+        "favorite_albums": favorite_albums,
+        "all_reviews": all_reviews_data,
+    }
+    return render(request, "reviews/reviews.html", context)

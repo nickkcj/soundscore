@@ -1,14 +1,13 @@
-from django.shortcuts import render
-
-# Create your views here.
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 import json
+
 from apps.groups.services.group_service import (
-    create_group, get_all_groups, get_group_room_data, join_group
+    create_group, get_all_groups, get_group_room_data, join_group, get_groups_by_user
 )
 from apps.groups.services.user_status_service import set_online_status
+from apps.groups.services.message_service import save_message, get_recent_messages
 
 @login_required
 def create_group_view(request):
@@ -19,8 +18,13 @@ def create_group_view(request):
         privacy = request.POST.get("privacy")
         cover_image = request.FILES.get("cover_image")
 
-        group_id = create_group(name, description, category, privacy, cover_image, request.user.username)
-        return redirect("group_room", group_id=group_id)
+        try:
+            group_id = create_group(name, description, category, privacy, cover_image, request.user.username)
+            return redirect("group_room", group_id=group_id)
+        except Exception as e:
+            return render(request, "groups/create_group.html", {"error": str(e)})
+
+    return render(request, "groups/create_group.html")
 
 def all_groups_view(request):
     data = get_all_groups()
@@ -29,6 +33,8 @@ def all_groups_view(request):
 @login_required
 def group_room_view(request, group_id):
     data = get_group_room_data(group_id, request.user.username)
+    # Optionally, include recent messages
+    data["recent_messages"] = get_recent_messages(group_id)
     return render(request, "groups/group_room.html", data)
 
 @login_required
@@ -48,3 +54,15 @@ def set_online_status_view(request):
 
     except Exception as e:
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+@login_required
+def send_message_view(request, group_id):
+    if request.method == "POST":
+        content = request.POST.get("content")
+        if not content:
+            return JsonResponse({"ok": False, "error": "Message content required"}, status=400)
+        result = save_message(group_id, request.user.id, content)
+        if result:
+            return JsonResponse({"ok": True, "message": result})
+        else:
+            return JsonResponse({"ok": False, "error": "Failed to save message"}, status=500)

@@ -7,7 +7,7 @@ def add_review(user_id, album_id, rating, album_title=None, album_artist=None,
     try:
         # Step 1: Get or create album
         album, created = Album.objects.get_or_create(
-            id=album_id,
+            spotify_id=album_id,
             defaults={
                 'title': album_title or "",
                 'artist': album_artist or "",

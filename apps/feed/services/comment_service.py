@@ -1,24 +1,25 @@
-from apps.users.services.supabase_client import authenticate_with_jwt
+from apps.reviews.models import Comment
+from apps.users.models import User
+from apps.reviews.models import Review
 
 
 def post_comment_service(review_id, text, username, parent_id=None):
-    client = authenticate_with_jwt()
-    if not client:
-        raise Exception("Supabase connection failed")
-
-    user_resp = client.table("soundscore_user").select("id") \
-        .eq("username", username).limit(1).execute()
-    if not user_resp.data:
+    user = User.objects.filter(username=username).first()
+    if not user:
         raise Exception("User not found")
+    review = Review.objects.filter(id=review_id).first()
+    if not review:
+        raise Exception("Review not found")
 
-    user_id = user_resp.data[0]["id"]
     comment_data = {
-        "review_id": review_id,
-        "user_id": user_id,
+        "review": review,
+        "user": user,
         "text": text
     }
     if parent_id:
-        comment_data["parent_id"] = parent_id
+        parent_comment = Comment.objects.filter(id=parent_id).first()
+        if parent_comment:
+            comment_data["parent"] = parent_comment
 
-    response = client.table("soundscore_comment").insert(comment_data).execute()
-    return response.data[0]
+    comment = Comment.objects.create(**comment_data)
+    return comment

@@ -1,11 +1,11 @@
-from apps.groups.models import ChatGroup, ChatGroupMessage, ChatGroupMember
+from apps.groups.models import Group, GroupMessage, GroupMember
 from apps.users.models import User
 
 def save_message(group_id, user_id, content):
     try:
-        group = ChatGroup.objects.get(id=group_id)
+        group = Group.objects.get(id=group_id)
         user = User.objects.get(id=user_id)
-        message = ChatGroupMessage.objects.create(
+        message = GroupMessage.objects.create(
             group=group,
             user=user,
             content=content
@@ -15,7 +15,7 @@ def save_message(group_id, user_id, content):
             "group_id": group_id,
             "user_id": user_id,
             "content": content,
-            "created_at": message.created_at
+            "created_at": message.timestamp
         }
     except Exception as e:
         return None
@@ -23,10 +23,10 @@ def save_message(group_id, user_id, content):
 def get_recent_messages(group_id, limit=50):
     try:
         messages = (
-            ChatGroupMessage.objects
+            GroupMessage.objects
             .filter(group_id=group_id)
             .select_related('user')
-            .order_by('-created_at')[:limit]
+            .order_by('-timestamp')[:limit]
         )
         formatted_messages = [{
             "content": msg.content,

@@ -18,6 +18,18 @@ def post_comment_view(request):
 
     try:
         comment = post_comment_service(review_id, text, request.user.username, parent_id)
-        return JsonResponse({"success": True, "comment": comment})
+        # Serialize comment for response
+        comment_data = {
+            "id": comment.id,
+            "text": comment.text,
+            "user": {
+                "id": comment.user.id,
+                "username": comment.user.username,
+                "profile_picture": comment.user.profile_picture,
+            },
+            "created_at": comment.created_at,
+            "parent_id": comment.parent.id if comment.parent else None,
+        }
+        return JsonResponse({"success": True, "comment": comment_data})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)

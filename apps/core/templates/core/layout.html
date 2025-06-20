@@ -32,7 +32,7 @@
                   <span>My Account</span>
                   <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
                 </a>
-                <a href="/reviews/{{ user.username }}/" class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" data-page="reviews">
+                <a href="{% url 'reviews' user.username %}" class="group relative py-1.5 px-4 text-gray-700 hover:text-pink-600 text-base font-medium transition-all duration-200 hover:bg-white/70 rounded-full" data-page="reviews">
                   <span>My Reviews</span>
                   <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-[80%] opacity-0 group-hover:opacity-100"></span>
                 </a>
@@ -161,9 +161,9 @@
 
 {% csrf_token %}
 {% include "chatbot/widget.html" %}
-<script src="{% static 'js/agent/chat.js' %}"></script>
+<script src="{% static 'chatbot/js/chat.js' %}"></script>
 {% if user.is_authenticated %}
-  <script src="{% static 'js/feed/notifications.js' %}"></script>
+  <script src="{% static 'feed/js/notifications.js' %}"></script>
 {% endif %}
 
 <!-- Modal for notification details -->

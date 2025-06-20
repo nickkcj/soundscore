@@ -7,24 +7,13 @@ from apps.feed.services.notification_service import (
     mark_all_as_read_service,
     get_unread_count_service
 )
-from apps.users.services.supabase_client import authenticate_with_jwt
 
 
 @login_required
 @require_GET
 def get_notifications_view(request):
     try:
-        client = authenticate_with_jwt()
-        if not client:
-            return JsonResponse({"error": "Authentication failed"}, status=401)
-
-        user_response = client.table('soundscore_user').select('id') \
-            .eq('username', request.user.username).limit(1).execute()
-        if not user_response.data:
-            return JsonResponse({"error": "User not found"}, status=404)
-
-        user_id = user_response.data[0]['id']
-
+        user_id = request.user.id
         limit = int(request.GET.get('limit', 10))
         offset = int(request.GET.get('offset', 0))
         unread_only = request.GET.get('unread_only', 'false').lower() == 'true'
@@ -32,10 +21,24 @@ def get_notifications_view(request):
         notifications = get_user_notifications_service(user_id, limit, offset, unread_only)
         unread_count = get_unread_count_service(user_id)
 
+        # If notifications are QuerySets, convert to list of dicts
+        notifications_list = [
+            {
+                "id": n.id,
+                "type": n.type,
+                "message": n.message,
+                "is_read": n.is_read,
+                "created_at": n.created_at,
+                "actor": getattr(n.actor, "username", None),
+                "review_id": getattr(n, "review_id", None),
+            }
+            for n in notifications
+        ]
+
         return JsonResponse({
-            "notifications": notifications,
+            "notifications": notifications_list,
             "unread_count": unread_count,
-            "has_more": len(notifications) == limit
+            "has_more": len(notifications_list) == limit
         })
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
@@ -55,17 +58,7 @@ def mark_read_view(request, notification_id):
 @require_POST
 def mark_all_read_view(request):
     try:
-        client = authenticate_with_jwt()
-        if not client:
-            return JsonResponse({"error": "Authentication failed"}, status=401)
-
-        user_response = client.table('soundscore_user').select('id') \
-            .eq('username', request.user.username).limit(1).execute()
-        if not user_response.data:
-            return JsonResponse({"error": "User not found"}, status=404)
-
-        user_id = user_response.data[0]['id']
-
+        user_id = request.user.id
         mark_all_as_read_service(user_id)
         return JsonResponse({"success": True})
     except Exception as e:
@@ -76,16 +69,7 @@ def mark_all_read_view(request):
 @require_GET
 def get_unread_count_view(request):
     try:
-        client = authenticate_with_jwt()
-        if not client:
-            return JsonResponse({"error": "Authentication failed"}, status=401)
-
-        user_response = client.table("soundscore_user").select("id") \
-            .eq("username", request.user.username).limit(1).execute()
-        if not user_response.data:
-            return JsonResponse({"error": "User not found"}, status=404)
-
-        user_id = user_response.data[0]["id"]
+        user_id = request.user.id
         count = get_unread_count_service(user_id)
         return JsonResponse({"unread_count": count})
     except Exception as e:

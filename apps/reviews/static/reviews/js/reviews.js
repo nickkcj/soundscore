@@ -32,6 +32,88 @@ document.addEventListener('DOMContentLoaded', function () {
     
     let searchTimeout;
     
+    // A function to initialize all event listeners
+    function initializeEventListeners() {
+        // Check if elements exist before adding listeners
+        if (openModalBtn) {
+            openModalBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                openModal();
+            });
+        }
+    
+        if (openModalEmptyBtn) {
+            openModalEmptyBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                openModal();
+            });
+        }
+    
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closeModal);
+        }
+    
+        if (createReviewModal) {
+            createReviewModal.addEventListener('click', function (e) {
+                if (e.target === createReviewModal) {
+                    closeModal();
+                }
+            });
+        }
+
+        if (doneButton) {
+            doneButton.addEventListener('click', function() {
+                window.location.reload();
+            });
+        }
+
+        if (artistInput) {
+            artistInput.addEventListener('input', function () {
+                if (searchTimeout) clearTimeout(searchTimeout);
+                
+                const query = this.value.trim();
+                if (query.length < 2) {
+                    searchResults.innerHTML = '';
+                    return;
+                }
+                
+                searchTimeout = setTimeout(() => {
+                    searchAlbums(query);
+                }, 500);
+            });
+        }
+
+        if (backToSearchBtn) {
+            backToSearchBtn.addEventListener('click', function() {
+                reviewStep.classList.add('hidden');
+                searchStep.classList.remove('hidden');
+            });
+        }
+        
+        if (ratingStars) {
+            ratingStars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const ratingValue = this.getAttribute('data-rating');
+                    setRating(ratingValue);
+                    
+                    ratingContainer.classList.add('bg-pink-50');
+                    setTimeout(() => {
+                        ratingContainer.classList.remove('bg-pink-50');
+                    }, 300);
+                });
+            });
+        }
+
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitReview();
+            });
+        }
+
+        initializeReviewExpandButtons();
+    }
+    
     // Open modal
     function openModal() {
         createReviewModal.classList.remove('hidden');
@@ -43,74 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
         artistInput.focus();
     }
     
-    // Event listeners for opening modal
-    openModalBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        openModal();
-    });
-    
-    if (openModalEmptyBtn) {
-        openModalEmptyBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            openModal();
-        });
-    }
-    
-    // Close modal
-    closeModalBtn.addEventListener('click', closeModal);
-    
-    // Close modal when clicking outside
-    createReviewModal.addEventListener('click', function (e) {
-        if (e.target === createReviewModal) {
-            closeModal();
-        }
-    });
-    
-    // Done button
-    doneButton.addEventListener('click', function() {
-        window.location.reload(); // Reload page to see the new review
-    });
-    
-    // Search for albums with debounce
-    artistInput.addEventListener('input', function () {
-        if (searchTimeout) clearTimeout(searchTimeout);
-        
-        const query = this.value.trim();
-        if (query.length < 2) {
-            searchResults.innerHTML = '';
-            return;
-        }
-        
-        searchTimeout = setTimeout(() => {
-            searchAlbums(query);
-        }, 500);
-    });
-    
-    // Back button
-    backToSearchBtn.addEventListener('click', function() {
-        reviewStep.classList.add('hidden');
-        searchStep.classList.remove('hidden');
-    });
-    
-    // Rating stars
-    ratingStars.forEach(star => {
-        star.addEventListener('click', function() {
-            const ratingValue = this.getAttribute('data-rating');
-            setRating(ratingValue);
-            
-            // Add a subtle animation to the rating container
-            ratingContainer.classList.add('bg-pink-50');
-            setTimeout(() => {
-                ratingContainer.classList.remove('bg-pink-50');
-            }, 300);
-        });
-    });
-    
-    // Submit review
-    reviewForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        submitReview();
-    });
+    // Event listeners for opening modal - MOVED to initializeEventListeners
     
     // Functions
     
@@ -247,10 +262,9 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         
-        // Get CSRF token
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
         
-        fetch('/reviews/api/create-review/', {
+        fetch('/reviews/api/create/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -259,106 +273,50 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify(formData)
         })
         .then(response => {
-            if (!response.ok) throw new Error('Failed to submit review');
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || 'Failed to submit review') });
+            }
             return response.json();
         })
         .then(data => {
-            // Show success message
-            reviewStep.classList.add('hidden');
-            successStep.classList.remove('hidden');
+            if (data.success) {
+                reviewStep.classList.add('hidden');
+                successStep.classList.remove('hidden');
+            } else {
+                throw new Error(data.error || 'An unknown error occurred');
+            }
         })
         .catch(error => {
-            console.error('Error submitting review:', error);
-            alert('Error submitting review. Please try again.');
+            console.error('Submit error:', error);
+            alert(`Error: ${error.message}`);
         });
     }
     
     // Review text "See more/less" functionality
     function initializeReviewExpandButtons() {
-        console.log("[Reviews] Initializing review expand buttons...");
         const reviewContainers = document.querySelectorAll('.review-container');
-        console.log(`[Reviews] Found ${reviewContainers.length} review containers.`);
+        reviewContainers.forEach(container => {
+            const textElement = container.querySelector('.review-text-collapsed');
+            // Check if text is actually clamped
+            if (textElement && textElement.scrollHeight > textElement.clientHeight) {
+                const expandButton = document.createElement('button');
+                expandButton.textContent = 'See more';
+                expandButton.className = 'text-pink-600 hover:underline text-xs mt-1';
+                container.appendChild(expandButton);
 
-        reviewContainers.forEach((container, index) => {
-            const collapsedText = container.querySelector('.review-text-collapsed');
-
-            if (!collapsedText || container.classList.contains('review-processed')) {
-                return;
-            }
-            if (container.querySelector('.see-more-btn')) {
-                 container.classList.add('review-processed');
-                 return;
-            }
-
-            // Create expanded version - **Add break-words**
-            const expandedText = document.createElement('p');
-            expandedText.className = 'block w-full text-sm text-gray-600 italic mb-2 review-text-expanded hidden whitespace-normal break-words'; // <-- ADDED break-words
-            expandedText.innerHTML = collapsedText.innerHTML;
-
-            // Create buttons
-            const seeMoreBtn = document.createElement('button');
-            seeMoreBtn.type = 'button';
-            seeMoreBtn.className = 'see-more-btn text-xs font-medium text-pink-500 hover:text-pink-600 transition-colors duration-200 ml-1';
-            seeMoreBtn.textContent = 'See more';
-            seeMoreBtn.classList.add('hidden'); // Start hidden
-
-            const seeLessBtn = document.createElement('button');
-            seeLessBtn.type = 'button';
-            seeLessBtn.className = 'see-less-btn text-xs font-medium text-pink-500 hover:text-pink-600 transition-colors duration-200 ml-1 hidden';
-            seeLessBtn.textContent = 'See less';
-
-            // Append elements
-            container.appendChild(expandedText);
-            collapsedText.insertAdjacentElement('afterend', seeMoreBtn);
-            expandedText.insertAdjacentElement('afterend', seeLessBtn);
-
-            const textContent = collapsedText.textContent || "";
-            const textLength = textContent.trim().length;
-            // *** ADJUST THIS THRESHOLD AS NEEDED ***
-            // If text is longer than this, it *might* be clamped visually.
-            const MIN_LENGTH_FOR_POTENTIAL_CLAMP = 80;
-
-            console.log(`[Reviews] Container ${index + 1}: Text length = ${textLength}.`);
-
-            // *** Simplified Logic: Show button based on length only ***
-            if (textLength > MIN_LENGTH_FOR_POTENTIAL_CLAMP) {
-                // Assume long text *might* be clamped, so show the button.
-                // The user can click it if needed.
-                seeMoreBtn.classList.remove('hidden');
-                console.log(`[Reviews] Container ${index + 1}: Text long enough, showing "See more" button.`);
-
-                seeMoreBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    console.log(`[Reviews] Container ${index + 1}: "See more" clicked.`);
-                    collapsedText.classList.add('hidden');
-                    seeMoreBtn.classList.add('hidden');
-                    expandedText.classList.remove('hidden');
-                    seeLessBtn.classList.remove('hidden');
+                expandButton.addEventListener('click', () => {
+                    if (textElement.classList.contains('line-clamp-2')) {
+                        textElement.classList.remove('line-clamp-2');
+                        expandButton.textContent = 'See less';
+                    } else {
+                        textElement.classList.add('line-clamp-2');
+                        expandButton.textContent = 'See more';
+                    }
                 });
-
-                seeLessBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    console.log(`[Reviews] Container ${index + 1}: "See less" clicked.`);
-                    expandedText.classList.add('hidden');
-                    seeLessBtn.classList.add('hidden');
-                    collapsedText.classList.remove('hidden');
-                    seeMoreBtn.classList.remove('hidden');
-                });
-            } else {
-                 console.log(`[Reviews] Container ${index + 1}: Text too short, removing buttons.`);
-                 // Remove buttons if text is definitely too short
-                 seeMoreBtn.remove();
-                 seeLessBtn.remove();
-                 expandedText.remove();
             }
-            container.classList.add('review-processed');
         });
-         console.log("[Reviews] Finished initializing review expand buttons.");
     }
     
-    // Initialize on page load
-    initializeReviewExpandButtons();
-    
-    // Also initialize after ajax content loads (if you load reviews dynamically)
-    document.addEventListener('reviews-loaded', initializeReviewExpandButtons);
+    // Initialize everything
+    initializeEventListeners();
 });

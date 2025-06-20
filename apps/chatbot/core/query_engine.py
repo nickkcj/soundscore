@@ -1,38 +1,13 @@
 import re
 import json
-from apps.users.services.supabase_client import authenticate_with_jwt
 from .prompt_handler import convert_prompt_to_sql
 import google.generativeai as genai
 import os
 
 def execute_query(query):
-    """Execute any SQL query through Supabase RPC."""
-    try:
-        client = authenticate_with_jwt()
-        if not client:
-            return {"results": None, "success": False, "error": "Authentication failed"}
-
-        # Remove trailing semicolons before executing
-        query = query.strip()
-        if query.endswith(';'):
-            query = query[:-1]
-            print(f"[DEBUG] Removed trailing semicolon from query: {query}")
-
-        # Always use the RPC for all queries
-        response = client.rpc('execute_sql', {'sql_query': query}).execute()
-
-        # Check for error in response
-        if isinstance(response.data, dict) and 'error' in response.data:
-            print(f"[DEBUG] SQL execution error: {response.data['error']}")
-            return {"results": None, "success": False, "error": response.data['error']}
-
-        if response.data:
-            return {"results": response.data, "success": True}
-        else:
-            return {"results": None, "success": False, "error": "Query returned no data"}
-
-    except Exception as e:
-        return {"results": None, "success": False, "error": str(e)}
+    """Stub for SQL execution. Replace with Django ORM or custom logic."""
+    # Example: raise NotImplementedError or return a fake result for testing
+    raise NotImplementedError("Direct SQL execution is not supported. Please implement using Django ORM.")
 
 def extract_table(query):
     """Simple table extraction from query."""
