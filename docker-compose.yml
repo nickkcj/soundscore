@@ -1,10 +1,10 @@
-version: "3.13" 
+version: "3.13"
 
 services:
   web:
     build: .
     volumes:
-      - .:/soundscore
+      - ./:/soundscore
       - ./media:/soundscore/media
       - ./db.sqlite3:/soundscore/db.sqlite3
     ports:
@@ -18,10 +18,13 @@ services:
     depends_on:
       - redis
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
              uvicorn config.asgi:application --host 0.0.0.0 --port 8000"
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
+

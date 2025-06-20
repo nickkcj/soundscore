@@ -21,17 +21,15 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('soundscore.urls.home')),       # home.py for homepage/about
-    path('users/', include('soundscore.urls.users')),  # user-related routes
-    path('reviews/', include('soundscore.urls.reviews')),  # review-related routes
-    path('comments/', include('soundscore.urls.feed')),  # comment-related routes
-    path('chat/', include('soundscore.urls.chat')),  # chat-related routes
-    path('notifications/', include('soundscore.urls.notifications')),  # notification-related routes
-    path('groups/', include('soundscore.urls.group')), 
-    path('api/', include('soundscore.api.urls')),  # API routes
-
+    # FIX: Add the 'apps.' prefix to all your app includes
+    path('', include('apps.core.urls')),
+    path('users/', include('apps.users.urls')),
+    path('reviews/', include('apps.reviews.urls')),
+    path('feed/', include('apps.feed.urls')),
+    path('groups/', include('apps.groups.urls')),
+    path('chatbot/', include('apps.chatbot.urls')),
+    # ... any other app urls ...
 ]
-
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

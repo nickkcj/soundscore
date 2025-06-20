@@ -1,26 +1,34 @@
-from apps.users.services.supabase_client import authenticate_with_jwt, get_admin_client
+from apps.reviews.models import Review
 
 def get_latest_reviews(limit=3):
     try:
-        client = get_admin_client()
-        if not client:
-            return {"error": "Could not connect to Supabase"}
-
-        response = client.table('soundscore_review') \
-            .select(
-                'id, rating, text, created_at, is_favorite, '
-                'soundscore_album(id, title, artist, cover_image, spotify_id), '
-                'soundscore_user(id, username, profile_picture)'
-            ) \
-            .order('created_at', desc=True) \
-            .limit(limit) \
-            .execute()
-
-        if not response.data:
-            return {"error": "No reviews found"}
-
-        return response.data
-
+        reviews = (
+            Review.objects
+            .select_related('album', 'user')
+            .order_by('-created_at')[:limit]
+        )
+        return [
+            {
+                'id': r.id,
+                'rating': r.rating,
+                'text': r.text,
+                'created_at': r.created_at,
+                'is_favorite': r.is_favorite,
+                'album': {
+                    'id': r.album.id,
+                    'title': r.album.title,
+                    'artist': r.album.artist,
+                    'cover_image': r.album.cover_image,
+                    'spotify_id': getattr(r.album, 'spotify_id', None),
+                },
+                'user': {
+                    'id': r.user.id,
+                    'username': r.user.username,
+                    'profile_picture': r.user.profile_picture,
+                }
+            }
+            for r in reviews
+        ]
     except Exception as e:
         return {"error": f"Error fetching latest reviews: {str(e)}"}
 

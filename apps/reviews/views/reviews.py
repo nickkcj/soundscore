@@ -4,11 +4,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 import json
-# Current imports are correct:
-from apps.reviews.services.review_service.add_review import add_review_supabase
-from apps.reviews.services.review_service.edit_review import edit_review_supabase
-from apps.reviews.services.review_service.delete_review import delete_review_supabase
-from apps.users.services.supabase_client import authenticate_with_jwt
+
+from apps.reviews.services.review_service.add_review import add_review
+from apps.reviews.services.review_service.edit_review import edit_review
+from apps.reviews.services.review_service.delete_review import delete_review
 from apps.reviews.services.spotify_service.spotify import search_albums
 
 
@@ -45,15 +44,9 @@ def create_review_api_view(request):
     if not album_id or not rating:
         return JsonResponse({"error": "Album ID and rating are required"}, status=400)
 
-    user = request.user.username
+    user_id = request.user.id
 
-    client = authenticate_with_jwt()
-    user_resp = client().table('soundscore_user').select('id').eq('username', user).limit(1).execute()
-    if not user_resp.data:
-        return JsonResponse({"error": "User not found"}, status=404)
-    user_id = user_resp.data[0]['id']
-
-    result = add_review_supabase(
+    result = add_review(
         user_id=user_id,
         album_id=album_id,
         rating=int(rating),
@@ -81,7 +74,7 @@ def edit_review_view(request, review_id):
         text = request.POST.get('review_text', '')
         is_favorite = 'is_favorite' in request.POST
 
-        result = edit_review_supabase(review_id, rating, text, is_favorite)
+        result = edit_review(review_id, rating, text, is_favorite)
 
         if result.get('error'):
             messages.error(request, result['error'])
@@ -98,7 +91,7 @@ def edit_review_view(request, review_id):
 @login_required
 @require_POST
 def delete_review_view(request, review_id):
-    result = delete_review_supabase(request.user.username, review_id)
+    result = delete_review(request.user.username, review_id)
 
     if result.get('error'):
         messages.error(request, result['error'])

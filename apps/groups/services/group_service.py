@@ -1,141 +1,98 @@
-from apps.users.services.supabase_client import authenticate_with_jwt
+from apps.groups.models import ChatGroup, ChatGroupMember, ChatGroupMessage, GroupUserOnline
+from apps.users.models import User
 import uuid
 
 def create_group(name, description, category, privacy, cover_image_file, username):
-    client = authenticate_with_jwt()
-
-    user_resp = client.table("soundscore_user").select("id").eq("username", username).limit(1).execute()
-    if not user_resp.data:
-        raise Exception("User not found")
-    user_id = user_resp.data[0]['id']
-
-    if cover_image_file:
-        file_ext = cover_image_file.name.split('.')[-1]
-        filename = f"group_covers/{uuid.uuid4()}.{file_ext}"
-        file_bytes = cover_image_file.read()
-
-        client.storage.from_("chat-media").upload(
-            path=filename,
-            file=file_bytes,
-            file_options={"content-type": cover_image_file.content_type}
-        )
-        cover_url = client.storage.from_("chat-media").get_public_url(filename)
-    else:
-        cover_url = "/static/images/default.jpg"
-
-    res = client.table("chat_group").insert({
-        "name": name,
-        "description": description,
-        "category": category,
-        "privacy": privacy,
-        "cover_image": cover_url
-    }).execute()
-
-    group_id = res.data[0]['id']
-
-    client.table("chat_group_member").insert({
-        "group_id": group_id,
-        "user_id": user_id
-    }).execute()
-
-    return group_id
+    try:
+        user = User.objects.get(username=username)
+        # Handle cover image
+        if cover_image_file:
+            filename = f"group_covers/{uuid.uuid4()}.{cover_image_file.name.split('.')[-1]}"
+            # Save file to media storage
+            group = ChatGroup(
+                name=name,
+                description=description,
+                category=category,
+                privacy=privacy,
+                cover_image=cover_image_file
+            )
+            group.save()
+        else:
+            group = ChatGroup.objects.create(
+                name=name,
+                description=description,
+                category=category,
+                privacy=privacy,
+                cover_image="/static/images/default.jpg"
+            )
+        # Add creator as member
+        ChatGroupMember.objects.create(group=group, user=user)
+        return group.id
+    except Exception as e:
+        raise Exception(f"Error creating group: {e}")
 
 def get_all_groups():
-    client = authenticate_with_jwt()
-
-    groups_response = client.table("chat_group").select("*").execute()
-    all_groups = groups_response.data or []
-
-    for group in all_groups:
-        members_response = client.table("chat_group_member").select("*").eq("group_id", group["id"]).execute()
-        group["member_count"] = len(members_response.data)
-
-    trending = sorted(all_groups, key=lambda x: x.get("member_count", 0), reverse=True)[:4]
-    return {"groups": all_groups, "trending_groups": trending}
+    try:
+        all_groups = list(ChatGroup.objects.all())
+        for group in all_groups:
+            group.member_count = ChatGroupMember.objects.filter(group=group).count()
+        trending = sorted(all_groups, key=lambda x: getattr(x, "member_count", 0), reverse=True)[:4]
+        return {
+            "groups": all_groups,
+            "trending_groups": trending
+        }
+    except Exception as e:
+        return {"groups": [], "trending_groups": []}
 
 def join_group(group_id, username):
-    client = authenticate_with_jwt()
-
-    user_resp = client.table("soundscore_user").select("id").eq("username", username).limit(1).execute()
-    if not user_resp.data:
-        raise Exception("User not found")
-    user_id = user_resp.data[0]['id']
-
-    existing = client.table("chat_group_member").select("*") \
-        .eq("group_id", group_id).eq("user_id", user_id).execute()
-
-    if not existing.data:
-        client.table("chat_group_member").insert({
-            "group_id": group_id,
-            "user_id": user_id
-        }).execute()
-
-    return True
+    try:
+        user = User.objects.get(username=username)
+        group = ChatGroup.objects.get(id=group_id)
+        ChatGroupMember.objects.get_or_create(group=group, user=user)
+        return True
+    except Exception as e:
+        return False
 
 def get_group_room_data(group_id, username):
-    client = authenticate_with_jwt()
-
-    user_resp = client.table("soundscore_user").select("id").eq("username", username).limit(1).execute()
-    if not user_resp.data:
-        raise Exception("User not found")
-    user_id = user_resp.data[0]['id']
-
-    group = client.table("chat_group").select("*").eq("id", group_id).execute().data[0]
-
-    members = client.table("chat_group_member") \
-        .select("user_id, soundscore_user(username,profile_picture)") \
-        .eq("group_id", group_id).execute().data
-
-    online_rows = client.table("group_user_online") \
-        .select("user_id").eq("group_id", group_id).eq("is_online", True).execute().data
-    online_ids = {row["user_id"] for row in online_rows}
-
-    member_list = [{
-        "user_id": m["user_id"],
-        "username": m.get("soundscore_user", {}).get("username", "Unknown"),
-        "profile_picture": m.get("soundscore_user", {}).get("profile_picture", "/static/images/default.jpg"),
-        "is_online": m["user_id"] in online_ids,
-    } for m in members]
-
-    messages = client.table("chat_group_message") \
-        .select("*, soundscore_user(username,profile_picture)") \
-        .eq("group_id", group_id).execute().data
-
-    formatted_messages = [{
-        "content": msg["content"],
-        "username": msg["soundscore_user"]["username"] if "soundscore_user" in msg else "Unknown",
-        "user_id": msg["user_id"],
-        "profile_picture": msg["soundscore_user"].get("profile_picture", "/static/images/default.jpg") \
-            if "soundscore_user" in msg else "/static/images/default.jpg"
-    } for msg in messages]
-
-    return {
-        "group": group,
-        "group_id": group_id,
-        "member_count": len(member_list),
-        "members": member_list,
-        "recent_messages": formatted_messages,
-        "current_username": username,
-    }
-
+    try:
+        user = User.objects.get(username=username)
+        group = ChatGroup.objects.get(id=group_id)
+        members = ChatGroupMember.objects.filter(group=group).select_related('user')
+        online_ids = set(
+            GroupUserOnline.objects.filter(group=group, is_online=True).values_list('user_id', flat=True)
+        )
+        member_list = [{
+            "user_id": m.user.id,
+            "username": m.user.username,
+            "profile_picture": getattr(m.user, "profile_picture", "/static/images/default.jpg"),
+            "is_online": m.user.id in online_ids,
+        } for m in members]
+        messages = ChatGroupMessage.objects.filter(group=group).select_related('user')
+        formatted_messages = [{
+            "content": msg.content,
+            "username": msg.user.username,
+            "user_id": msg.user.id,
+            "profile_picture": getattr(msg.user, "profile_picture", "/static/images/default.jpg")
+        } for msg in messages]
+        return {
+            "group": group,
+            "group_id": group_id,
+            "member_count": len(member_list),
+            "members": member_list,
+            "recent_messages": formatted_messages,
+            "current_username": username,
+        }
+    except Exception as e:
+        return {}
 
 def get_groups_by_user(username):
-    client = authenticate_with_jwt()
-
-    user_resp = client.table("soundscore_user").select("id").eq("username", username).limit(1).execute()
-    if not user_resp.data:
-        raise Exception("User not found")
-    user_id = user_resp.data[0]['id']
-
-    memberships = client.table("chat_group_member") \
-        .select("group_id") \
-        .eq("user_id", user_id).execute().data
-
-    group_ids = [m['group_id'] for m in memberships]
-
-    if not group_ids:
+    try:
+        user = User.objects.get(username=username)
+        memberships = ChatGroupMember.objects.filter(user=user)
+        group_ids = [m.group.id for m in memberships]
+        if not group_ids:
+            return []
+        groups = ChatGroup.objects.filter(id__in=group_ids)
+        return groups
+    except Exception as e:
         return []
-
-    groups = client.table("chat_group").select("*").in_("id", group_ids).execute().data
-
-    return groups

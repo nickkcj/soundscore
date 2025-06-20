@@ -1,29 +1,39 @@
-from apps.users.services.supabase_client import authenticate_with_jwt
+from apps.groups.models import ChatGroup, ChatGroupMessage, ChatGroupMember
+from apps.users.models import User
 
 def save_message(group_id, user_id, content):
-    client = authenticate_with_jwt()
-    response = client.table("chat_group_message").insert({
-        "group_id": group_id,
-        "user_id": user_id,
-        "content": content,
-    }).execute()
-    return response.data[0] if response.data else None
+    try:
+        group = ChatGroup.objects.get(id=group_id)
+        user = User.objects.get(id=user_id)
+        message = ChatGroupMessage.objects.create(
+            group=group,
+            user=user,
+            content=content
+        )
+        return {
+            "id": message.id,
+            "group_id": group_id,
+            "user_id": user_id,
+            "content": content,
+            "created_at": message.created_at
+        }
+    except Exception as e:
+        return None
 
 def get_recent_messages(group_id, limit=50):
-    client = authenticate_with_jwt()
-    messages = client.table("chat_group_message")\
-        .select("*, soundscore_user(username,profile_picture)")\
-        .eq("group_id", group_id)\
-        .order("created_at", desc=True)\
-        .limit(limit)\
-        .execute().data
-
-    formatted_messages = [{
-        "content": msg["content"],
-        "username": msg["soundscore_user"]["username"] if "soundscore_user" in msg else "Unknown",
-        "user_id": msg["user_id"],
-        "profile_picture": msg["soundscore_user"].get("profile_picture", "/static/images/default.jpg")\
-            if "soundscore_user" in msg else "/static/images/default.jpg"
-    } for msg in messages]
-
-    return formatted_messages
+    try:
+        messages = (
+            ChatGroupMessage.objects
+            .filter(group_id=group_id)
+            .select_related('user')
+            .order_by('-created_at')[:limit]
+        )
+        formatted_messages = [{
+            "content": msg.content,
+            "username": msg.user.username,
+            "user_id": msg.user.id,
+            "profile_picture": getattr(msg.user, "profile_picture", "/static/images/default.jpg")
+        } for msg in messages]
+        return formatted_messages
+    except Exception as e:
+        return []

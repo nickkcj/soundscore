@@ -14,9 +14,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire project into the container
 COPY . /soundscore/
 
+# Move apps to project root
+RUN mv /soundscore/apps/* /soundscore/ && rm -r /soundscore/apps
+
 # Set environment variables (use .env if you have one)
 ENV PYTHONUNBUFFERED=1
 
 # Run migrations and collect static files before starting the server
 # Use exec form (JSON array) for CMD to handle signals properly
-CMD ["sh", "-c", "python manage.py makemigrations soundscore --no-input && python manage.py collectstatic --noinput && python manage.py migrate --fake-initial && uvicorn config.asgi:application --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "python manage.py makemigrations --no-input && python manage.py collectstatic --noinput && python manage.py migrate --fake-initial && uvicorn config.asgi:application --host 0.0.0.0 --port 8000"]

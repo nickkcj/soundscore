@@ -1,85 +1,65 @@
-from apps.users.services.supabase_client import authenticate_with_jwt
+from apps.reviews.models import Review, Album
+from apps.users.models import User
 from datetime import datetime
 
-def add_review_supabase(user_id, album_id, rating, album_title=None, album_artist=None, 
-                       album_cover=None, text=None, is_favorite=False):
-    # Use authenticated client instead of anonymous client
-    client = authenticate_with_jwt()
-    if not client:
-        return {"error": "Failed to authenticate with Supabase"}
-    
+def add_review(user_id, album_id, rating, album_title=None, album_artist=None, 
+               album_cover=None, text=None, is_favorite=False):
     try:
-        # Step 1: Check if album exists
-        album_response = client.table('soundscore_album').select('*').eq('spotify_id', album_id).execute()
-        
-        # Step 2: Create album if it doesn't exist
-        if not album_response.data:
-            if not album_title or not album_artist:
-                return {"error": "Album title and artist are required to create a new album"}
-                
-            album_data = {
-                'spotify_id': album_id,
-                'title': album_title,
-                'artist': album_artist,
-                'cover_image': album_cover,
+        # Step 1: Get or create album
+        album, created = Album.objects.get_or_create(
+            id=album_id,
+            defaults={
+                'title': album_title or "",
+                'artist': album_artist or "",
+                'cover_image': album_cover or "",
             }
-            
-            album_insert = client.table('soundscore_album').insert(album_data).execute()
-            if not album_insert.data:
-                return {"error": "Failed to create album record"}
-                
-            album_record = album_insert.data[0]
-            db_album_id = album_record.get('id')
-        else:
-            # Album exists, get its ID
-            db_album_id = album_response.data[0].get('id')
-        
-        # Step 3: Check if user has already reviewed this album
-        existing_review = client.table('soundscore_review').select('*')\
-            .eq('user_id', user_id).eq('album_id', db_album_id).execute()
-        
-        if existing_review.data:
+        )
+        # Step 2: Get user
+        user = User.objects.filter(id=user_id).first()
+        if not user:
+            return {"error": "User not found"}
+
+        # Step 3: Check if user already reviewed this album
+        review = Review.objects.filter(user=user, album=album).first()
+        if review:
             # Update existing review
-            review_update = client.table('soundscore_review')\
-                .update({
-                    'rating': rating,
-                    'text': text or "",
-                    'is_favorite': is_favorite,
-                    'updated_at': datetime.now().isoformat()
-                })\
-                .eq('id', existing_review.data[0].get('id'))\
-                .execute()
-                
-            if review_update.data:
-                return {
-                    "success": True,
-                    "message": "Review updated successfully",
-                    "review": review_update.data[0]
-                }
-            else:
-                return {"error": "Failed to update review"}
-        
-        # Step 4: Create new review
-        review_data = {
-            'user_id': user_id,
-            'album_id': db_album_id,
-            'rating': rating,
-            'text': text or "",
-            'is_favorite': is_favorite,
-            'created_at': datetime.now().isoformat(),
-            'updated_at': datetime.now().isoformat()
-        }
-        
-        review_insert = client.table('soundscore_review').insert(review_data).execute()
-        
-        if review_insert.data:
+            review.rating = rating
+            review.text = text or ""
+            review.is_favorite = is_favorite
+            review.updated_at = datetime.now()
+            review.save()
             return {
                 "success": True,
-                "message": "Review added successfully",
-                "review": review_insert.data[0]
+                "message": "Review updated successfully",
+                "review": {
+                    "id": review.id,
+                    "rating": review.rating,
+                    "text": review.text,
+                    "is_favorite": review.is_favorite,
+                    "updated_at": review.updated_at,
+                }
             }
-        else:
-            return {"error": "Failed to add review"}
-            
+        # Step 4: Create new review
+        review = Review.objects.create(
+            user=user,
+            album=album,
+            rating=rating,
+            text=text or "",
+            is_favorite=is_favorite,
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+        return {
+            "success": True,
+            "message": "Review added successfully",
+            "review": {
+                "id": review.id,
+                "rating": review.rating,
+                "text": review.text,
+                "is_favorite": review.is_favorite,
+                "created_at": review.created_at,
+                "updated_at": review.updated_at,
+            }
+        }
     except Exception as e:
         return {"error": str(e)}

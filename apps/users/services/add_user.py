@@ -1,38 +1,42 @@
-from .supabase_client import authenticate_with_jwt
-from datetime import datetime
+from apps.users.models import User
+from django.contrib.auth.hashers import make_password
 
-def add_user_supabase(username, password, email):
-    client = authenticate_with_jwt()
-    if not client:
-        return {"error": "Failed to authenticate with Supabase"}
-    
+
+def create_user(username, email, password):
+    """Create a new user with the given username, email, and password."""
     try:
-        existing_user = client.table('soundscore_user').select('*')\
-            .or_('username.eq.' + username + ',email.eq.' + email).execute()
-        
-        if existing_user.data:
-            return {"error": "Username or email already exists"}
-        
-        user_data = {
-            'username': username,
-            'password': password,
-            'email': email,
-            'created_at': datetime.now().isoformat(),
-            'is_superuser': False,
-            'is_active': True,
-            'is_staff': False,
-        }
-        
-        user_insert = client.table('soundscore_user').insert(user_data).execute()
-        
-        if not user_insert.data:
-            return {"error": "Failed to create user record"}
-        
+        if User.objects.filter(username=username).exists():
+            return {
+                "success": False,
+                "message": "Username already exists"
+            }
+
+        if User.objects.filter(email=email).exists():
+            return {
+                "success": False,
+                "message": "Email already exists"
+            }
+
+        user = User.objects.create(
+            username=username,
+            email=email,
+            password=make_password(password),
+            profile_picture='core/static/images/default.jpg',
+            is_active=True,
+            is_superuser=False,
+            is_staff=False,
+        )
+
         return {
             "success": True,
             "message": "User created successfully",
-            "user_id": user_insert.data[0].get('id')
+            "user_id": user.id
         }
-    
+
     except Exception as e:
-        return {"error": str(e)}
+        return {
+            "success": False,
+            "message": str(e)
+        }
+
+

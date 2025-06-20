@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from decouple import config
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'soundscore',
     'rest_framework',
     'drf_yasg',
     'apps.users',
@@ -66,7 +66,12 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'apps/core/templates'),
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'apps/users/templates'),
+            os.path.join(BASE_DIR, 'apps/reviews/templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -85,11 +90,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL')
+    )
 }
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -151,7 +156,8 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-AUTH_USER_MODEL = 'soundscore.User'
+# FIX 1: Use the full app path for the user model
+AUTH_USER_MODEL = 'users.User'
 
 LOGIN_URL = 'login'
 
@@ -160,17 +166,19 @@ SPOTIFY_CLIENT_SECRET = config('SPOTIFY_CLIENT_SECRET')
 
 INSTALLED_APPS += ['channels']
 
-ASGI_APPLICATION = 'soundscore.asgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 # Redis configuration
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
-REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD')
+REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD', None)
+
+# FIX 2: Correct Redis configuration for non-SSL connection
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [f"rediss://default:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"],
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
         },
     },
 }

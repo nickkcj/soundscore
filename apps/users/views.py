@@ -1,12 +1,12 @@
 from django.shortcuts import render
-
-# Create your views here.
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.decorators import login_required
 from apps.users.models import User
-from apps.users.services.auth.auth_service import register_user, authenticate_user
+from apps.users.services.add_user import create_user
+from apps.users.services.update_user import update_user_data
+from apps.users.services.delete_user import delete_user_data
 
 
 def register_view(request):
@@ -15,24 +15,17 @@ def register_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        try:
-            register_user(username, email, password)
+        user = create_user(username, email, password)
 
-            user = User.objects.create(
-                username=username,
-                email=email,
-                password=make_password(password)
-            )
-            user.save()
-
-            messages.success(request, "User registered successfully")
+        if user.get('success'):
+            messages.success(request, user.get('message'))
             return redirect('login')
 
-        except Exception as e:
-            messages.error(request, str(e))
+        else: 
+            messages.error(request, user.get('message'))
             return redirect('register')
 
-    return render(request, 'auth/register.html')
+    return render(request, 'users/auth/register.html')
 
 
 def login_view(request):
@@ -41,15 +34,10 @@ def login_view(request):
         password = request.POST.get('password')
 
         try:
-            user_data = authenticate_user(username)
-
             user = User.objects.filter(username=username).first()
             if not user:
-                user = User.objects.create(
-                    username=user_data['username'],
-                    email=user_data.get('email', ''),
-                    password=make_password(password)
-                )
+                messages.error(request, "User does not exist")
+                return redirect('login')
 
             if user.check_password(password):
                 auth_login(request, user)
@@ -62,20 +50,12 @@ def login_view(request):
             messages.error(request, str(e))
             return redirect('login')
 
-    return render(request, 'auth/login.html')
+    return render(request, 'users/auth/login.html')
 
 
 def logout_view(request):
     auth_logout(request)
     return redirect('home')
-
-
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth.decorators import login_required
-from apps.users.services.user_service import update_user, delete_user, get_user_profile_data
 
 
 @login_required
@@ -99,12 +79,17 @@ def account_view(request, username):
                 messages.error(request, "New passwords do not match")
                 return redirect('account', username=username)
 
-            update_user(username, password=new_password)
-            user.set_password(new_password)
-            user.save()
-            auth_login(request, user)
-
-            messages.success(request, "Password updated successfully")
+            result = update_user_data(
+                old_username=user.username,
+                new_username=user.username,
+                password=new_password
+            )
+            if result.get("success"):
+                user.refresh_from_db()
+                auth_login(request, user)
+                messages.success(request, "Password updated successfully")
+            else:
+                messages.error(request, result.get("error", "Failed to update password"))
             return redirect('account', username=username)
 
         else:
@@ -112,33 +97,38 @@ def account_view(request, username):
             new_email = request.POST.get('email')
             profile_picture = request.FILES.get('profile_picture')
 
-            update_user(username, new_username=new_username, email=new_email, profile_picture=profile_picture)
-
-            user.username = new_username
-            user.email = new_email
-            if profile_picture:
-                user.profile_picture = profile_picture
-            user.save()
-
-            if new_username != username:
-                auth_login(request, user)
-
-            messages.success(request, "Profile updated successfully")
-            return redirect('account', username=new_username)
-
-    profile_data = get_user_profile_data(username)
+            result = update_user_data(
+                old_username=user.username,
+                new_username=new_username,
+                email=new_email,
+                profile_picture=profile_picture
+            )
+            if result.get("success"):
+                user.refresh_from_db()
+                if new_username != username:
+                    auth_login(request, user)
+                messages.success(request, "Profile updated successfully")
+                return redirect('account', username=new_username)
+            else:
+                messages.error(request, result.get("error", "Failed to update profile"))
+                return redirect('account', username=username)
 
     return render(request, 'users/account.html', {
         'user': user,
-        'reviews_count': profile_data['reviews_count'],
-        'avg_rating': profile_data['avg_rating'],
-        'profile_picture_url': profile_data['profile_picture_url']
     })
 
 
 @login_required
 def delete_account_view(request):
-    delete_user(request.user.username)
-    request.user.delete()
-    auth_logout(request)
-    return redirect('home')
+    result = delete_user_data(request.user.username)
+    if result.get("success"):
+        auth_logout(request)
+        messages.success(request, "Account deleted successfully")
+        return redirect('home')
+    else:
+        messages.error(request, result.get("message", "Failed to delete account"))
+        return redirect('account', username=request.user.username)
+
+
+def discover_view(request):
+    pass
