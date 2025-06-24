@@ -72,6 +72,11 @@ def create_review_api_view(request):
 
 @login_required
 def edit_review_view(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+
+    if review.user.username != request.user.username:
+        return HttpResponseForbidden("You do not have permission to edit this review.")
+    
     if request.method == 'POST':
         rating = int(request.POST.get('rating'))
         text = request.POST.get('review_text', '')
@@ -87,7 +92,7 @@ def edit_review_view(request, review_id):
         return redirect('reviews', username=request.user.username)
 
     return render(request, 'reviews/edit_review.html', {
-        'review_id': review_id,
+        'review': review,
     })
 
 

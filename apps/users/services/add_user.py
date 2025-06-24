@@ -21,7 +21,6 @@ def create_user(username, email, password):
             username=username,
             email=email,
             password=make_password(password),
-            profile_picture='core/static/images/default.jpg',
             is_active=True,
             is_superuser=False,
             is_staff=False,

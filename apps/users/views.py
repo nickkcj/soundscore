@@ -3,19 +3,28 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from apps.users.models import User
+from apps.reviews.models import Review
+from django.db.models import Avg
 from apps.users.services.add_user import create_user
 from apps.users.services.update_user import update_user_data
 from apps.users.services.delete_user import delete_user_data
+from apps.users.validation.pydantic_schemas import RegisterSchema
 
 
 def register_view(request):
     if request.method == "POST":
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+        data = {
+            'username': request.POST.get('username'),
+            'email': request.POST.get('email'),
+            'password': request.POST.get('password'),
+            'confirm_password': request.POST.get('confirm_password')
+        }
 
-        user = create_user(username, email, password)
+        validated = RegisterSchema(**data)
+
+        user = create_user(validated.username, validated.email, validated.password)
 
         if user.get('success'):
             messages.success(request, user.get('message'))
@@ -64,6 +73,14 @@ def account_view(request, username):
         return redirect('account', username=request.user.username)
 
     user = request.user
+    reviews = Review.objects.filter(user=user)
+    reviews_count = reviews.count()
+    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+    if avg_rating:
+        avg_rating = round(avg_rating, 1)
+
+    else:
+        avg_rating = 0.0
 
     if request.method == 'POST':
         if 'current_password' in request.POST:
@@ -115,10 +132,13 @@ def account_view(request, username):
 
     return render(request, 'users/account.html', {
         'user': user,
+        'reviews_count': reviews_count,
+        'avg_rating': avg_rating,
     })
 
 
 @login_required
+@require_POST
 def delete_account_view(request):
     result = delete_user_data(request.user.username)
     if result.get("success"):
@@ -132,3 +152,8 @@ def delete_account_view(request):
 
 def discover_view(request):
     pass
+
+
+@login_required
+def delete_account_confirm_view(request):
+    return render(request, 'users/delete_account_confirm.html')
