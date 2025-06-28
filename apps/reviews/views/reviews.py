@@ -5,13 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 import json
 from django.shortcuts import get_object_or_404
-from apps.reviews.models import Review
+from apps.reviews.models import Review, Album
+from django.db.models import Avg
 from apps.users.models import User
 from apps.reviews.services.review_service.profile_service import get_user_profile_data
 from apps.reviews.services.review_service.add_review import add_review
 from apps.reviews.services.review_service.edit_review import edit_review
 from apps.reviews.services.review_service.delete_review import delete_review
-from apps.reviews.services.spotify_service.spotify import search_albums
+from apps.reviews.services.spotify_service.spotify import search_albums, get_album_info, get_album_tracks
 
 
 @login_required
@@ -155,3 +156,51 @@ def user_profile_view(request, username):
         "all_reviews": all_reviews_data,
     }
     return render(request, "reviews/reviews.html", context)
+
+
+def album_detail_view(request, spotify_id):
+    album_data = get_album_info(spotify_id)
+    tracks = get_album_tracks(spotify_id)
+
+    album = {
+        "title": album_data.get("name"),
+        "artist": ", ".join(album_data.get("artists", [])),
+        "cover_image": album_data.get("images")[0] if album_data.get("images") else "/static/images/default_album.png",
+        "release_date": album_data.get("release_date"),
+        "genres": album_data.get("genres", []),
+        "spotify_url": album_data.get("external_urls"),
+        "album_type": album_data.get("album_type"),
+        "total_tracks": album_data.get("total_tracks"),
+    }
+
+    album_obj = Album.objects.filter(spotify_id=spotify_id).first()
+    reviews_data = []
+    avg_rating = None
+    if album_obj:
+        db_reviews = Review.objects.filter(album=album_obj).select_related('user').order_by('-created_at')
+        
+        # Process each review to include profile picture URL
+        for review in db_reviews:
+            # Get profile data for the reviewer
+            profile_data = get_user_profile_data(review.user.username)
+            # Create an enriched review object
+            reviews_data.append({
+                'id': review.id,
+                'user': review.user,
+                'rating': review.rating,
+                'text': review.text,
+                'created_at': review.created_at,
+                'profile_picture_url': profile_data.get('profile_picture_url', '/static/core/images/default.jpg')
+            })
+            
+        avg_rating = db_reviews.aggregate(avg=Avg('rating'))['avg']
+        if avg_rating is not None:
+            avg_rating = round(avg_rating, 1)
+
+    context = {
+        'album': album,
+        'tracks': tracks,
+        'reviews': reviews_data,  # Use the enriched reviews data
+        'avg_rating': avg_rating,
+    }
+    return render(request, 'reviews/album_detail.html', context)

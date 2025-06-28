@@ -4,7 +4,7 @@ services:
   web:
     build: .
     volumes:
-      - ./:/soundscore
+      - ./apps:/soundscore/apps
       - ./media:/soundscore/media
       - ./db.sqlite3:/soundscore/db.sqlite3
     ports:
@@ -17,7 +17,7 @@ services:
       - REDIS_PORT=6379
     depends_on:
       - redis
-    command: uvicorn config.asgi:application --host 0.0.0.0 --port 8000
+    command: uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload
 
   redis:
     image: redis:alpine

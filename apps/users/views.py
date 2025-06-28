@@ -6,11 +6,18 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from apps.users.models import User
 from apps.reviews.models import Review
-from django.db.models import Avg
+from django.db.models import Avg, Count, Q
 from apps.users.services.add_user import create_user
 from apps.users.services.update_user import update_user_data
 from apps.users.services.delete_user import delete_user_data
 from apps.users.validation.pydantic_schemas import RegisterSchema
+from apps.reviews.services.spotify_service.spotify import search_albums
+from apps.users.services.discover_user_service import search_users
+from apps.reviews.services.review_service.discover_album_service import search_albums_and_artists
+from apps.reviews.services.review_service.top_albums import get_album_avg_rating, get_trending_albums
+from apps.reviews.services.review_service.profile_service import get_user_profile_data
+
+
 
 
 def register_view(request):
@@ -150,10 +157,63 @@ def delete_account_view(request):
         return redirect('account', username=request.user.username)
 
 
+
+@login_required
 def discover_view(request):
-    pass
+    query = request.GET.get('q', '').strip()
+    search_type = request.GET.get('type', 'all')
+    results = {
+        'albums': [],
+        'artists': [],
+        'users': []
+    }
+
+    trending_albums = []
+
+    if query:
+        # Albums & Artists
+        album_artist_results = search_albums_and_artists(
+            query=query,
+            search_type=search_type,
+            search_albums_func=search_albums,
+            get_album_avg_rating_func=get_album_avg_rating
+        )
+        results['albums'] = album_artist_results['albums']
+        results['artists'] = album_artist_results['artists']
+
+        # Users
+        if search_type in ['all', 'users']:
+            results['users'] = search_users(query)
+
+    else:
+        trending_albums = get_trending_albums(limit=8)
+
+    context = {
+        'query': query,
+        'search_type': search_type,
+        'results': results,
+        'trending_albums': trending_albums,
+    }
+    return render(request, 'reviews/discover.html', context)
 
 
 @login_required
 def delete_account_confirm_view(request):
     return render(request, 'users/delete_account_confirm.html')
+
+
+@login_required
+def user_profile(request, username):
+    profile_data = get_user_profile_data(username)
+    if not profile_data:
+        messages.error(request, f"User '{username}' not found.")
+        return redirect('home')
+
+    context = {
+        'profile_user': profile_data['user'],
+        'user_reviews': profile_data['user_reviews'],
+        'review_count': profile_data['review_count'],
+        'avg_rating': profile_data['avg_rating'],
+        'is_own_profile': request.user.username == username,
+    }
+    return render(request, 'reviews/user_profile.html', context)

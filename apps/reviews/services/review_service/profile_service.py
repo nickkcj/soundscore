@@ -20,7 +20,7 @@ def get_user_profile_data(username):
         return {
             'review_count': reviews_count,
             'avg_rating': round(avg_rating, 1),
-            'profile_picture_url': user.profile_picture or '/static/images/default.jpg'
+            'profile_picture_url': user.profile_picture or '/static/core/images/default.jpg'
         }
     except Exception as e:
         print(f"Error getting user profile data: {e}")

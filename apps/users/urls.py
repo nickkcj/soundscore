@@ -9,4 +9,5 @@ urlpatterns = [
     path('account/<str:username>/delete/', views.delete_account_view, name='delete_account'),
     path('account/<str:username>/delete/confirm/', views.delete_account_confirm_view, name='delete_account_confirm'),
     path('discover/', views.discover_view, name='discover'),
+    path('profile/<str:username>/', views.user_profile, name='profile'),
 ] 
