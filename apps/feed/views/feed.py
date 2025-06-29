@@ -21,4 +21,4 @@ def feed_view(request):
     try:
         return get_feed_service(request)
     except Exception as e:
-        return render(request, 'reviews/feed.html', {'error': str(e)})
+        return render(request, 'feed/feed.html', {'error': str(e)})

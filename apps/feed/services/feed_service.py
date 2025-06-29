@@ -111,12 +111,12 @@ def get_feed_service(request):
     for review in reviews:
         review_data.append({
             "id": review.id,
-            "user": {
+            "soundscore_user": {  # Changed from "user" to "soundscore_user"
                 "id": review.user.id,
                 "username": review.user.username,
-                "profile_picture": review.user.profile_picture,
+                "profile_picture": review.user.profile_picture.url if review.user.profile_picture else '/media/profile_pictures/default.jpg',
             },
-            "album": {
+            "soundscore_album": {  # Also standardizing the album key
                 "id": review.album.id,
                 "title": review.album.title,
                 "artist": review.album.artist,
@@ -149,4 +149,4 @@ def get_feed_service(request):
         'groups': groups,
         'suggested_users': suggested_users,
     }
-    return render(request, 'reviews/feed.html', context)
+    return render(request, 'feed/feed.html', context)

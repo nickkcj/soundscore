@@ -32,7 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     last_active = models.DateTimeField(auto_now=True)  
     created_at = models.DateTimeField(auto_now_add=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, default='profile_pictures/default.jpg')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     

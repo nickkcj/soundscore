@@ -148,7 +148,7 @@ def user_profile_view(request, username):
     context = {
         "profile_user": {
             "username": user.username,
-            "profile_picture_url": profile_data.get("profile_picture_url", '/static/images/default.jpg'),
+            "profile_picture_url": profile_data.get("profile_picture_url", '/media/profile_pictures/default.jpg'),
         },
         "total_reviews": profile_data.get("review_count", 0),
         "average_rating": profile_data.get("avg_rating", 0),
@@ -190,7 +190,7 @@ def album_detail_view(request, spotify_id):
                 'rating': review.rating,
                 'text': review.text,
                 'created_at': review.created_at,
-                'profile_picture_url': profile_data.get('profile_picture_url', '/static/core/images/default.jpg')
+                'profile_picture_url': profile_data.get('profile_picture_url', '/media/profile_pictures/default.jpg')
             })
             
         avg_rating = db_reviews.aggregate(avg=Avg('rating'))['avg']

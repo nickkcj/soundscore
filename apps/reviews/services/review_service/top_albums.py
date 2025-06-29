@@ -48,6 +48,7 @@ def get_trending_albums(limit=8):
         return [
             {
                 'id': album.id,
+                'spotify_id': album.spotify_id,
                 'title': album.title,
                 'artist': album.artist,
                 'cover_url': album.cover_image or '/static/images/default_album.png',

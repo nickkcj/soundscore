@@ -1,20 +1,20 @@
 {% extends "core/layout.html" %}
 {% load static %}
 
-{% block title %}Feed - SoundSpace{% endblock %}
+{% block title %}Feed - SoundScore{% endblock %}
 
 {% block content %}
 <!-- Background with subtle pattern -->
 <div class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen relative">
   <div class="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
   
-  <!-- Main container with improved spacing -->
+  <!-- Main container with three-column layout - INCREASED GAP BETWEEN COLUMNS -->
   <div class="container mx-auto px-4 py-10">
-    <div class="flex flex-col lg:flex-row gap-10"> <!-- Changed from gap-6 to gap-10 for more space between columns -->
+    <div class="flex flex-col lg:flex-row gap-10">
     
-      <!-- LEFT SIDEBAR: Groups & Navigation -->
-      <div class="lg:w-56 w-full flex-shrink-0">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <!-- LEFT SIDEBAR: Groups & Navigation - ADJUSTED STICKY BEHAVIOR -->
+      <div class="lg:w-64 w-full flex-shrink-0">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-28">
           <!-- Navigation Menu -->
           <div class="border-b border-gray-100">
             <div class="flex flex-col">
@@ -48,55 +48,71 @@
             
             <!-- Group List -->
             <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
-              {% if groups %}
-                {% for group in groups %}
-                  <a href="{% url 'group_room' group_id=group.id %}" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br 
-                               {% if forloop.counter|divisibleby:4 %}from-pink-500 to-purple-600
-                               {% elif forloop.counter|divisibleby:3 %}from-blue-500 to-indigo-600
-                               {% elif forloop.counter|divisibleby:2 %}from-orange-500 to-red-600
-                               {% else %}from-green-500 to-teal-600{% endif %} 
-                               flex items-center justify-center text-white font-bold text-sm">
-                      {{ group.name|slice:":2"|upper }}
-                    </div>
-                    <div class="min-w-0">
-                      <p class="font-medium text-sm text-gray-800 truncate">{{ group.name }}</p>
-                      <p class="text-xs text-gray-500">{{ group.member_count|default:"0" }} members</p>
-                    </div>
-                    <div class="w-2 h-2 rounded-full {% if group.online_count > 0 %}bg-green-500{% else %}bg-gray-300{% endif %} ml-auto" 
-                         title="{% if group.online_count > 0 %}{{ group.online_count }} online{% else %}0 online{% endif %}"></div>
-                  </a>
-                {% endfor %}
-              {% else %}
-                <!-- Empty state when user has no groups -->
-                <div class="py-8 px-4 text-center">
-                  <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <p class="text-sm text-gray-500 mb-3">You're not in any groups yet</p>
-                  <p class="text-xs text-gray-400 mb-3">Join a group to connect with other music fans</p>
+              <!-- Group 1 -->
+              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                  PL
                 </div>
-              {% endif %}
+                <div class="min-w-0">
+                  <p class="font-medium text-sm text-gray-800 truncate">Pop Lovers</p>
+                  <p class="text-xs text-gray-500">24 members</p>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-green-500 ml-auto" title="2 online"></div>
+              </a>
+              
+              <!-- Group 2 -->
+              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-sm">
+                  RC
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-sm text-gray-800 truncate">Rock Classics</p>
+                  <p class="text-xs text-gray-500">36 members</p>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-green-500 ml-auto" title="5 online"></div>
+              </a>
+              
+              <!-- Group 3 -->
+              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                  JA
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-sm text-gray-800 truncate">Jazz Appreciation</p>
+                  <p class="text-xs text-gray-500">18 members</p>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-gray-300 ml-auto" title="0 online"></div>
+              </a>
+              
+              <!-- Group 4 -->
+              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm">
+                  IE
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-sm text-gray-800 truncate">Indie Explorations</p>
+                  <p class="text-xs text-gray-500">42 members</p>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-green-500 ml-auto" title="3 online"></div>
+              </a>
             </div>
             
             <!-- Create New Group Button -->
             <div class="mt-5">
-              <a href="#" class="w-full flex items-center justify-center gap-1.5 py-2.5 bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg text-sm font-medium text-gray-700">
+              <button class="w-full flex items-center justify-center gap-1.5 py-2.5 bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg text-sm font-medium text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 Create New Group
-              </a>
+              </button>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- MAIN CONTENT: Feed - ADDED PADDING -->
-      <div class="lg:flex-1 mt-3 lg:px-2"> <!-- Added lg:px-2 for internal padding -->
-        <div class="flex items-center justify-between mb-8">
+      <!-- MAIN CONTENT: Feed - ADDED TOP MARGIN AND PADDING -->
+      <div class="lg:flex-1 mt-3">
+        <div class="flex items-center justify-between mb-10">
           <h1 class="text-2xl font-bold text-gray-800 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-2 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
@@ -115,7 +131,104 @@
         {% if error %}
           <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-8 shadow-sm border border-red-100">{{ error }}</div>
         {% elif reviews %}
-          <div class="space-y-10"> <!-- Preserving this class for JS compatibility -->
+          <div class="space-y-10"> <!-- INCREASED SPACING BETWEEN REVIEW CARDS -->
+            {% for review in reviews %}
+              <!-- Review Card -->
+              <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transform transition-all duration-200 hover:shadow-lg">
+                <!-- User header -->
+                <div class="flex items-center px-6 pt-5 pb-3 border-b border-gray-50">
+                  <div class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden mr-4 ring-2 ring-pink-100">
+                    <img src="{{ review.soundscore_user.profile_picture|default:'/static/images/default.jpg' }}" 
+                         class="w-full h-full object-cover" alt="">
+                  </div>
+                  <div class="flex-1">
+                    <a href="{% url 'profile' username=review.soundscore_user.username %}" 
+                       class="font-semibold text-gray-900 hover:underline hover:text-pink-600 transition-colors">
+                      @{{ review.soundscore_user.username }}
+                    </a>
+                    <div class="text-xs text-gray-500">{{ review.created_at|slice:":10" }}</div>
+                  </div>
+                  <div class="flex items-center bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-full px-3 py-1.5 shadow-sm">
+                    <div class="flex items-center text-yellow-400">
+                      {% for i in "12345" %}
+                        <svg class="w-3.5 h-3.5 {% if i|add:0 <= review.rating %}fill-current{% else %}text-gray-300{% endif %}" viewBox="0 0 20 20">
+                          <path d="M10 15l-5.878 3.09L5.5 12.5 1 8.91l6.122-.89L10 2.5l2.878 5.52 6.122.89-4.5 3.59 1.378 5.59z"/>
+                        </svg>
+                      {% endfor %}
+                    </div>
+                    <span class="ml-2 text-xs font-medium text-gray-700">{{ review.rating }}/5</span>
+                  </div>
+                </div>
+                
+                <!-- Album content -->
+                <div class="px-6 py-4">
+                  <div class="flex items-center space-x-5">
+                    <div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
+                      <img src="{{ review.soundscore_album.cover_image|default:'/static/images/default_album.png' }}" 
+                           alt="Cover" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                      <h3 class="font-bold text-gray-800 text-lg mb-1">{{ review.soundscore_album.title }}</h3>
+                      <p class="text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded-full inline-block">{{ review.soundscore_album.artist }}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Review text -->
+                {% if review.text %}
+                  <div class="px-6 pb-5">
+                    <p class="text-gray-700 text-sm italic line-clamp-4 bg-gray-50 p-4 rounded-lg border-l-4 border-pink-200">"{{ review.text }}"</p>
+                  </div>
+                {% endif %}
+                
+                <!-- Interaction bar -->
+                <div class="flex items-center justify-around px-6 py-3.5 border-t border-gray-100 bg-gray-50">
+                  <button class="like-button flex items-center text-gray-500 hover:text-pink-600 transition-colors group" 
+                          data-review-id="{{ review.id }}" 
+                          data-liked="{{ review.is_liked|default:'false' }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="heart-icon h-5 w-5 transition-all duration-300 {% if review.is_liked %}text-pink-600 fill-current{% endif %} group-hover:scale-110" 
+                         fill="{% if review.is_liked %}currentColor{% else %}none{% endif %}" 
+                         viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <span class="ml-2 text-xs like-count transition-all duration-300 font-medium">{{ review.like_count|default:'0' }}</span>
+                  </button>
+                  
+                  <button class="flex items-center text-gray-500 hover:text-pink-600 transition-colors group comment-button" data-review-id="{{ review.id }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <span class="ml-2 text-xs font-medium">Comment ({{ review.comment_count|default:'0' }})</span>
+                  </button>
+                  
+                  <button class="flex items-center text-gray-500 hover:text-pink-600 transition-colors group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    <span class="ml-2 text-xs font-medium">Share</span>
+                  </button>
+                </div>
+                
+                <!-- Comments section (collapsed by default) -->
+                {% if review.comments %}
+                  <div class="bg-white rounded-xl shadow-sm border border-gray-100 mx-4 mt-4 mb-4 overflow-hidden">
+                    <!-- Comment form (hidden by default) -->
+                    <div class="bg-white px-5 py-4 comment-form-container hidden" data-review-id="{{ review.id }}">
+                      <form class="comment-form" data-review-id="{{ review.id }}">
+                        {% csrf_token %}
+                        <div class="flex items-start gap-2">
+                          <textarea name="text" rows="2" placeholder="Write a comment..." class="w-full p-2 border border-gray-200 rounded-lg text-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 transition"></textarea>
+                          <button type="submit" class="px-3 py-1.5 bg-pink-500 text-white text-sm rounded hover:bg-pink-600 transition-colors shadow-sm">Post</button>
+                        </div>
+                        <input type="hidden" name="parent_id" value="">
+                      </form>
+                      <div class="text-xs text-gray-400 mt-2 hidden comment-success">Comment posted!</div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
           </div>
           
           <!-- Load more -->
@@ -141,9 +254,9 @@
         {% endif %}
       </div>
       
-      <!-- RIGHT SIDEBAR: Trending Albums -->
-      <div class="lg:w-64 w-full">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <!-- RIGHT SIDEBAR: Trending Albums - ADJUSTED STICKY BEHAVIOR -->
+      <div class="lg:w-72 w-full">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-28">
           <!-- Trending Albums Section -->
           <div class="px-5 py-4 border-b border-gray-100">
             <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
@@ -193,27 +306,48 @@
               </svg>
               Suggested Users
             </h3>
-            <div class="space-y-3.5">
-              {% if suggested_users %}
-                {% for user in suggested_users %}
-                  <a href="{% url 'user_profile' username=user.username %}" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                    <div class="w-10 h-10 rounded-full overflow-hidden">
-                      <img src="{{ user.profile_picture }}" class="w-full h-full object-cover" alt="{{ user.username }}">
-                    </div>
-                    <div class="min-w-0">
-                      <p class="font-medium text-sm text-gray-800 truncate">{{ user.username }}</p>
-                      <p class="text-xs text-gray-500">{{ user.review_count }} {% if user.review_count == 1 %}review{% else %}reviews{% endif %}</p>
-                    </div>
-                    <button class="ml-auto text-xs font-medium px-2 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors">
-                      Follow
-                    </button>
-                  </a>
-                {% endfor %}
-              {% else %}
-                <div class="text-center py-4">
-                  <p class="text-sm text-gray-500">No suggested users found</p>
+            <div class="space-y-3.5">  <!-- INCREASED SPACING BETWEEN USER ITEMS -->
+              <!-- User 1 -->
+              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                <div class="w-10 h-10 rounded-full overflow-hidden">
+                  <img src="/static/images/default.jpg" class="w-full h-full object-cover" alt="User">
                 </div>
-              {% endif %}
+                <div class="min-w-0">
+                  <p class="font-medium text-sm text-gray-800 truncate">musiclover42</p>
+                  <p class="text-xs text-gray-500">12 reviews</p>
+                </div>
+                <button class="ml-auto text-xs font-medium px-2 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors">
+                  Follow
+                </button>
+              </a>
+              
+              <!-- User 2 -->
+              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                <div class="w-10 h-10 rounded-full overflow-hidden">
+                  <img src="/static/images/default.jpg" class="w-full h-full object-cover" alt="User">
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-sm text-gray-800 truncate">albumreviewer</p>
+                  <p class="text-xs text-gray-500">28 reviews</p>
+                </div>
+                <button class="ml-auto text-xs font-medium px-2 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors">
+                  Follow
+                </button>
+              </a>
+              
+              <!-- User 3 -->
+              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                <div class="w-10 h-10 rounded-full overflow-hidden">
+                  <img src="/static/images/default.jpg" class="w-full h-full object-cover" alt="User">
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-sm text-gray-800 truncate">soundsage</p>
+                  <p class="text-xs text-gray-500">37 reviews</p>
+                </div>
+                <button class="ml-auto text-xs font-medium px-2 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors">
+                  Follow
+                </button>
+              </a>
             </div>
             
             <!-- See More Link -->
@@ -249,35 +383,12 @@
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: #d0d0d0;
 }
-
-/* Enhance sidebar appearance and spacing */
-@media (min-width: 1024px) {
-  /* Container adjustments for better overall layout */
-  .container {
-    max-width: 1280px; /* slightly narrower than default xl */
-  }
-  
-  /* Add some padding to sidebar content for better internal spacing */
-  .lg\:w-64 > div, .lg\:w-72 > div {
-    margin-bottom: 2rem; /* Space at bottom after scrolling */
-  }
-  
-  /* Improve shadow for visual separation */
-  .shadow-sm {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  }
-}
-
-/* Content flow improvements */
-.space-y-10 > div:last-child {
-  margin-bottom: 3rem; /* Extra space after last review */
-}
 </style>
 
 {% block extra_js %}
-<script src="{% static 'feed/js/comments.js' %}" defer></script>
-<script src="{% static 'feed/js/like.js' %}" defer></script>
-<script src="{% static 'feed/js/load_more.js' %}" defer></script>
-<script src="{% static 'feed/js/filter_by.js' %}" defer></script>
+<script src="{% static 'js/feed/comments.js' %}" defer></script>
+<script src="{% static 'js/feed/like.js' %}" defer></script>
+<script src="{% static 'js/feed/load_more.js' %}" defer></script>
+<script src="{% static 'js/feed/filter_by.js' %}" defer></script>
 {% endblock %}
 {% endblock %}

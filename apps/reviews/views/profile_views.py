@@ -19,7 +19,4 @@ def discover_view(request):
     })
 
 
-@login_required
-def user_profile_view(request, username):
-    data = get_user_profile_data(username)
-    return render(request, 'reviews/user_profile.html', data)
+
