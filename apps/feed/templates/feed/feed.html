@@ -45,59 +45,30 @@
               <h3 class="text-sm font-semibold text-gray-700">My Groups</h3>
               <a href="#" class="text-xs text-pink-600 hover:underline">View all</a>
             </div>
-            
-            <!-- Group List -->
             <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
-              <!-- Group 1 -->
-              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
-                  PL
+              {% if groups %}
+                {% for group in groups %}
+                  <a href="{% url 'group_room' group_id=group.id %}" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                      {{ group.initials|default:group.name|slice:":2"|upper }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="font-medium text-sm text-gray-800 truncate">{{ group.name }}</p>
+                      <p class="text-xs text-gray-500">{{ group.member_count|default:"0" }} members</p>
+                    </div>
+                    {% if group.online_count %}
+                      <div class="w-2 h-2 rounded-full bg-green-500 ml-auto" title="{{ group.online_count }} online"></div>
+                    {% else %}
+                      <div class="w-2 h-2 rounded-full bg-gray-300 ml-auto" title="0 online"></div>
+                    {% endif %}
+                  </a>
+                {% endfor %}
+              {% else %}
+                <div class="p-3 bg-gray-50 rounded-lg">
+                  <p class="text-sm text-gray-500 text-center">You are not in any groups yet</p>
                 </div>
-                <div class="min-w-0">
-                  <p class="font-medium text-sm text-gray-800 truncate">Pop Lovers</p>
-                  <p class="text-xs text-gray-500">24 members</p>
-                </div>
-                <div class="w-2 h-2 rounded-full bg-green-500 ml-auto" title="2 online"></div>
-              </a>
-              
-              <!-- Group 2 -->
-              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-sm">
-                  RC
-                </div>
-                <div class="min-w-0">
-                  <p class="font-medium text-sm text-gray-800 truncate">Rock Classics</p>
-                  <p class="text-xs text-gray-500">36 members</p>
-                </div>
-                <div class="w-2 h-2 rounded-full bg-green-500 ml-auto" title="5 online"></div>
-              </a>
-              
-              <!-- Group 3 -->
-              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
-                  JA
-                </div>
-                <div class="min-w-0">
-                  <p class="font-medium text-sm text-gray-800 truncate">Jazz Appreciation</p>
-                  <p class="text-xs text-gray-500">18 members</p>
-                </div>
-                <div class="w-2 h-2 rounded-full bg-gray-300 ml-auto" title="0 online"></div>
-              </a>
-              
-              <!-- Group 4 -->
-              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm">
-                  IE
-                </div>
-                <div class="min-w-0">
-                  <p class="font-medium text-sm text-gray-800 truncate">Indie Explorations</p>
-                  <p class="text-xs text-gray-500">42 members</p>
-                </div>
-                <div class="w-2 h-2 rounded-full bg-green-500 ml-auto" title="3 online"></div>
-              </a>
+              {% endif %}
             </div>
-            
-            <!-- Create New Group Button -->
             <div class="mt-5">
               <button class="w-full flex items-center justify-center gap-1.5 py-2.5 bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg text-sm font-medium text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -210,20 +181,40 @@
                   </button>
                 </div>
                 
-                <!-- Comments section (collapsed by default) -->
+                <!-- Comment form (ALWAYS rendered, moved outside the conditional) -->
+                <div class="bg-white px-5 py-4 comment-form-container hidden" data-review-id="{{ review.id }}">
+                  <form class="comment-form" data-review-id="{{ review.id }}">
+                    {% csrf_token %}
+                    <div class="flex items-start gap-2">
+                      <textarea name="text" rows="2" placeholder="Write a comment..." class="w-full p-2 border border-gray-200 rounded-lg text-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 transition"></textarea>
+                      <button type="submit" class="px-3 py-1.5 bg-pink-500 text-white text-sm rounded hover:bg-pink-600 transition-colors shadow-sm">Post</button>
+                    </div>
+                    <input type="hidden" name="parent_id" value="">
+                  </form>
+                  <div class="text-xs text-gray-400 mt-2 hidden comment-success">Comment posted!</div>
+                </div>
+                
+                <!-- Existing Comments (only if they exist) -->
                 {% if review.comments %}
-                  <div class="bg-white rounded-xl shadow-sm border border-gray-100 mx-4 mt-4 mb-4 overflow-hidden">
-                    <!-- Comment form (hidden by default) -->
-                    <div class="bg-white px-5 py-4 comment-form-container hidden" data-review-id="{{ review.id }}">
-                      <form class="comment-form" data-review-id="{{ review.id }}">
-                        {% csrf_token %}
-                        <div class="flex items-start gap-2">
-                          <textarea name="text" rows="2" placeholder="Write a comment..." class="w-full p-2 border border-gray-200 rounded-lg text-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 transition"></textarea>
-                          <button type="submit" class="px-3 py-1.5 bg-pink-500 text-white text-sm rounded hover:bg-pink-600 transition-colors shadow-sm">Post</button>
+                  <div class="bg-gray-50 px-6 py-4 border-t border-gray-100">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Comments</h4>
+                    <div class="space-y-3">
+                      {% for comment in review.comments %}
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                          <div class="flex items-start gap-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden">
+                              <img src="{{ comment.user.profile_picture|default:'/static/images/default.jpg' }}" class="w-full h-full object-cover" alt="">
+                            </div>
+                            <div class="flex-1">
+                              <div class="flex items-center gap-2">
+                                <span class="text-xs font-medium text-gray-800">{{ comment.user.username }}</span>
+                                <span class="text-xs text-gray-500">{{ comment.created_at|timesince }} ago</span>
+                              </div>
+                              <p class="text-sm text-gray-700 mt-1">{{ comment.text }}</p>
+                            </div>
+                          </div>
                         </div>
-                        <input type="hidden" name="parent_id" value="">
-                      </form>
-                      <div class="text-xs text-gray-400 mt-2 hidden comment-success">Comment posted!</div>
+                      {% endfor %}
                     </div>
                   </div>
                 {% endif %}
@@ -270,7 +261,7 @@
                 <p class="text-sm text-gray-500">{{ top_albums.error }}</p>
               {% elif top_albums %}
                 {% for album in top_albums %}
-                  <a href="#" class="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                  <a href="{% url 'album_detail' spotify_id=album.spotify_id %}" class="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors">
                     <div class="w-14 h-14 rounded-md overflow-hidden shadow-sm">
                       <img src="{{ album.cover_image|default:'/static/images/default_album.png' }}" class="w-full h-full object-cover" alt="{{ album.title }}">
                     </div>
@@ -306,51 +297,28 @@
               </svg>
               Suggested Users
             </h3>
-            <div class="space-y-3.5">  <!-- INCREASED SPACING BETWEEN USER ITEMS -->
-              <!-- User 1 -->
-              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                <div class="w-10 h-10 rounded-full overflow-hidden">
-                  <img src="/static/images/default.jpg" class="w-full h-full object-cover" alt="User">
+            <div class="space-y-3.5">
+              {% if suggested_users %}
+                {% for user in suggested_users %}
+                  <a href="{% url 'profile' username=user.username %}" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div class="w-10 h-10 rounded-full overflow-hidden">
+                      <img src="{{ user.profile_picture.url|default:'/static/images/default.jpg' }}" class="w-full h-full object-cover" alt="{{ user.username }}">
+                    </div>
+                    <div class="min-w-0">
+                      <p class="font-medium text-sm text-gray-800 truncate">{{ user.username }}</p>
+                      <p class="text-xs text-gray-500">{{ user.review_count|default:0 }} reviews</p>
+                    </div>
+                    <button class="ml-auto text-xs font-medium px-2 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors">
+                      Follow
+                    </button>
+                  </a>
+                {% endfor %}
+              {% else %}
+                <div class="p-3 bg-gray-50 rounded-lg">
+                  <p class="text-sm text-gray-500 text-center">No suggestions found</p>
                 </div>
-                <div class="min-w-0">
-                  <p class="font-medium text-sm text-gray-800 truncate">musiclover42</p>
-                  <p class="text-xs text-gray-500">12 reviews</p>
-                </div>
-                <button class="ml-auto text-xs font-medium px-2 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors">
-                  Follow
-                </button>
-              </a>
-              
-              <!-- User 2 -->
-              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                <div class="w-10 h-10 rounded-full overflow-hidden">
-                  <img src="/static/images/default.jpg" class="w-full h-full object-cover" alt="User">
-                </div>
-                <div class="min-w-0">
-                  <p class="font-medium text-sm text-gray-800 truncate">albumreviewer</p>
-                  <p class="text-xs text-gray-500">28 reviews</p>
-                </div>
-                <button class="ml-auto text-xs font-medium px-2 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors">
-                  Follow
-                </button>
-              </a>
-              
-              <!-- User 3 -->
-              <a href="#" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                <div class="w-10 h-10 rounded-full overflow-hidden">
-                  <img src="/static/images/default.jpg" class="w-full h-full object-cover" alt="User">
-                </div>
-                <div class="min-w-0">
-                  <p class="font-medium text-sm text-gray-800 truncate">soundsage</p>
-                  <p class="text-xs text-gray-500">37 reviews</p>
-                </div>
-                <button class="ml-auto text-xs font-medium px-2 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors">
-                  Follow
-                </button>
-              </a>
+              {% endif %}
             </div>
-            
-            <!-- See More Link -->
             <div class="mt-5 text-center">
               <a href="#" class="text-xs text-pink-600 hover:underline">See more suggestions</a>
             </div>
@@ -386,9 +354,9 @@
 </style>
 
 {% block extra_js %}
-<script src="{% static 'js/feed/comments.js' %}" defer></script>
-<script src="{% static 'js/feed/like.js' %}" defer></script>
-<script src="{% static 'js/feed/load_more.js' %}" defer></script>
-<script src="{% static 'js/feed/filter_by.js' %}" defer></script>
+<script src="{% static 'feed/js/comments.js' %}" defer></script>
+<script src="{% static 'feed/js/like.js' %}" defer></script>
+<script src="{% static 'feed/js/load_more.js' %}" defer></script>
+<script src="{% static 'feed/js/filter_by.js' %}" defer></script>
 {% endblock %}
 {% endblock %}

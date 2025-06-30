@@ -7,7 +7,7 @@ def create_notification_service(recipient_id, actor_id, notification_type, revie
     notification = Notification.objects.create(
         recipient_id=recipient_id,
         actor_id=actor_id,
-        type=notification_type,
+        notification_type=notification_type,
         review_id=review_id,
         message=message,
         is_read=False

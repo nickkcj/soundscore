@@ -25,11 +25,11 @@ def toggle_like_service(review_id, username):
     if liked and review.user.id != user.id:
         message = f"@{user.username} liked your review!"
         create_notification_service(
-            recipient_id=review.user.id,
-            actor_id=user.id,
-            notification_type='like',
-            review_id=review.id,
-            message=message
-        )
+             recipient_id=review.user.id,
+             actor_id=user.id,
+             notification_type='like',
+             review_id=review.id,
+             message=message
+         )
 
     return {"liked": liked, "count": like_count}

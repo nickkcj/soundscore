@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .map(el => el.getAttribute('data-review-id')).join(',');
         
         // Fetch more reviews
-        fetch(`/comments/feed/load-more/?page=${currentPage}&page_size=5&exclude_ids=${displayedReviewIds}&sort_order=${sortOrder}&comments_per_review=10`)
+        fetch(`/feed/comments/load-more/?page=${currentPage}&page_size=5&exclude_ids=${displayedReviewIds}&sort_order=${sortOrder}&comments_per_review=10`)
             .then(response => response.json())
             .then(data => {
                 console.log("Load more response:", data);

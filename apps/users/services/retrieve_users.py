@@ -7,13 +7,10 @@ def get_suggested_users(request, limit=3):
     """Get users with the most reviews for the feed."""
     try:
         users = (
-            User.objects.annotate(review_count=Count('review'))
+            User.objects.annotate(review_count=Count('reviews'))
             .order_by('-review_count', '-last_active')[:limit]
         )
-        return {
-            'users': users,
-            'success': True
-        }
+        return users
     
     except Exception as e:
         return {

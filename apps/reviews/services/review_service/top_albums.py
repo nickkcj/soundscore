@@ -5,8 +5,8 @@ def get_top_3_albums():
     try:
         albums = (
             Album.objects.annotate(
-                avg_rating=Avg('review__rating'),
-                review_count=Count('review')
+                avg_rating=Avg('reviews__rating'),
+                review_count=Count('reviews')
             )
             .filter(review_count__gt=0)
             .order_by('-avg_rating', '-review_count')[:3]
@@ -14,6 +14,7 @@ def get_top_3_albums():
         return [
             {
                 'id': album.id,
+                'spotify_id': album.spotify_id,
                 'title': album.title,
                 'artist': album.artist,
                 'cover_image': album.cover_image,

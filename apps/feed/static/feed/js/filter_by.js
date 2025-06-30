@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Fetch reviews with new sort order
-            fetch(`/comments/feed/load-more/?page=0&page_size=5&exclude_ids=&sort_order=${newOrder}&comments_per_review=10`)
+            fetch(`/feed/comments/load-more/?page=0&page_size=5&exclude_ids=&sort_order=${newOrder}&comments_per_review=10`)
                 .then(response => response.json())
                 .then(data => {
                     console.log(`Received ${data.reviews.length} reviews with sort order: ${newOrder}`);
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create stars display
         let starsHTML = '';
         for (let i = 1; i <= 5; i++) {
-            starsHTML += `<svg class="w-3.5 h-3.5 ${i <= review.rating ? 'fill-current' : 'text-gray-300'}" viewBox="0 0 20 20">
+            starsHTML += `<svg class="w-3.5 h-3.5 ${i <= review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}" viewBox="0 0 20 20">
                             <path d="M10 15l-5.878 3.09L5.5 12.5 1 8.91l6.122-.89L10 2.5l2.878 5.52 6.122.89-4.5 3.59 1.378 5.59z"/>
                           </svg>`;
         }
@@ -112,20 +112,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p class="text-gray-700 text-sm italic line-clamp-4 bg-gray-50 p-4 rounded-lg border-l-4 border-pink-200">"${review.text}"</p>
             </div>` : '';
         
+        // Format comments section if there are comments
+        let commentsSection = '';
+        if (review.comments && review.comments.length > 0) {
+            const commentsHTML = review.comments.slice(0, 3).map(comment => `
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                    <div class="flex items-start gap-2">
+                        <div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden">
+                            <img src="${comment.user.profile_picture || '/media/profile_pictures/default.jpg'}" class="w-full h-full object-cover" alt="">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-medium text-gray-800">${comment.user.username}</span>
+                                <span class="text-xs text-gray-500">${new Date(comment.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-1">${comment.text}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            commentsSection = `
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-100">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Comments</h4>
+                    <div class="space-y-3">
+                        ${commentsHTML}
+                    </div>
+                </div>
+            `;
+        }
+        
         // Return complete HTML
         return `
             <!-- User header -->
             <div class="flex items-center px-6 pt-5 pb-3 border-b border-gray-50">
                 <div class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden mr-4 ring-2 ring-pink-100">
-                    <img src="${review.soundscore_user?.profile_picture || '/static/images/default.jpg'}" 
+                    <img src="${review.soundscore_user?.profile_picture || '/media/profile_pictures/default.jpg'}" 
                          class="w-full h-full object-cover" alt="">
                 </div>
                 <div class="flex-1">
-                    <a href="/profile/${review.soundscore_user?.username}" 
+                    <a href="/users/profile/${review.soundscore_user?.username}/" 
                        class="font-semibold text-gray-900 hover:underline hover:text-pink-600 transition-colors">
                       @${review.soundscore_user?.username}
                     </a>
-                    <div class="text-xs text-gray-500">${review.created_at?.slice(0, 10)}</div>
+                    <div class="text-xs text-gray-500">${new Date(review.created_at).toLocaleDateString()}</div>
                 </div>
                 <div class="flex items-center bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-full px-3 py-1.5 shadow-sm">
                     <div class="flex items-center text-yellow-400">
@@ -140,7 +170,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex items-center space-x-5">
                     <div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
                         <img src="${review.soundscore_album?.cover_image || '/static/images/default_album.png'}" 
-                             alt="Cover" class="w-full h-full object-cover">
+                             alt="Cover" class="w-full h-full object-cover"
+                             onerror="this.onerror=null; this.src='/static/images/default_album.png';">
                     </div>
                     <div>
                         <h3 class="font-bold text-gray-800 text-lg mb-1">${review.soundscore_album?.title}</h3>
@@ -156,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button class="like-button flex items-center text-gray-500 hover:text-pink-600 transition-colors group" 
                         data-review-id="${review.id}" 
                         data-liked="${review.is_liked || false}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="heart-icon h-5 w-5 transition-all duration-300 ${review.is_liked ? 'text-pink-600 fill-current' : ''} group-hover:scale-110" 
+                    <svg xmlns="http://www.w3.org/2000/svg" class="heart-icon h-5 w-5 transition-all duration-300 ${review.is_liked ? 'text-pink-600' : ''} group-hover:scale-110" 
                          fill="${review.is_liked ? 'currentColor' : 'none'}" 
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -179,22 +210,149 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span class="ml-2 text-xs font-medium">Share</span>
                 </button>
             </div>
+            
+            <!-- Comment form (always present but hidden) -->
+            <div class="bg-white px-5 py-4 comment-form-container hidden" data-review-id="${review.id}">
+                <form class="comment-form" data-review-id="${review.id}">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''}">
+                    <div class="flex items-start gap-2">
+                        <textarea name="text" rows="2" placeholder="Write a comment..." class="w-full p-2 border border-gray-200 rounded-lg text-sm focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 transition"></textarea>
+                        <button type="submit" class="px-3 py-1.5 bg-pink-500 text-white text-sm rounded hover:bg-pink-600 transition-colors shadow-sm">Post</button>
+                    </div>
+                    <input type="hidden" name="parent_id" value="">
+                </form>
+                <div class="text-xs text-gray-400 mt-2 hidden comment-success">Comment posted!</div>
+            </div>
+            
+            ${commentsSection}
         `;
     }
     
     // Re-initialize interactive elements on dynamically added reviews
     function initializeReviews() {
-        // Initialize like buttons
-        document.querySelectorAll('.like-button').forEach(button => {
+        // Re-initialize like buttons with proper functionality
+        if (typeof window.initLikeButtons === 'function') {
+            window.initLikeButtons();
+        } else {
+            // Fallback like button initialization
+            document.querySelectorAll('.like-button:not([data-initialized])').forEach(button => {
+                button.setAttribute('data-initialized', 'true');
+                button.addEventListener('click', async function() {
+                    const reviewId = this.getAttribute('data-review-id');
+                    const isLiked = this.getAttribute('data-liked') === 'true';
+                    
+                    try {
+                        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+                        if (!csrfToken) {
+                            console.error('CSRF token not found');
+                            return;
+                        }
+                        
+                        const response = await fetch('/feed/comments/likes/toggle/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrfToken
+                            },
+                            body: JSON.stringify({ review_id: reviewId })
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.setAttribute('data-liked', data.liked);
+                            
+                            const heartIcon = this.querySelector('.heart-icon');
+                            const likeCount = this.querySelector('.like-count');
+                            
+                            if (data.liked) {
+                                this.classList.add('text-pink-600');
+                                heartIcon.classList.add('text-pink-600');
+                                heartIcon.setAttribute('fill', 'currentColor');
+                            } else {
+                                this.classList.remove('text-pink-600');
+                                heartIcon.classList.remove('text-pink-600');
+                                heartIcon.setAttribute('fill', 'none');
+                            }
+                            
+                            likeCount.textContent = data.count;
+                        }
+                    } catch (error) {
+                        console.error('Error toggling like:', error);
+                    }
+                });
+            });
+        }
+        
+        // Re-initialize comment buttons
+        document.querySelectorAll('.comment-button:not([data-initialized])').forEach(button => {
+            button.setAttribute('data-initialized', 'true');
             button.addEventListener('click', function() {
-                // Like button handling logic
+                const reviewId = this.getAttribute('data-review-id');
+                if (!reviewId) return;
+                
+                let commentForm = document.querySelector(`.comment-form-container[data-review-id="${reviewId}"]`);
+                
+                if (commentForm) {
+                    // Toggle visibility
+                    commentForm.classList.toggle('hidden');
+                    if (!commentForm.classList.contains('hidden')) {
+                        const textarea = commentForm.querySelector('textarea');
+                        if (textarea) setTimeout(() => textarea.focus(), 0);
+                    }
+                }
             });
         });
         
-        // Initialize comment buttons
-        document.querySelectorAll('.comment-button').forEach(button => {
-            button.addEventListener('click', function() {
-                // Comment button handling logic
+        // Re-initialize comment forms
+        document.querySelectorAll('.comment-form:not([data-initialized])').forEach(form => {
+            form.setAttribute('data-initialized', 'true');
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const reviewId = this.getAttribute('data-review-id');
+                const textarea = this.querySelector('textarea[name="text"]');
+                const csrfToken = this.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+                
+                if (!textarea || !csrfToken || !textarea.value.trim()) return;
+                
+                try {
+                    const response = await fetch('/feed/comments/post/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({
+                            review_id: reviewId,
+                            text: textarea.value.trim(),
+                            parent_id: null
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        textarea.value = '';
+                        
+                        // Show success message
+                        const successMsg = this.parentElement.querySelector('.comment-success');
+                        if (successMsg) {
+                            successMsg.classList.remove('hidden');
+                            setTimeout(() => successMsg.classList.add('hidden'), 3000);
+                        }
+                        
+                        // Update comment count
+                        const commentButton = document.querySelector(`[data-review-id="${reviewId}"].comment-button`);
+                        if (commentButton) {
+                            const countSpan = commentButton.querySelector('span');
+                            if (countSpan) {
+                                const currentCount = parseInt(countSpan.textContent.match(/\d+/)?.[0] || '0');
+                                countSpan.textContent = `Comment (${currentCount + 1})`;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error posting comment:', error);
+                }
             });
         });
     }

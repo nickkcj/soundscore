@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                      document.querySelector('[name=csrfmiddlewaretoken]').value;
                     
                     // Send request
-                    const response = await fetch('/comments/likes/toggle/', {
+                    const response = await fetch('/feed/comments/likes/toggle/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

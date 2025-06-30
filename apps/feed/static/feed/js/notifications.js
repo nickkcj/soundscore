@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function markAllAsRead() {
-      fetch('/notifications/mark-all-as-read/', {
+      fetch('/feed/notifications/mark-all-as-read/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadNotificationCount() {
-      fetch('/notifications/unread-count/')
+      fetch('/feed/notifications/unread-count/')
         .then(response => response.json())
         .then(data => {
           updateNotificationCount(data.unread_count || data.count || 0);

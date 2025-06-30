@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const parentId = parentIdInput ? parentIdInput.value || null : null;
 
             try {
-                const response = await fetch('/comments/post/', {
+                const response = await fetch('/feed/comments/post/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

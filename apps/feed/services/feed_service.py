@@ -36,15 +36,19 @@ def load_more_reviews_service(request):
         for review in reviews:
             comment_qs = Comment.objects.filter(review=review).order_by('-created_at')[:comments_per_review]
             comment_count = Comment.objects.filter(review=review).count()
+            
+            # FIX: Check if THIS user has liked THIS review
             is_liked = ReviewLike.objects.filter(review=review, user=request.user).exists()
+            like_count = ReviewLike.objects.filter(review=review).count()
+            
             processed_reviews.append({
                 "id": review.id,
-                "user": {
+                "soundscore_user": {  # Changed from "user" to match template
                     "id": review.user.id,
                     "username": review.user.username,
-                    "profile_picture": review.user.profile_picture,
+                    "profile_picture": review.user.profile_picture.url if review.user.profile_picture else '/media/profile_pictures/default.jpg',
                 },
-                "album": {
+                "soundscore_album": {  # Changed from "album" to match template
                     "id": review.album.id,
                     "title": review.album.title,
                     "artist": review.album.artist,
@@ -61,14 +65,14 @@ def load_more_reviews_service(request):
                         "user": {
                             "id": c.user.id,
                             "username": c.user.username,
-                            "profile_picture": c.user.profile_picture,
+                            "profile_picture": c.user.profile_picture.url if c.user.profile_picture else '/media/profile_pictures/default.jpg',
                         },
                         "created_at": c.created_at,
                     } for c in comment_qs
                 ],
                 "comment_count": comment_count,
-                "is_liked": is_liked,
-                "like_count": ReviewLike.objects.filter(review=review).count(),
+                "is_liked": is_liked,  # User-specific like status
+                "like_count": like_count,
             })
 
         total_reviews = Review.objects.count()
@@ -91,7 +95,14 @@ def get_feed_service(request):
     review_ids = [r.id for r in reviews]
     comments = Comment.objects.filter(review_id__in=review_ids).select_related('user').order_by('created_at')
     likes = ReviewLike.objects.filter(review_id__in=review_ids)
-    user_likes = set(l.review_id for l in likes if l.user_id == request.user.id)
+    
+    # FIX: Get likes specifically for the current user
+    user_likes = set(
+        ReviewLike.objects.filter(
+            review_id__in=review_ids, 
+            user=request.user
+        ).values_list('review_id', flat=True)
+    )
 
     top_albums = get_top_3_albums()
     groups = get_groups_by_user(request.user.username)
@@ -102,21 +113,22 @@ def get_feed_service(request):
     for c in comments:
         comment_map.setdefault(c.review_id, []).append(c)
 
-    # Group likes by review
-    like_map = {}
+    # Group likes by review (for total count)
+    like_count_map = {}
     for l in likes:
-        like_map.setdefault(l.review_id, []).append(l)
+        like_count_map.setdefault(l.review_id, 0)
+        like_count_map[l.review_id] += 1
 
     review_data = []
     for review in reviews:
         review_data.append({
             "id": review.id,
-            "soundscore_user": {  # Changed from "user" to "soundscore_user"
+            "soundscore_user": {
                 "id": review.user.id,
                 "username": review.user.username,
                 "profile_picture": review.user.profile_picture.url if review.user.profile_picture else '/media/profile_pictures/default.jpg',
             },
-            "soundscore_album": {  # Also standardizing the album key
+            "soundscore_album": {
                 "id": review.album.id,
                 "title": review.album.title,
                 "artist": review.album.artist,
@@ -133,14 +145,15 @@ def get_feed_service(request):
                     "user": {
                         "id": c.user.id,
                         "username": c.user.username,
-                        "profile_picture": c.user.profile_picture,
+                        "profile_picture": c.user.profile_picture.url,
                     },
                     "created_at": c.created_at,
                 } for c in comment_map.get(review.id, [])[:3]
             ],
             "comment_count": len(comment_map.get(review.id, [])),
+            # FIX: Check if THIS user has liked THIS review
             "is_liked": review.id in user_likes,
-            "like_count": len(like_map.get(review.id, [])),
+            "like_count": like_count_map.get(review.id, 0),
         })
 
     context = {
