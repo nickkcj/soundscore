@@ -300,18 +300,30 @@
             <div class="space-y-3.5">
               {% if suggested_users %}
                 {% for user in suggested_users %}
-                  <a href="{% url 'profile' username=user.username %}" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                    <div class="w-10 h-10 rounded-full overflow-hidden">
-                      <img src="{{ user.profile_picture.url|default:'/static/images/default.jpg' }}" class="w-full h-full object-cover" alt="{{ user.username }}">
-                    </div>
-                    <div class="min-w-0">
-                      <p class="font-medium text-sm text-gray-800 truncate">{{ user.username }}</p>
-                      <p class="text-xs text-gray-500">{{ user.review_count|default:0 }} reviews</p>
-                    </div>
-                    <button class="ml-auto text-xs font-medium px-2 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors">
+                  <div class="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
+                    <a href="{% url 'profile' username=user.username %}" class="flex items-center gap-3 flex-1 min-w-0">
+                      <div class="w-10 h-10 rounded-full overflow-hidden">
+                        <img src="{{ user.profile_picture|default:'/static/images/default.jpg' }}" class="w-full h-full object-cover" alt="{{ user.username }}">
+                      </div>
+                      <div class="min-w-0">
+                        <p class="font-medium text-sm text-gray-800 truncate">{{ user.username }}</p>
+                        <p class="text-xs text-gray-500">{{ user.review_count|default:0 }} reviews</p>
+                      </div>
+                    </a>
+                    {% if user.is_following %}
+                    <button class="follow-btn ml-auto text-xs font-medium px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors" 
+                            data-username="{{ user.username }}" 
+                            data-following="true">
+                      Following
+                    </button>
+                    {% else %}
+                    <button class="follow-btn ml-auto text-xs font-medium px-2 py-1 bg-pink-500 text-white rounded hover:bg-pink-600 transition-colors" 
+                            data-username="{{ user.username }}" 
+                            data-following="false">
                       Follow
                     </button>
-                  </a>
+                    {% endif %}
+                  </div>
                 {% endfor %}
               {% else %}
                 <div class="p-3 bg-gray-50 rounded-lg">
@@ -358,5 +370,68 @@
 <script src="{% static 'feed/js/like.js' %}" defer></script>
 <script src="{% static 'feed/js/load_more.js' %}" defer></script>
 <script src="{% static 'feed/js/filter_by.js' %}" defer></script>
+
+<!-- Add CSRF Token -->
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle follow/unfollow buttons in suggested users
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('follow-btn')) {
+            handleFollowButton(e.target);
+        }
+    });
+    
+    async function handleFollowButton(button) {
+        const username = button.getAttribute('data-username');
+        const isFollowing = button.getAttribute('data-following') === 'true';
+        const endpoint = isFollowing ? 'unfollow' : 'follow';
+        
+        // Disable button during request
+        button.disabled = true;
+        button.classList.add('opacity-50');
+        
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            const response = await fetch(`/users/profile/${username}/${endpoint}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({})
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update button state
+                    button.setAttribute('data-following', data.following ? 'true' : 'false');
+                    
+                    if (data.following) {
+                        button.textContent = 'Following';
+                        button.className = 'follow-btn ml-auto text-xs font-medium px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors';
+                    } else {
+                        button.textContent = 'Follow';
+                        button.className = 'follow-btn ml-auto text-xs font-medium px-2 py-1 bg-pink-500 text-white rounded hover:bg-pink-600 transition-colors';
+                    }
+                } else {
+                    console.error('Follow/unfollow failed:', data.message);
+                }
+            } else {
+                console.error('Network error:', response.status);
+            }
+        } catch (error) {
+            console.error('Follow error:', error);
+        } finally {
+            button.disabled = false;
+            button.classList.remove('opacity-50');
+        }
+    }
+});
+</script>
 {% endblock %}
 {% endblock %}

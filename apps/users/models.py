@@ -48,3 +48,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = 'soundscore_user'
 
 
+class UserRelationship(models.Model):
+    user_id = models.ForeignKey(User, related_name='relationships', on_delete=models.CASCADE)
+    following = models.ForeignKey(User, related_name='followers', on_delete=models.CASCADE)
+    followed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'soundscore_user_relationship'
+        unique_together = ('user_id', 'following')
+
+

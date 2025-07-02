@@ -10,6 +10,7 @@ from apps.users.models import User
 from apps.reviews.services.review_service.top_albums import get_top_3_albums
 from apps.groups.services.group_service import get_groups_by_user
 from apps.users.services.retrieve_users import get_suggested_users
+from apps.users.models import UserRelationship  # Add this import
 
 
 @login_required
@@ -106,7 +107,33 @@ def get_feed_service(request):
 
     top_albums = get_top_3_albums()
     groups = get_groups_by_user(request.user.username)
-    suggested_users = get_suggested_users(request)
+    suggested_users_raw = get_suggested_users(request)
+    
+    # Convert User objects to dictionaries with follow status
+    suggested_users = []
+    if suggested_users_raw:
+        # Get IDs of users that current user is following
+        following_ids = set(
+            UserRelationship.objects.filter(
+                user_id=request.user
+            ).values_list('following__id', flat=True)
+        )
+        
+        # Convert User objects to dictionaries
+        for user in suggested_users_raw:
+            # Check if user is a User object or already a dict
+            if hasattr(user, 'id'):  # It's a User object
+                user_dict = {
+                    'id': user.id,
+                    'username': user.username,
+                    'profile_picture': user.profile_picture.url if user.profile_picture else '/media/profile_pictures/default.jpg',
+                    'is_following': user.id in following_ids
+                }
+            else:  # It's already a dict
+                user_dict = user.copy()
+                user_dict['is_following'] = user.get('id') in following_ids
+            
+            suggested_users.append(user_dict)
 
     # Group comments by review
     comment_map = {}
@@ -130,6 +157,7 @@ def get_feed_service(request):
             },
             "soundscore_album": {
                 "id": review.album.id,
+                "spotify_id": review.album.spotify_id,
                 "title": review.album.title,
                 "artist": review.album.artist,
                 "cover_image": review.album.cover_image,

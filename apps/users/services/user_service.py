@@ -1,5 +1,5 @@
-from django.db.models import Avg
-from apps.users.models import User
+from django.db.models import Avg, Count
+from apps.users.models import User, UserRelationship
 from apps.reviews.models import Review
 
 def get_user_profile_data(username):
@@ -10,14 +10,21 @@ def get_user_profile_data(username):
         else:
             profile_picture = '/media/profile_pictures/default.jpg'
 
+        # Get review data
         reviews = Review.objects.filter(user=user)
         reviews_count = reviews.count()
         avg_rating = reviews.aggregate(avg=Avg('rating'))['avg']
         avg_rating = round(avg_rating, 1) if avg_rating else 0
+        
+        # Get follower/following counts
+        followers_count = UserRelationship.objects.filter(following=user).count()
+        following_count = UserRelationship.objects.filter(user_id=user).count()
+        
         user_dict = {
             'username': user.username,
             'profile_picture_url': profile_picture
         }
+        
         user_reviews = [
             {
                 'id': review.id,
@@ -28,12 +35,15 @@ def get_user_profile_data(username):
             }
             for review in reviews
         ]
+        
         return {
             'user': user_dict,
             'user_reviews': user_reviews,
             'review_count': reviews_count,
             'avg_rating': avg_rating,
-            'profile_picture_url': profile_picture
+            'profile_picture_url': profile_picture,
+            'followers_count': followers_count,
+            'following_count': following_count,
         }
 
     except User.DoesNotExist:
@@ -42,7 +52,9 @@ def get_user_profile_data(username):
             'user_reviews': [],
             'review_count': 0,
             'avg_rating': 0,
-            'profile_picture_url': '/media/profile_pictures/default.jpg'
+            'profile_picture_url': '/media/profile_pictures/default.jpg',
+            'followers_count': 0,
+            'following_count': 0,
         }
 
 

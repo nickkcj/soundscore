@@ -3,7 +3,7 @@ from apps.users.models import User
 from apps.reviews.models import Review
 
 
-def create_notification_service(recipient_id, actor_id, notification_type, review_id, message):
+def create_notification_service(recipient_id, actor_id, notification_type, message, review_id=None):
     notification = Notification.objects.create(
         recipient_id=recipient_id,
         actor_id=actor_id,
