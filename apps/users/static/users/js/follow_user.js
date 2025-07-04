@@ -1,10 +1,15 @@
+/**
+ * Handles the follow/unfollow button logic on user profile pages.
+ * Sends AJAX requests to follow/unfollow endpoints and updates the button UI.
+ * Also shows a notification for success or error.
+ */
 console.log("Follow user script loaded");
 
 document.addEventListener('DOMContentLoaded', function() {
     const followBtn = document.getElementById('follow-btn');
     
     if (followBtn) {
-        // Set initial button state
+        // Set initial button state based on data-following attribute
         updateButtonState(followBtn);
         
         followBtn.addEventListener('click', async function() {
@@ -25,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
+                // Send POST request to follow/unfollow endpoint
                 const response = await fetch(`/users/profile/${username}/${endpoint}/`, {
                     method: 'POST',
                     headers: {
@@ -38,11 +44,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const data = await response.json();
                     
                     if (data.success) {
-                        // Update button state
+                        // Update button state and show notification
                         this.setAttribute('data-following', data.following ? 'true' : 'false');
                         updateButtonState(this);
-                        
-                        // Show success message (optional)
                         showNotification(data.message, 'success');
                     } else {
                         showNotification(data.message, 'error');
@@ -61,6 +65,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    /**
+     * Updates the follow button's appearance and text based on following state.
+     */
     function updateButtonState(button) {
         const isFollowing = button.getAttribute('data-following') === 'true';
         const followText = button.querySelector('.follow-text');
@@ -79,6 +86,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    /**
+     * Shows a notification at the bottom of the page for follow/unfollow actions.
+     */
     function showNotification(message, type) {
         // Remove any existing notifications first
         const existingNotification = document.querySelector('.follow-notification');
@@ -129,10 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
         
-        // Add to page
+        // Add to page and animate in
         document.body.appendChild(notification);
-        
-        // Animate in
         requestAnimationFrame(() => {
             notification.classList.remove('opacity-0', 'translate-y-4');
             notification.classList.add('opacity-100', 'translate-y-0');
@@ -142,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             notification.classList.remove('opacity-100', 'translate-y-0');
             notification.classList.add('opacity-0', 'translate-y-4');
-            
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.parentNode.removeChild(notification);

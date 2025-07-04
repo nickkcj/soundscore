@@ -2,6 +2,11 @@ from apps.reviews.models import Album, Review
 from django.db.models import Avg, Count
 
 def get_top_3_albums():
+    """
+    Get the top 3 albums by average rating and review count.
+    Returns:
+        list: List of top 3 album dicts or error dict
+    """
     try:
         albums = (
             Album.objects.annotate(
@@ -29,6 +34,13 @@ def get_top_3_albums():
     
 
 def get_album_avg_rating(album_id):
+    """
+    Get the average rating for a specific album.
+    Parameters:
+        album_id (int): Album ID
+    Returns:
+        float or str: Average rating rounded to 1 decimal, or error message
+    """
     try:
         album = Album.objects.get(id=album_id)
         avg_rating = album.review.aggregate(avg=Avg('rating'))['avg']
@@ -40,6 +52,13 @@ def get_album_avg_rating(album_id):
 
 
 def get_trending_albums(limit=8):
+    """
+    Get trending albums by review count, limited to a given number.
+    Parameters:
+        limit (int): Number of albums to return (default 8)
+    Returns:
+        list: List of trending album dicts or error dict
+    """
     try:
         albums = (
             Album.objects.annotate(review_count=Count('reviews'))

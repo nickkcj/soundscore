@@ -2,6 +2,16 @@ from apps.reviews.models import Album, Review
 from django.db.models import Avg
 
 def search_albums_and_artists(query, search_type, search_albums_func, get_album_avg_rating_func):
+    """
+    Search for albums and/or artists using a Spotify search function and enrich with local DB data.
+    Parameters:
+        query (str): Search query
+        search_type (str): 'all', 'albums', or 'artists'
+        search_albums_func (callable): Function to search albums on Spotify
+        get_album_avg_rating_func (callable): Function to get album average rating
+    Returns:
+        dict: Albums and artists with average ratings
+    """
     results = {
         'albums': [],
         'artists': [],
@@ -9,6 +19,7 @@ def search_albums_and_artists(query, search_type, search_albums_func, get_album_
     spotify_album_results = []
     if search_type in ['all', 'albums', 'artists']:
         try:
+            # Call the external search function (e.g., Spotify API)
             spotify_album_results = search_albums_func(query)
             if isinstance(spotify_album_results, dict) and 'error' in spotify_album_results:
                 spotify_album_results = []
@@ -17,7 +28,7 @@ def search_albums_and_artists(query, search_type, search_albums_func, get_album_
         except Exception:
             spotify_album_results = []
 
-    # Albums
+    # Process albums
     if search_type in ['all', 'albums'] and isinstance(spotify_album_results, list):
         processed_albums = []
         for album_data in spotify_album_results:
@@ -41,7 +52,7 @@ def search_albums_and_artists(query, search_type, search_albums_func, get_album_
             processed_albums.append(current_album)
         results['albums'] = processed_albums
 
-    # Artists
+    # Process artists
     if search_type in ['all', 'artists'] and isinstance(spotify_album_results, list):
         artists_dict = {}
         for album_data in spotify_album_results:

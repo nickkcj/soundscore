@@ -4,7 +4,14 @@ from django.db.models import Count
 
 
 def get_suggested_users(request, limit=3):
-    """Get users with the most reviews for the feed."""
+    """
+    Get users with the most reviews for the feed.
+    Parameters:
+        request (HttpRequest): The current request object
+        limit (int): Number of users to return (default 3)
+    Returns:
+        QuerySet or dict: List of users or error dict
+    """
     try:
         users = (
             User.objects.annotate(review_count=Count('reviews'))

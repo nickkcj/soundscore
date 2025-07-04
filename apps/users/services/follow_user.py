@@ -4,10 +4,11 @@ from django.core.paginator import Paginator
 def follow_service(user_id, target_username):
     """
     Follow a user.
-    
-    :param user_id: The ID of the user who is following.
-    :param target_username: The username of the user to be followed.
-    :return: A dictionary with success status and message.
+    Parameters:
+        user_id (int): The ID of the user who is following.
+        target_username (str): The username of the user to be followed.
+    Returns:
+        dict: Success status and message.
     """
     try:
         user = User.objects.get(id=user_id)
@@ -27,14 +28,14 @@ def follow_service(user_id, target_username):
     except Exception as e:
         return {"success": False, "message": str(e)}
 
-
 def unfollow_service(user_id, target_username):
     """
     Unfollow a user.
-    
-    :param user_id: The ID of the user who is unfollowing.
-    :param target_username: The username of the user to be unfollowed.
-    :return: A dictionary with success status and message.
+    Parameters:
+        user_id (int): The ID of the user who is unfollowing.
+        target_username (str): The username of the user to be unfollowed.
+    Returns:
+        dict: Success status and message.
     """
     try:
         user = User.objects.get(id=user_id)

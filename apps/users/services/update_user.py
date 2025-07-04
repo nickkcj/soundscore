@@ -2,7 +2,17 @@ from apps.users.models import User
 from django.db import transaction
 
 def update_user_data(old_username, new_username, email=None, password=None, profile_picture=None):
-    """Updates user information in the local database (dbsqlite3)"""
+    """
+    Update user information in the local database.
+    Parameters:
+        old_username (str): Current username
+        new_username (str): New username
+        email (str): New email (optional)
+        password (str): New password (optional)
+        profile_picture (File): New profile picture (optional)
+    Returns:
+        dict: Success or error message
+    """
     try:
         with transaction.atomic():
             # Get the user by old_username
@@ -30,7 +40,6 @@ def update_user_data(old_username, new_username, email=None, password=None, prof
             # Handle profile picture if provided
             if profile_picture:
                 # Save the uploaded file to the user's profile_picture field
-                # Assuming profile_picture is a Django File object
                 user.profile_picture.save(profile_picture.name, profile_picture, save=False)
 
             user.save()

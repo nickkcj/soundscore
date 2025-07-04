@@ -1,72 +1,99 @@
+/**
+ * Load More Reviews System
+ * Handles infinite scroll/pagination for the feed page
+ * Manages review loading, duplicate prevention, and dynamic content initialization
+ */
+
 console.log('-------- feed.js loaded --------');
 
-// Create a global Set to track review IDs without duplicates
+// Global Set to track loaded review IDs and prevent duplicates
 window.loadedReviewIds = new Set();
 
-// Add this function at the top of your file (or at a proper location)
+/**
+ * Get CSRF token from cookies for secure API requests
+ * @param {string} name - Cookie name to retrieve
+ * @returns {string} - Cookie value or undefined
+ */
 function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-// When the page loads, initialize all buttons
+// Initialize load more functionality when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOMContentLoaded fired");
     
-    // Store initial review IDs for filtering
+    /**
+     * Store initial review IDs to prevent loading duplicates
+     * This ensures we don't show the same reviews when loading more
+     */
     const initialReviewIds = Array.from(document.querySelectorAll('[data-review-id]'))
         .map(el => el.getAttribute('data-review-id'));
     console.log("Initial loaded review IDs:", initialReviewIds);
     
-    // Get load more button
+    // Get the load more button element
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (!loadMoreBtn) {
         console.error("Load more button not found!");
         return;
     }
     
-    // IMPORTANT FIX: Find the container where reviews should be appended
-    // This should match the class used in your redesigned template
+    /**
+     * Find the container where new reviews should be appended
+     * Critical for proper DOM insertion of loaded content
+     */
     const reviewsContainer = document.querySelector('.space-y-10');
     if (!reviewsContainer) {
         console.error("Reviews container not found! Looking for element with class 'space-y-10'");
-        // Try other potential container selectors if the main one isn't found
+        
+        // Try alternative container selectors as fallback
         const alternativeContainers = [
             document.querySelector('.reviews-container'),
             document.querySelector('#reviews-list'),
             document.querySelector('.feed-items')
         ];
         
-        // Log what containers we do find on the page
+        // Debug: Log available containers for troubleshooting
         console.log("Available containers with similar classes:", 
             [...document.querySelectorAll('[class*="reviews"],[class*="feed"],[id*="reviews"],[id*="feed"]')]
             .map(el => `${el.tagName}.${el.className}#${el.id}`));
     }
     
+    /**
+     * Load More button click handler
+     * Fetches additional reviews with pagination and filtering
+     */
     loadMoreBtn.addEventListener('click', function() {
         // Get current page number from button data attribute
         let currentPage = parseInt(loadMoreBtn.getAttribute('data-page')) || 1;
         
-        // Get sort order
+        // Get current sort order from sort toggle button
         const sortToggleBtn = document.getElementById('sort-toggle');
         const sortOrder = sortToggleBtn ? sortToggleBtn.getAttribute('data-sort-order') || 'desc' : 'desc';
         
-        // Show loading state
+        // Update button to loading state to prevent multiple clicks
         loadMoreBtn.disabled = true;
         loadMoreBtn.innerHTML = '<span>Loading...</span>';
         
-        // Get IDs of reviews already displayed to avoid duplicates
+        // Get IDs of currently displayed reviews to exclude from new results
         const displayedReviewIds = Array.from(document.querySelectorAll('[data-review-id]'))
             .map(el => el.getAttribute('data-review-id')).join(',');
         
-        // Fetch more reviews
+        /**
+         * Fetch more reviews from server with pagination parameters
+         * - page: Current page number for pagination
+         * - page_size: Number of reviews per page
+         * - exclude_ids: Already loaded review IDs to prevent duplicates
+         * - sort_order: Ascending or descending chronological order
+         * - comments_per_review: Number of comments to include per review
+         */
         fetch(`/feed/comments/load-more/?page=${currentPage}&page_size=5&exclude_ids=${displayedReviewIds}&sort_order=${sortOrder}&comments_per_review=10`)
             .then(response => response.json())
             .then(data => {
                 console.log("Load more response:", data);
                 
-                // Find container again in case it was modified since page load
+                // Re-find container in case DOM was modified since page load
                 const reviewsContainer = document.querySelector('.space-y-10');
                 
                 if (!reviewsContainer) {
@@ -75,39 +102,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error("Reviews container not found");
                 }
                 
-                // Process and append reviews
+                // Process and append new reviews to the page
                 if (data.reviews && data.reviews.length > 0) {
                     data.reviews.forEach(review => {
                         try {
-                            // Create a container for the new review
+                            // Create a new review element container
                             const reviewElement = document.createElement('div');
                             reviewElement.className = "bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transform transition-all duration-200 hover:shadow-lg";
                             reviewElement.setAttribute('data-review-id', review.id);
                             
-                            // Set the inner HTML for the review
+                            // Generate and set the HTML content for the review
                             reviewElement.innerHTML = generateReviewHTML(review);
                             
-                            // Append to container
+                            // Append the new review to the container
                             reviewsContainer.appendChild(reviewElement);
                             
-                            // Initialize interaction features on new review
+                            // Initialize interactive features (likes, comments) on the new review
                             initializeNewReview(reviewElement);
                         } catch (err) {
                             console.error("Error creating review element:", err);
                         }
                     });
                     
-                    // Update page number for next load
+                    // Update page number for next load more request
                     loadMoreBtn.setAttribute('data-page', (currentPage + 1).toString());
                 }
                 
-                // Update button state
+                // Update load more button state based on whether more content is available
                 loadMoreBtn.disabled = !data.has_more;
                 if (!data.has_more) {
+                    // Disable button if no more content available
                     loadMoreBtn.classList.add('opacity-50');
                 }
                 
-                // Reset button text
+                // Reset button text to default state
                 loadMoreBtn.innerHTML = `
                     <span>Load more</span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,14 +145,20 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error("Error:", error);
+                // Reset button on error for retry
                 loadMoreBtn.disabled = false;
                 loadMoreBtn.innerHTML = '<span>Error loading. Try again</span>';
             });
     });
     
-    // Helper function to format review HTML
+    /**
+     * Generate HTML structure for a review element
+     * Creates the complete review card with user info, album details, and interaction buttons
+     * @param {Object} review - Review data from server
+     * @returns {string} - Complete HTML string for the review
+     */
     function generateReviewHTML(review) {
-        // Create stars display
+        // Generate star rating display
         let starsHTML = '';
         for (let i = 1; i <= 5; i++) {
             starsHTML += `<svg class="w-3.5 h-3.5 ${i <= review.rating ? 'fill-current' : 'text-gray-300'}" viewBox="0 0 20 20">
@@ -132,15 +166,15 @@ document.addEventListener('DOMContentLoaded', function() {
                           </svg>`;
         }
         
-        // Format review text section
+        // Include review text section if review has text content
         const reviewTextSection = review.text ? `
             <div class="px-6 pb-5">
                 <p class="text-gray-700 text-sm italic line-clamp-4 bg-gray-50 p-4 rounded-lg border-l-4 border-pink-200">"${review.text}"</p>
             </div>` : '';
         
-        // Return complete HTML
+        // Return complete review HTML structure
         return `
-            <!-- User header -->
+            <!-- User header section with profile info and rating -->
             <div class="flex items-center px-6 pt-5 pb-3 border-b border-gray-50">
                 <div class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden mr-4 ring-2 ring-pink-100">
                     <img src="${review.soundscore_user?.profile_picture || '/static/images/default.jpg'}" 
@@ -161,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             
-            <!-- Album content -->
+            <!-- Album information section -->
             <div class="px-6 py-4">
                 <div class="flex items-center space-x-5">
                     <div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
@@ -177,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             ${reviewTextSection}
             
-            <!-- Interaction bar -->
+            <!-- Interaction buttons (like, comment, share) -->
             <div class="flex items-center justify-around px-6 py-3.5 border-t border-gray-100 bg-gray-50">
                 <button class="like-button flex items-center text-gray-500 hover:text-pink-600 transition-colors group" 
                         data-review-id="${review.id}" 
@@ -208,17 +242,22 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
     
-    // Function to initialize features on newly created review elements
+    /**
+     * Initialize interactive features on newly added review elements
+     * Sets up like buttons, comment buttons, and form handlers
+     * @param {HTMLElement} reviewElement - The review DOM element to initialize
+     */
     function initializeNewReview(reviewElement) {
         console.log("Initializing new review:", reviewElement.getAttribute('data-review-id'));
         
-        // Initialize like button
+        // Initialize like button functionality
         const likeButton = reviewElement.querySelector('.like-button');
         if (likeButton) {
             likeButton.addEventListener('click', function() {
                 const reviewId = this.getAttribute('data-review-id');
                 const liked = this.getAttribute('data-liked') === 'true';
                 
+                // Send like toggle request to server
                 fetch('/comments/feed/toggle-like/', {
                     method: 'POST',
                     headers: {
@@ -230,22 +269,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update UI
+                        // Update UI to reflect new like status
                         const heartIcon = this.querySelector('.heart-icon');
                         const likeCount = this.querySelector('.like-count');
                         
+                        // Toggle liked state
                         this.setAttribute('data-liked', (!liked).toString());
                         
                         if (!liked) {
-                            // Like
+                            // Apply liked styling
                             heartIcon.classList.add('text-pink-600', 'fill-current');
                             heartIcon.setAttribute('fill', 'currentColor');
                         } else {
-                            // Unlike
+                            // Remove liked styling
                             heartIcon.classList.remove('text-pink-600', 'fill-current');
                             heartIcon.setAttribute('fill', 'none');
                         }
                         
+                        // Update like count display
                         likeCount.textContent = data.like_count;
                     }
                 })
@@ -253,23 +294,21 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Initialize comment button
+        // Initialize comment button functionality
         console.log("Initializing comment buttons");
         const commentBtn = reviewElement.querySelector('.comment-button');
         if (commentBtn) {
             commentBtn.addEventListener('click', function() {
-                // Your comment handling logic
+                // Handle comment form toggling
                 console.log("Comment button clicked for review:", this.getAttribute('data-review-id'));
             });
         }
     }
     
-    // Helper function to get CSRF token from cookies
-    function getCookie(name) {
-        let value = `; ${document.cookie}`;
-        let parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    }
+    // Initialize interaction features for existing reviews on page load
+    document.querySelectorAll('[data-review-id]').forEach(reviewElement => {
+        initializeNewReview(reviewElement);
+    });
     
     // Initialize comment buttons
     console.log("Initializing comment buttons");

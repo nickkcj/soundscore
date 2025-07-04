@@ -1,18 +1,23 @@
+/**
+ * Handles the star rating UI for the edit review page.
+ * Allows users to click stars to set the rating and updates the display.
+ */
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Initializing edit review page script...");
 
-    // --- Star Rating Initialization ---
-    // Use the IDs that exist in your HTML
-    const ratingStarsContainer = document.getElementById('ratingStars');  // Changed
-    const ratingDisplay = document.getElementById('ratingDisplay');       // Changed
-    const ratingInput = document.getElementById('rating');                // Changed
+    // Get star rating elements by their IDs
+    const ratingStarsContainer = document.getElementById('ratingStars');
+    const ratingDisplay = document.getElementById('ratingDisplay');
+    const ratingInput = document.getElementById('rating');
 
     if (ratingStarsContainer && ratingDisplay && ratingInput) {
-        // Get the initial rating from the hidden input's value
+        // Set the initial rating from the hidden input's value
         const initialRating = parseInt(ratingInput.value) || 0;
         console.log(`Initial rating for edit form: ${initialRating}`);
 
-        // Rest of your fallback logic works as is
+        /**
+         * Set the rating visually and update the hidden input.
+         */
         function setRatingEdit(rating) {
             const stars = ratingStarsContainer.querySelectorAll('.rating-star');
             stars.forEach(star => {
@@ -25,6 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         setRatingEdit(initialRating);
+
+        // Listen for star clicks to update rating
         ratingStarsContainer.addEventListener('click', function(event) {
             const star = event.target.closest('.rating-star');
             if (star) {

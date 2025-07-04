@@ -3,6 +3,14 @@ from apps.reviews.models import Review
 from django.db.models import Avg
 
 def search_users(query, limit=10):
+    """
+    Search for users by username (case-insensitive, partial match).
+    Parameters:
+        query (str): Search query string
+        limit (int): Max number of users to return (default 10)
+    Returns:
+        list: List of user dicts with review count and avg rating
+    """
     users_qs = User.objects.filter(username__icontains=query)[:limit]
     user_list = []
     for user in users_qs:

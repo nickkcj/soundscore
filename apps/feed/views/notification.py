@@ -12,20 +12,25 @@ from apps.feed.services.notification_service import (
 @login_required
 @require_GET
 def get_notifications_view(request):
+    """
+    Return notifications for the authenticated user.
+    Accepts GET params: limit, offset, unread_only.
+    """
     try:
         user_id = request.user.id
         limit = int(request.GET.get('limit', 10))
         offset = int(request.GET.get('offset', 0))
         unread_only = request.GET.get('unread_only', 'false').lower() == 'true'
 
+        # Fetch notifications and unread count
         notifications = get_user_notifications_service(user_id, limit, offset, unread_only)
         unread_count = get_unread_count_service(user_id)
 
-        # If notifications are QuerySets, convert to list of dicts
+        # Serialize notifications for JSON response
         notifications_list = [
             {
                 "id": n.id,
-                "type": n.type,
+                "type": n.notification_type,
                 "message": n.message,
                 "is_read": n.is_read,
                 "created_at": n.created_at,
@@ -47,6 +52,10 @@ def get_notifications_view(request):
 @login_required
 @require_POST
 def mark_read_view(request, notification_id):
+    """
+    Mark a specific notification as read.
+    URL param: notification_id
+    """
     try:
         mark_notification_as_read_service(notification_id)
         return JsonResponse({"success": True})
@@ -57,6 +66,9 @@ def mark_read_view(request, notification_id):
 @login_required
 @require_POST
 def mark_all_read_view(request):
+    """
+    Mark all notifications for the user as read.
+    """
     try:
         user_id = request.user.id
         mark_all_as_read_service(user_id)
@@ -68,6 +80,9 @@ def mark_all_read_view(request):
 @login_required
 @require_GET
 def get_unread_count_view(request):
+    """
+    Return the count of unread notifications for the user.
+    """
     try:
         user_id = request.user.id
         count = get_unread_count_service(user_id)

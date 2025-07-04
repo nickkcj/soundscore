@@ -9,6 +9,10 @@ from django.shortcuts import render
 @login_required
 @require_GET
 def load_more_reviews_view(request):
+    """
+    API endpoint to load more reviews for the feed (pagination).
+    Calls the service that returns paginated
+    """
     try:
         return load_more_reviews_service(request)
     except Exception as e:
@@ -18,6 +22,10 @@ def load_more_reviews_view(request):
 @cache_page(60)
 @login_required
 def feed_view(request):
+    """
+    Render the main feed page for the authenticated user.
+    Fetches reviews, groups, suggestions, etc.
+    """
     try:
         return get_feed_service(request)
     except Exception as e:

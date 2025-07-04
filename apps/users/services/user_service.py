@@ -3,6 +3,13 @@ from apps.users.models import User, UserRelationship
 from apps.reviews.models import Review
 
 def get_user_profile_data(username):
+    """
+    Get user profile data including reviews, average rating, and follower/following counts.
+    Parameters:
+        username (str): Username to look up
+    Returns:
+        dict: User info, reviews, counts, and profile picture URL
+    """
     try:
         user = User.objects.get(username=username)
         if user.profile_picture and hasattr(user.profile_picture, 'url'):
@@ -47,6 +54,7 @@ def get_user_profile_data(username):
         }
 
     except User.DoesNotExist:
+        # Return default values if user not found
         return {
             'user': None,
             'user_reviews': [],

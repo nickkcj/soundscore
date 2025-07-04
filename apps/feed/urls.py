@@ -3,6 +3,9 @@ from .views import feed, comment, like, notification
 
 urlpatterns = [
     path('', feed.feed_view, name='feed'),
+    path('load-more-reviews/', feed.load_more_reviews_view, name='load_more_reviews'),
+
+    # Comments and Likes
     path('comment/', comment.post_comment_view, name='comment'),
     path('comments/likes/toggle/', like.toggle_like_view, name='like'),
     path('comments/post-comment/', comment.post_comment_view, name='feed_post_comment'),

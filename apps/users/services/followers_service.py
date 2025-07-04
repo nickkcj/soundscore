@@ -2,7 +2,15 @@ from apps.users.models import User, UserRelationship
 from django.core.paginator import Paginator
 
 def get_followers_list(username, page=1, per_page=20):
-    """Get list of users following this user"""
+    """
+    Get list of users following this user.
+    Parameters:
+        username (str): Username to look up
+        page (int): Page number for pagination
+        per_page (int): Number of results per page
+    Returns:
+        dict: Followers data and pagination info
+    """
     try:
         user = User.objects.get(username=username)
         followers_relationships = UserRelationship.objects.filter(
@@ -32,6 +40,7 @@ def get_followers_list(username, page=1, per_page=20):
         }
         
     except User.DoesNotExist:
+        # Return empty data if user not found
         return {
             'followers': [],
             'has_next': False,
@@ -41,9 +50,16 @@ def get_followers_list(username, page=1, per_page=20):
             'total_count': 0,
         }
 
-
 def get_following_list(username, page=1, per_page=20):
-    """Get list of users this user is following"""
+    """
+    Get list of users this user is following.
+    Parameters:
+        username (str): Username to look up
+        page (int): Page number for pagination
+        per_page (int): Number of results per page
+    Returns:
+        dict: Following data and pagination info
+    """
     try:
         user = User.objects.get(username=username)
         following_relationships = UserRelationship.objects.filter(
@@ -73,6 +89,7 @@ def get_following_list(username, page=1, per_page=20):
         }
         
     except User.DoesNotExist:
+        # Return empty data if user not found
         return {
             'following': [],
             'has_next': False,

@@ -4,9 +4,14 @@ from django.db.models import Avg
 
 def get_user_profile_data(username):
     """
-    Get user profile data including review count, average rating, and follower data.
+    Get user profile data including review count, average rating, and follower/following data.
+    Parameters:
+        username (str): Username of the user
+    Returns:
+        dict: User profile data, reviews, counts, and profile picture URL
     """
     try:
+        # Find the user
         user = User.objects.filter(username=username).first()
         if not user:
             return {
@@ -19,6 +24,7 @@ def get_user_profile_data(username):
                 'following_count': 0,
             }
         
+        # Get all reviews by the user
         reviews = Review.objects.filter(user=user)
         reviews_count = reviews.count()
         avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 0
@@ -27,6 +33,7 @@ def get_user_profile_data(username):
         followers_count = UserRelationship.objects.filter(following=user).count()
         following_count = UserRelationship.objects.filter(user_id=user).count()
         
+        # Get profile picture URL or default
         if user.profile_picture and hasattr(user.profile_picture, 'url'):
             profile_picture_url = user.profile_picture.url
         else:
@@ -37,6 +44,7 @@ def get_user_profile_data(username):
             'profile_picture_url': profile_picture_url
         }
         
+        # Build review list for the user
         user_reviews = [
             {
                 'id': review.id,

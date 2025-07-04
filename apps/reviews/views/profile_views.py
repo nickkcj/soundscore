@@ -7,6 +7,10 @@ from apps.reviews.services.review_service.profile_service import get_user_profil
 
 
 def discover_view(request):
+    """
+    Render the discover page, allowing users to search for albums.
+    If a query is provided, search Spotify for albums.
+    """
     query = request.GET.get('q', '')
     if query:
         albums = search_albums(query)

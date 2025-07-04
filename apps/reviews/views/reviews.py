@@ -17,8 +17,13 @@ from apps.reviews.services.spotify_service.spotify import search_albums, get_alb
 
 @login_required
 def create_review_view(request):
+    """
+    Render the review creation page and handle album search.
+    On POST: searches for albums by artist name.
+    On GET: renders the empty form.
+    """
     if request.method == 'POST':
-        # POST é pela busca do álbum na criação
+        # Handle album search
         query = request.POST.get('artist_name', '').strip()
         search_results = []
         if query:
@@ -35,6 +40,11 @@ def create_review_view(request):
 @login_required
 @require_POST
 def create_review_api_view(request):
+    """
+    API endpoint to create a new review via AJAX.
+    Expects JSON body with album and review data.
+    Returns success or error as JSON.
+    """
     data = json.loads(request.body)
 
     album_id = data.get('album_id')
@@ -45,11 +55,13 @@ def create_review_api_view(request):
     album_cover = data.get('album_cover')
     is_favorite = data.get('is_favorite', False)
 
+    # Validate required fields
     if not album_id or not rating:
         return JsonResponse({"error": "Album ID and rating are required"}, status=400)
 
     user_id = request.user.id
 
+    # Call service to add review
     result = add_review(
         user_id=user_id,
         album_id=album_id,
@@ -73,12 +85,18 @@ def create_review_api_view(request):
 
 @login_required
 def edit_review_view(request, review_id):
+    """
+    Render the edit review page and handle review updates.
+    Only the review owner can edit.
+    """
     review = get_object_or_404(Review, id=review_id)
 
+    # Permission check
     if review.user.username != request.user.username:
         return HttpResponseForbidden("You do not have permission to edit this review.")
     
     if request.method == 'POST':
+        # Handle review update
         rating = int(request.POST.get('rating'))
         text = request.POST.get('review_text', '')
         is_favorite = 'is_favorite' in request.POST
@@ -100,6 +118,10 @@ def edit_review_view(request, review_id):
 @login_required
 @require_POST
 def delete_review_view(request, review_id):
+    """
+    Delete a review (POST only).
+    Only the review owner can delete.
+    """
     result = delete_review(request.user.username, review_id)
 
     if result.get('error'):
@@ -110,9 +132,11 @@ def delete_review_view(request, review_id):
     return redirect('reviews', username=request.user.username)
 
 
-
 @login_required
 def user_profile_view(request, username):
+    """
+    Render a user's profile page with their reviews and favorite albums.
+    """
     # Get user or 404
     user = get_object_or_404(User, username=username)
     # Get profile data (review count, avg rating, profile pic)
@@ -159,6 +183,10 @@ def user_profile_view(request, username):
 
 
 def album_detail_view(request, spotify_id):
+    """
+    Render the album detail page, including album info, tracks, and reviews.
+    """
+    # Get album info and tracks from Spotify
     album_data = get_album_info(spotify_id)
     tracks = get_album_tracks(spotify_id)
 
@@ -173,6 +201,7 @@ def album_detail_view(request, spotify_id):
         "total_tracks": album_data.get("total_tracks"),
     }
 
+    # Try to find the album in the local DB for reviews
     album_obj = Album.objects.filter(spotify_id=spotify_id).first()
     reviews_data = []
     avg_rating = None
@@ -193,6 +222,7 @@ def album_detail_view(request, spotify_id):
                 'profile_picture_url': profile_data.get('profile_picture_url', '/media/profile_pictures/default.jpg')
             })
             
+        # Calculate average rating for the album
         avg_rating = db_reviews.aggregate(avg=Avg('rating'))['avg']
         if avg_rating is not None:
             avg_rating = round(avg_rating, 1)

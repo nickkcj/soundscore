@@ -63,9 +63,11 @@
         <!-- Group Card - improved styling -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex flex-col h-full group hover:shadow-xl transition-all duration-300 transform hover:translate-y-[-4px]">
           <div class="relative">
+            <!-- Fix: Use correct path to core app default image -->
             <img class="w-full h-48 object-cover" 
-                src="{{ group.cover_image|default:'static/images/groups/default-cover.jpg' }}" 
-                alt="{{ group.name }}">
+                src="{% if group.cover_image %}{{ group.cover_image.url }}{% else %}{% static 'core/images/default.jpg' %}{% endif %}" 
+                alt="{{ group.name }}"
+                onerror="this.src='/media/profile_pictures/default.jpg'">
             <div class="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
               {{ group.category|default:"Music" }}
             </div>
@@ -86,55 +88,6 @@
               </span>
               <a href="{% url 'group_room' group_id=group.id %}" 
                 class="text-center py-1.5 px-4 rounded-full text-pink-600 border border-pink-500 hover:bg-pink-50 transition-colors font-medium text-sm">
-                View Group
-              </a>
-            </div>
-          </div>
-        </div>
-      {% empty %}
-        <!-- Placeholder for trending groups - styled better -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex flex-col h-full group hover:shadow-xl transition-all duration-300 transform hover:translate-y-[-4px]">
-          <div class="relative">
-            <img class="w-full h-48 object-cover" src="{% static 'images/groups/rock-fans.jpg' %}" alt="Rock Fans">
-            <div class="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">Rock</div>
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-              <h3 class="text-lg font-bold text-white">Rock Music Fans</h3>
-            </div>
-          </div>
-          <div class="p-5 flex-grow flex flex-col">
-            <p class="text-gray-600 text-sm mb-5 flex-grow">A community for discussing rock music, sharing albums, and connecting with other rock enthusiasts.</p>
-            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-              <span class="text-gray-500 text-xs flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                1.2k members
-              </span>
-              <a href="{% url 'group_room' group_id=1 %}" class="text-center py-1.5 px-4 rounded-full text-pink-600 border border-pink-500 hover:bg-pink-50 transition-colors font-medium text-sm">
-                View Group
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex flex-col h-full group hover:shadow-xl transition-all duration-300 transform hover:translate-y-[-4px]">
-          <div class="relative">
-            <img class="w-full h-48 object-cover" src="{% static 'images/groups/vinyl-collectors.jpg' %}" alt="Vinyl Collectors">
-            <div class="absolute top-3 right-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">Collectors</div>
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-              <h3 class="text-lg font-bold text-white">Vinyl Collectors Club</h3>
-            </div>
-          </div>
-          <div class="p-5 flex-grow flex flex-col">
-            <p class="text-gray-600 text-sm mb-5 flex-grow">Share your vinyl collection, discuss rare finds, and connect with fellow record enthusiasts.</p>
-            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-              <span class="text-gray-500 text-xs flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                876 members
-              </span>
-              <a href="{% url 'group_room' group_id=2 %}" class="text-center py-1.5 px-4 rounded-full text-pink-600 border border-pink-500 hover:bg-pink-50 transition-colors font-medium text-sm">
                 View Group
               </a>
             </div>
@@ -165,9 +118,11 @@
         <!-- Group Card - improved styling -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex flex-col h-full group hover:shadow-xl transition-all duration-300 transform hover:translate-y-[-4px]">
           <div class="relative">
+            <!-- Fix: Use correct path to core app default image -->
             <img class="w-full h-48 object-cover" 
-                src="{{ group.cover_image|default:'static/images/groups/default-cover.jpg' }}" 
-                alt="{{ group.name }}">
+                src="{% if group.cover_image %}{{ group.cover_image.url }}{% else %}{% static 'core/images/default.jpg' %}{% endif %}" 
+                alt="{{ group.name }}"
+                onerror="this.src='/media/profile_pictures/default.jpg'">
             <div class="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
               {{ group.category|default:"Music" }}
             </div>

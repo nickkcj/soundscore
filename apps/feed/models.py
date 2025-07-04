@@ -1,7 +1,7 @@
 from django.db import models
 from apps.users.models import User
 from apps.reviews.models import Review
-from apps.reviews.models import Comment  # Adjust import if Comment is in another app
+from apps.reviews.models import Comment  
 
 class Notification(models.Model):
     recipient = models.ForeignKey(User, related_name='notifications', on_delete=models.CASCADE)

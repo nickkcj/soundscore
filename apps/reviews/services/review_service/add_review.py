@@ -4,6 +4,20 @@ from datetime import datetime
 
 def add_review(user_id, album_id, rating, album_title=None, album_artist=None, 
                album_cover=None, text=None, is_favorite=False):
+    """
+    Add a new review or update an existing review for an album by a user.
+    Parameters:
+        user_id (int): ID of the user
+        album_id (str): Spotify album ID
+        rating (int): Rating value (1-5)
+        album_title (str): Album title (optional, for new albums)
+        album_artist (str): Album artist (optional, for new albums)
+        album_cover (str): Album cover image URL (optional, for new albums)
+        text (str): Review text (optional)
+        is_favorite (bool): Whether the review is marked as favorite
+    Returns:
+        dict: Success or error message and review data
+    """
     try:
         # Step 1: Get or create album
         album, created = Album.objects.get_or_create(

@@ -1,3 +1,8 @@
+/**
+ * Handles the followers/following modal logic.
+ * Loads followers/following lists via AJAX, supports pagination,
+ * and allows following/unfollowing users directly from the modal.
+ */
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('followersModal');
     const modalTitle = document.getElementById('modalTitle');
@@ -63,6 +68,10 @@ document.addEventListener('DOMContentLoaded', function() {
         loadData(true);
     });
     
+    /**
+     * Loads followers/following data via AJAX and updates the modal content.
+     * @param {boolean} append - Whether to append to existing content (for pagination)
+     */
     async function loadData(append = false) {
         // Show loading state
         if (!append) {
@@ -119,6 +128,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    /**
+     * Attaches click listeners to follow/unfollow buttons in the modal.
+     */
     function attachFollowListeners() {
         document.querySelectorAll('.follow-btn-modal').forEach(btn => {
             btn.addEventListener('click', async function() {
@@ -126,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const isFollowing = this.getAttribute('data-following') === 'true';
                 const endpoint = isFollowing ? 'unfollow' : 'follow';
                 
-                // Disable button
+                // Disable button during request
                 this.disabled = true;
                 this.classList.add('opacity-50');
                 

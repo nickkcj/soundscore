@@ -1,6 +1,13 @@
 from apps.users.models import User
 
 def delete_user_data(username):
+    """
+    Delete a user by username.
+    Parameters:
+        username (str): Username to delete
+    Returns:
+        dict: Success status and message
+    """
     try:
         user = User.objects.get(username=username).first()
         if not user:
@@ -18,5 +25,5 @@ def delete_user_data(username):
     except Exception as e:
         return {
             "success": False,
-            "message": e.__str__()
+            "message": str(e)
         }

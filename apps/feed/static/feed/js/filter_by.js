@@ -1,73 +1,92 @@
+/**
+ * Sort/Filter System JavaScript
+ * Handles chronological sorting of reviews (newest/oldest first)
+ * Manages dynamic content reloading and UI state updates
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Filter by script loaded");
+    
+    // Get the sort toggle button element
     const sortToggleBtn = document.getElementById('sort-toggle');
     
     if (sortToggleBtn) {
+        /**
+         * Sort toggle button click handler
+         * Switches between ascending and descending chronological order
+         */
         sortToggleBtn.addEventListener('click', function() {
             console.log("Sort toggle clicked");
             
-            // Toggle sort order
+            // Toggle between desc (newest first) and asc (oldest first)
             const currentOrder = sortToggleBtn.getAttribute('data-sort-order') || 'desc';
             const newOrder = currentOrder === 'desc' ? 'asc' : 'desc';
             
-            // Update button state
+            // Update button's data attribute to track current state
             sortToggleBtn.setAttribute('data-sort-order', newOrder);
             
-            // Update UI
+            // Update UI elements to reflect new sort order
             const sortLabel = document.getElementById('sort-label');
             const sortIcon = document.getElementById('sort-icon');
             
             if (sortLabel) {
+                // Update label text based on new sort order
                 sortLabel.textContent = newOrder === 'desc' ? 'Latest first' : 'Oldest first';
             }
             
             if (sortIcon) {
+                // Rotate icon to indicate sort direction
                 sortIcon.style.transform = newOrder === 'asc' ? 'rotate(180deg)' : '';
             }
             
-            // Find reviews container
+            // Find the reviews container for content replacement
             const reviewsContainer = document.querySelector('.space-y-10');
             if (!reviewsContainer) {
                 console.error("Reviews container not found!");
                 return;
             }
             
-            // Show loading state
+            // Show loading state during fetch
             reviewsContainer.classList.add('opacity-50');
             
-            // Reset load more button
+            // Reset load more button pagination
             const loadMoreBtn = document.getElementById('load-more-btn');
             if (loadMoreBtn) {
                 loadMoreBtn.setAttribute('data-page', '1');
             }
             
-            // Fetch reviews with new sort order
+            /**
+             * Fetch reviews with new sort order
+             * - page=0: Start from beginning
+             * - exclude_ids empty: Don't exclude any reviews for fresh start
+             * - sort_order: New chronological ordering
+             */
             fetch(`/feed/comments/load-more/?page=0&page_size=5&exclude_ids=&sort_order=${newOrder}&comments_per_review=10`)
                 .then(response => response.json())
                 .then(data => {
                     console.log(`Received ${data.reviews.length} reviews with sort order: ${newOrder}`);
                     
-                    // Clear existing reviews
+                    // Clear existing reviews to show sorted results
                     reviewsContainer.innerHTML = '';
                     
                     if (data.reviews && data.reviews.length > 0) {
-                        // Create new review elements
+                        // Create new review elements with sorted data
                         data.reviews.forEach(review => {
                             const reviewEl = document.createElement('div');
                             reviewEl.className = "bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transform transition-all duration-200 hover:shadow-lg";
                             reviewEl.setAttribute('data-review-id', review.id);
                             
-                            // Generate HTML for the review
+                            // Generate HTML content for the review
                             reviewEl.innerHTML = generateReviewHTML(review);
                             
-                            // Append to container
+                            // Add to container
                             reviewsContainer.appendChild(reviewEl);
                         });
                         
-                        // Re-initialize interactive elements
+                        // Re-initialize interactive elements for new content
                         initializeReviews();
                     } else {
-                        // No reviews found
+                        // Show empty state if no reviews found
                         reviewsContainer.innerHTML = `
                             <div class="flex flex-col items-center justify-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-pink-200 mb-4">
@@ -78,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         `;
                     }
                     
-                    // Update load more button
+                    // Update load more button availability
                     if (loadMoreBtn) {
                         loadMoreBtn.disabled = !data.has_more;
                         loadMoreBtn.classList.toggle('opacity-50', !data.has_more);
@@ -96,9 +115,14 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Sort toggle button not found!");
     }
     
-    // Helper function to generate review HTML
+    /**
+     * Generate HTML structure for a review element
+     * Creates complete review card with all interactive elements
+     * @param {Object} review - Review data object from server
+     * @returns {string} - Complete HTML string for review card
+     */
     function generateReviewHTML(review) {
-        // Create stars display
+        // Generate star rating visual display
         let starsHTML = '';
         for (let i = 1; i <= 5; i++) {
             starsHTML += `<svg class="w-3.5 h-3.5 ${i <= review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}" viewBox="0 0 20 20">
@@ -106,13 +130,13 @@ document.addEventListener('DOMContentLoaded', function() {
                           </svg>`;
         }
         
-        // Format review text section
+        // Include review text section if review contains text content
         const reviewTextSection = review.text ? `
             <div class="px-6 pb-5">
                 <p class="text-gray-700 text-sm italic line-clamp-4 bg-gray-50 p-4 rounded-lg border-l-4 border-pink-200">"${review.text}"</p>
             </div>` : '';
         
-        // Format comments section if there are comments
+        // Generate comments section if review has comments
         let commentsSection = '';
         if (review.comments && review.comments.length > 0) {
             const commentsHTML = review.comments.slice(0, 3).map(comment => `
@@ -142,9 +166,9 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
         
-        // Return complete HTML
+        // Return complete review HTML structure
         return `
-            <!-- User header -->
+            <!-- User header with profile and rating -->
             <div class="flex items-center px-6 pt-5 pb-3 border-b border-gray-50">
                 <div class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden mr-4 ring-2 ring-pink-100">
                     <img src="${review.soundscore_user?.profile_picture || '/media/profile_pictures/default.jpg'}" 
@@ -165,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             
-            <!-- Album content -->
+            <!-- Album information display -->
             <div class="px-6 py-4">
                 <div class="flex items-center space-x-5">
                     <div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
@@ -182,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             ${reviewTextSection}
             
-            <!-- Interaction bar -->
+            <!-- Interactive action buttons -->
             <div class="flex items-center justify-around px-6 py-3.5 border-t border-gray-100 bg-gray-50">
                 <button class="like-button flex items-center text-gray-500 hover:text-pink-600 transition-colors group" 
                         data-review-id="${review.id}" 
@@ -211,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
             </div>
             
-            <!-- Comment form (always present but hidden) -->
+            <!-- Comment form container (hidden by default) -->
             <div class="bg-white px-5 py-4 comment-form-container hidden" data-review-id="${review.id}">
                 <form class="comment-form" data-review-id="${review.id}">
                     <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''}">
@@ -228,13 +252,16 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
     
-    // Re-initialize interactive elements on dynamically added reviews
+    /**
+     * Re-initialize interactive elements on dynamically added reviews
+     * Must be called after adding new content to enable functionality
+     */
     function initializeReviews() {
-        // Re-initialize like buttons with proper functionality
+        // Re-initialize like buttons with proper event handlers
         if (typeof window.initLikeButtons === 'function') {
             window.initLikeButtons();
         } else {
-            // Fallback like button initialization
+            // Fallback like button initialization if main function not available
             document.querySelectorAll('.like-button:not([data-initialized])').forEach(button => {
                 button.setAttribute('data-initialized', 'true');
                 button.addEventListener('click', async function() {
@@ -248,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             return;
                         }
                         
+                        // Send like toggle request
                         const response = await fetch('/feed/comments/likes/toggle/', {
                             method: 'POST',
                             headers: {
@@ -261,6 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             const data = await response.json();
                             this.setAttribute('data-liked', data.liked);
                             
+                            // Update visual state
                             const heartIcon = this.querySelector('.heart-icon');
                             const likeCount = this.querySelector('.like-count');
                             

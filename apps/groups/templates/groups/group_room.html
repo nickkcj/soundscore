@@ -11,7 +11,7 @@
     <!-- Group Header -->
     <div class="bg-gradient-to-r from-pink-500 to-purple-500 p-4 text-white flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <a href="{% url 'all_groups' %}" class="hover:bg-white/20 rounded-full p-1.5 transition-colors">
+        <a href="{% url 'groups' %}" class="hover:bg-white/20 rounded-full p-1.5 transition-colors">
           <!-- ... SVG ... -->
         </a>
         <div>
@@ -30,7 +30,10 @@
           {% for member in members %}
             <li class="flex items-center gap-2 group-member">
               <div class="relative">
-                <img class="w-8 h-8 rounded-full member-avatar" src="{{ member.profile_picture|default:'/static/images/default.jpg' }}" alt="{{ member.username }}">
+                <!-- Fix: Remove .url since it's already included in the service -->
+                <img class="w-8 h-8 rounded-full member-avatar" 
+                     src="{{ member.profile_picture|default:'/static/images/default.jpg' }}" 
+                     alt="{{ member.username }}">
                 <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white status-indicator {% if member.is_online %}online bg-green-500{% else %}offline bg-gray-300{% endif %}"></span>
               </div>
               <span class="text-sm font-medium member-username">{{ member.username }}</span>
@@ -49,19 +52,24 @@
           {% for message in recent_messages %}
           <div class="flex items-start gap-2.5 {% if message.username == current_username %}justify-end{% endif %}">
             {% if message.username != current_username %}
-            <img class="w-8 h-8 rounded-full" src="{{ message.profile_picture|default:'/static/images/default.jpg' }}" alt="{{ message.username }}">
+            <!-- Fix: Remove .url since it's already included in the service -->
+            <img class="w-8 h-8 rounded-full" 
+                 src="{{ message.profile_picture|default:'/static/images/default.jpg' }}" 
+                 alt="{{ message.username }}">
             {% endif %}
             <div class="flex flex-col gap-1 {% if message.username == current_username %}items-end{% endif %} max-w-[80%]">
               <div class="flex items-center gap-2 {% if message.username == current_username %}flex-row-reverse{% endif %}">
                 <span class="text-sm font-semibold text-gray-900">{% if message.username == current_username %}You{% else %}{{ message.username }}{% endif %}</span>
-                <!-- If you have a timestamp, show it here -->
               </div>
               <div class="{% if message.username == current_username %}bg-gradient-to-r from-pink-500 to-purple-500 text-white{% else %}bg-gray-100 text-gray-900{% endif %} rounded-lg py-2 px-3">
                 <p>{{ message.content }}</p>
               </div>
             </div>
             {% if message.username == current_username %}
-            <img class="w-8 h-8 rounded-full" src="{{ message.profile_picture|default:'/static/images/default.jpg' }}" alt="You">
+            <!-- Fix: Remove .url since it's already included in the service -->
+            <img class="w-8 h-8 rounded-full" 
+                 src="{{ message.profile_picture|default:'/static/images/default.jpg' }}" 
+                 alt="You">
             {% endif %}
           </div>
           {% endfor %}
@@ -76,7 +84,7 @@
                        rows="1"></textarea>
             </div>
             <button id="chat-message-submit" type="button" 
-                   class="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full p-2 hover:opacity-90 transition-opacity mt-8">
+                   class="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full p-2 hover:opacity-90 transition-opacity mt-6">
               Send
             </button>
           </form>
