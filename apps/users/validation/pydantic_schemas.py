@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, field_validator
 import re
 
 class RegisterSchema(BaseModel):
@@ -7,13 +7,13 @@ class RegisterSchema(BaseModel):
     password: str
     confirm_password: str
 
-    @validator("username")
+    @field_validator("username")
     def validate_username(cls, v):
         if len(v) < 3:
             raise ValueError("Username must be at least 3 characters long")
         return v
 
-    @validator("password")
+    @field_validator("password")
     def validate_password_strength(cls, v):
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters long")
@@ -25,7 +25,7 @@ class RegisterSchema(BaseModel):
             raise ValueError("Password must contain a number")
         return v
 
-    @validator("confirm_password")
+    @field_validator("confirm_password")
     def passwords_match(cls, v, values):
         if "password" in values and v != values["password"]:
             raise ValueError("Passwords do not match")
