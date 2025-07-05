@@ -120,7 +120,7 @@
           <div class="relative">
             <!-- Fix: Use correct path to core app default image -->
             <img class="w-full h-48 object-cover" 
-                src="{% if group.cover_image %}{{ group.cover_image.url }}{% else %}{% static 'core/images/default.jpg' %}{% endif %}" 
+                src="{% if group.cover_image %}{{ group.cover_image }}{% else %}{% static 'core/images/default.jpg' %}{% endif %}" 
                 alt="{{ group.name }}"
                 onerror="this.src='/media/profile_pictures/default.jpg'">
             <div class="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">

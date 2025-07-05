@@ -91,7 +91,7 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
         """
         Broadcast the current list of online users to the group.
         """
-        users_with_status = await database_sync_to_async(self.get_users_with_online_status)(self.group_id)
+        users_with_status = await self.get_users_with_online_status(self.group_id)
         await self.channel_layer.group_send(
             self.group_name,
             {
