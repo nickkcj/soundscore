@@ -32,7 +32,7 @@ def get_latest_reviews(limit=3):
                 'soundscore_user': {
                     'id': r.user.id,
                     'username': r.user.username,
-                    'profile_picture': r.user.profile_picture.url,
+                    'profile_picture': r.user.profile_picture,
                 }
             }
             for r in reviews

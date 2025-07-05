@@ -3,22 +3,24 @@ from django.db import models
 from django.conf import settings
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password=None):
+    def create_user(self, username, email, password=None, profile_picture=None):
         if not email:
             raise ValueError('Users must have an email address')
         user = self.model(
             username=username,
             email=self.normalize_email(email),
+            profile_picture=profile_picture  # Accept and set profile_picture
         )
         user.set_password(password)
         user.save()
         return user
-        
-    def create_superuser(self, username, email, password):
+
+    def create_superuser(self, username, email, password, profile_picture=None):
         user = self.create_user(
             username=username,
             email=email,
             password=password,
+            profile_picture=profile_picture  # Pass through to create_user
         )
         user.is_staff = True
         user.is_superuser = True
@@ -37,7 +39,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=500, 
         blank=True, 
         null=True,
-        default=settings.DEFAULT_PROFILE_PICTURE),
+        default=settings.DEFAULT_PROFILE_PICTURE)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     

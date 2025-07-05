@@ -68,7 +68,7 @@ def load_more_reviews_service(request):
                 "soundscore_user": {  # User who created the review
                     "id": review.user.id,
                     "username": review.user.username,
-                    "profile_picture": review.user.profile_picture.url if review.user.profile_picture else '/media/profile_pictures/default.jpg',
+                    "profile_picture": review.user.profile_picture if review.user.profile_picture else '/media/profile_pictures/default.jpg',
                 },
                 "soundscore_album": {  # Album being reviewed
                     "id": review.album.id,
@@ -87,7 +87,7 @@ def load_more_reviews_service(request):
                         "user": {
                             "id": c.user.id,
                             "username": c.user.username,
-                            "profile_picture": c.user.profile_picture.url if c.user.profile_picture else '/media/profile_pictures/default.jpg',
+                            "profile_picture": c.user.profile_picture if c.user.profile_picture else '/media/profile_pictures/default.jpg',
                         },
                         "created_at": c.created_at,
                     } for c in comment_qs
@@ -159,7 +159,7 @@ def get_feed_service(request):
                 user_dict = {
                     'id': user.id,
                     'username': user.username,
-                    'profile_picture': user.profile_picture.url if user.profile_picture else '/media/profile_pictures/default.jpg',
+                    'profile_picture': user.profile_picture if user.profile_picture else '/media/profile_pictures/default.jpg',
                     'is_following': user.id in following_ids
                 }
             else:  # It's already a dictionary
@@ -187,7 +187,7 @@ def get_feed_service(request):
             "soundscore_user": {  # User who created the review
                 "id": review.user.id,
                 "username": review.user.username,
-                "profile_picture": review.user.profile_picture.url if review.user.profile_picture else '/media/profile_pictures/default.jpg',
+                "profile_picture": review.user.profile_picture if review.user.profile_picture else '/media/profile_pictures/default.jpg',
             },
             "soundscore_album": {  # Album being reviewed
                 "id": review.album.id,
@@ -207,7 +207,7 @@ def get_feed_service(request):
                     "user": {
                         "id": c.user.id,
                         "username": c.user.username,
-                        "profile_picture": c.user.profile_picture.url,
+                        "profile_picture": c.user.profile_picture,
                     },
                     "created_at": c.created_at,
                 } for c in comment_map.get(review.id, [])[:3]

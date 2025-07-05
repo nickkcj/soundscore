@@ -19,7 +19,7 @@ def search_users(query, limit=10):
         avg_rating = reviews.aggregate(avg=Avg('rating'))['avg']
         avg_rating = round(avg_rating, 1) if avg_rating is not None else 'No ratings'
         if user.profile_picture:
-            profile_picture_url = user.profile_picture.url
+            profile_picture_url = user.profile_picture
         else:
             profile_picture_url = None
         user_list.append({

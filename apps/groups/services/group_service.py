@@ -103,7 +103,7 @@ def get_group_room_data(group_id, username):
             profile_picture_url = "/static/images/default.jpg"
             if m.user.profile_picture:
                 try:
-                    profile_picture_url = m.user.profile_picture.url
+                    profile_picture_url = m.user.profile_picture
                 except:
                     pass
             
@@ -123,7 +123,7 @@ def get_group_room_data(group_id, username):
             profile_picture_url = "/static/images/default.jpg"
             if msg.user.profile_picture:
                 try:
-                    profile_picture_url = msg.user.profile_picture.url
+                    profile_picture_url = msg.user.profile_picture
                 except:
                     pass
             

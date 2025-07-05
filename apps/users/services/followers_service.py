@@ -24,7 +24,7 @@ def get_followers_list(username, page=1, per_page=20):
         
         followers_data = []
         for follower in page_obj:
-            profile_picture = follower.profile_picture.url if follower.profile_picture else '/media/profile_pictures/default.jpg'
+            profile_picture = follower.profile_picture if follower.profile_picture else '/media/profile_pictures/default.jpg'
             followers_data.append({
                 'username': follower.username,
                 'profile_picture': profile_picture,
@@ -73,7 +73,7 @@ def get_following_list(username, page=1, per_page=20):
         
         following_data = []
         for followed_user in page_obj:
-            profile_picture = followed_user.profile_picture.url if followed_user.profile_picture else '/media/profile_pictures/default.jpg'
+            profile_picture = followed_user.profile_picture if followed_user.profile_picture else '/media/profile_pictures/default.jpg'
             following_data.append({
                 'username': followed_user.username,
                 'profile_picture': profile_picture,

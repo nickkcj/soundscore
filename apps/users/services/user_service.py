@@ -1,6 +1,7 @@
 from django.db.models import Avg, Count
 from apps.users.models import User, UserRelationship
 from apps.reviews.models import Review
+from django.conf import settings
 
 def get_user_profile_data(username):
     """
@@ -13,9 +14,9 @@ def get_user_profile_data(username):
     try:
         user = User.objects.get(username=username)
         if user.profile_picture and hasattr(user.profile_picture, 'url'):
-            profile_picture = user.profile_picture.url
+            profile_picture = user.profile_picture
         else:
-            profile_picture = '/media/profile_pictures/default.jpg'
+            profile_picture = settings.DEFAULT_PROFILE_PICTURE
 
         # Get review data
         reviews = Review.objects.filter(user=user)

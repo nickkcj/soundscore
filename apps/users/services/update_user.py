@@ -1,5 +1,6 @@
 from apps.users.models import User
 from apps.users.services.supabase_storage import SupabaseStorageService
+from django.conf import settings
 
 def update_user_data(old_username, new_username=None, email=None, password=None, profile_picture=None):
     """
@@ -27,7 +28,7 @@ def update_user_data(old_username, new_username=None, email=None, password=None,
         # Handle profile picture upload
         if profile_picture:
             # Delete old profile picture if it's not default
-            if user.profile_picture and not storage_service._is_default_image(user.profile_picture):
+            if user.profile_picture and user.profile_picture != settings.DEFAULT_PROFILE_PICTURE:
                 storage_service.delete_profile_picture(user.profile_picture)
             
             # Upload new profile picture

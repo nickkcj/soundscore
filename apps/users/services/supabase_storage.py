@@ -51,19 +51,64 @@ class SupabaseStorageService:
                 "error": str(e)
             }
 
-    def get_default_profile_picture_url(self):
+    def delete_profile_picture(self, file_path_or_url):
         """
-        Get the URL for the default profile picture.
-        Upload default image if it doesn't exist.
+        Delete a profile picture from Supabase storage.
         """
-        default_path = "defaults/default-profile.jpg"
-        
         try:
-            # Check if default image exists
-            public_url = self.supabase.storage.from_(self.bucket_name).get_public_url(default_path)
-            return public_url
-        except:
-            # Upload default image if it doesn't exist
-            return self._upload_default_image()
+            # Don't delete the default image
+            if "2301-default-2.png" in file_path_or_url:
+                return {"success": True}
+            
+            # Extract path from URL if needed
+            if file_path_or_url.startswith('http'):
+                file_path = self._extract_path_from_url(file_path_or_url)
+            else:
+                file_path = file_path_or_url
+            
+            response = self.supabase.storage.from_(self.bucket_name).remove([file_path])
+            return {"success": True}
+        except Exception as e:
+            print(f"Error deleting file: {e}")
+            return {"success": False, "error": str(e)}
 
-    
+    def _optimize_image(self, file):
+        """
+        Resize and optimize image before upload.
+        """
+        try:
+            # Open image
+            image = Image.open(file)
+            
+            # Convert to RGB if necessary
+            if image.mode in ('RGBA', 'LA', 'P'):
+                image = image.convert('RGB')
+            
+            # Resize to max 400x400 while maintaining aspect ratio
+            image.thumbnail((400, 400), Image.Resampling.LANCZOS)
+            
+            # Save to BytesIO
+            output = io.BytesIO()
+            image.save(output, format='JPEG', quality=85, optimize=True)
+            output.seek(0)
+            
+            return output.getvalue()
+            
+        except Exception as e:
+            # If optimization fails, return original file
+            file.seek(0)
+            return file.read()
+
+    def _extract_path_from_url(self, url):
+        """
+        Extract file path from Supabase public URL.
+        """
+        try:
+            # Example URL: https://xxx.supabase.co/storage/v1/object/public/profilepictures/users/filename.jpg
+            parts = url.split(f'/{self.bucket_name}/')
+            if len(parts) > 1:
+                return parts[1]
+            return url
+        except:
+            return url
+

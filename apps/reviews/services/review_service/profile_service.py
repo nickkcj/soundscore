@@ -1,6 +1,7 @@
 from apps.users.models import User, UserRelationship
 from apps.reviews.models import Review
 from django.db.models import Avg
+from django.conf import settings
 
 def get_user_profile_data(username):
     """
@@ -19,7 +20,7 @@ def get_user_profile_data(username):
                 'user_reviews': [],
                 'review_count': 0,
                 'avg_rating': 0,
-                'profile_picture_url': '/media/profile_pictures/default.jpg',
+                'profile_picture_url': settings.DEFAULT_PROFILE_PICTURE,
                 'followers_count': 0,
                 'following_count': 0,
             }
@@ -34,10 +35,10 @@ def get_user_profile_data(username):
         following_count = UserRelationship.objects.filter(user_id=user).count()
         
         # Get profile picture URL or default
-        if user.profile_picture and hasattr(user.profile_picture, 'url'):
-            profile_picture_url = user.profile_picture.url
+        if user.profile_picture:
+            profile_picture_url = user.profile_picture
         else:
-            profile_picture_url = '/media/profile_pictures/default.jpg'
+            profile_picture_url = settings.DEFAULT_PROFILE_PICTURE
             
         user_dict = {
             'username': user.username,
@@ -76,7 +77,7 @@ def get_user_profile_data(username):
             'user_reviews': [],
             'review_count': 0,
             'avg_rating': 0,
-            'profile_picture_url': '/media/profile_pictures/default.jpg',
+            'profile_picture_url': settings.DEFAULT_PROFILE_PICTURE,
             'followers_count': 0,
             'following_count': 0,
         }
