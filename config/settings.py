@@ -85,6 +85,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+SUPABASE_URL = config('SUPABASE_URL')
+SUPABASE_KEY = config('SUPABASE_KEY')
+SUPABASE_BUCKET_NAME = 'profilepictures'
+DEFAULT_PROFILE_PICTURE = f"{SUPABASE_URL}/storage/v1/object/public/profilepictures/2301-default-2.png"
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.conf import settings
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
@@ -32,7 +33,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     last_active = models.DateTimeField(auto_now=True)  
     created_at = models.DateTimeField(auto_now_add=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, default='profile_pictures/default.jpg')
+    profile_picture = models.URLField(
+        max_length=500, 
+        blank=True, 
+        null=True,
+        default=settings.DEFAULT_PROFILE_PICTURE),
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     

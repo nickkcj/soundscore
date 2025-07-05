@@ -1,48 +1,49 @@
 from apps.users.models import User
-from django.db import transaction
+from apps.users.services.supabase_storage import SupabaseStorageService
 
-def update_user_data(old_username, new_username, email=None, password=None, profile_picture=None):
+def update_user_data(old_username, new_username=None, email=None, password=None, profile_picture=None):
     """
-    Update user information in the local database.
-    Parameters:
-        old_username (str): Current username
-        new_username (str): New username
-        email (str): New email (optional)
-        password (str): New password (optional)
-        profile_picture (File): New profile picture (optional)
-    Returns:
-        dict: Success or error message
+    Updates user data including profile picture upload to Supabase.
     """
     try:
-        with transaction.atomic():
-            # Get the user by old_username
-            try:
-                user = User.objects.get(username=old_username)
-            except User.DoesNotExist:
-                return {"error": f"User '{old_username}' not found in database"}
-
-            # Check if new username already exists (and is different)
-            if new_username and new_username != old_username:
-                if User.objects.filter(username=new_username).exists():
-                    return {"error": f"Username '{new_username}' is already taken"}
-                user.username = new_username
-
-            # Check if email needs to be updated
-            if email:
-                if User.objects.filter(email=email).exclude(id=user.id).exists():
-                    return {"error": f"Email '{email}' is already in use by another account"}
-                user.email = email
-
-            # Update password if provided
-            if password:
-                user.set_password(password)  # Use set_password for hashing
-
-            # Handle profile picture if provided
-            if profile_picture:
-                # Save the uploaded file to the user's profile_picture field
-                user.profile_picture.save(profile_picture.name, profile_picture, save=False)
-
-            user.save()
-        return {"success": True, "message": "User updated successfully in database"}
+        # Find the user by old username
+        user = User.objects.get(username=old_username)
+        storage_service = SupabaseStorageService()
+        
+        # Update basic fields
+        if new_username and new_username != old_username:
+            if User.objects.filter(username=new_username).exclude(id=user.id).exists():
+                return {"success": False, "error": "Username already exists"}
+            user.username = new_username
+            
+        if email and email != user.email:
+            if User.objects.filter(email=email).exclude(id=user.id).exists():
+                return {"success": False, "error": "Email already exists"}
+            user.email = email
+            
+        if password:
+            user.set_password(password)
+        
+        # Handle profile picture upload
+        if profile_picture:
+            # Delete old profile picture if it's not default
+            if user.profile_picture and not storage_service._is_default_image(user.profile_picture):
+                storage_service.delete_profile_picture(user.profile_picture)
+            
+            # Upload new profile picture
+            upload_result = storage_service.upload_profile_picture(profile_picture, user.id)
+            
+            if upload_result["success"]:
+                user.profile_picture = upload_result["url"]
+            else:
+                return {"success": False, "error": f"Failed to upload image: {upload_result['error']}"}
+        
+        # Save user
+        user.save()
+        
+        return {"success": True, "message": "User updated successfully"}
+        
+    except User.DoesNotExist:
+        return {"success": False, "error": "User not found"}
     except Exception as e:
-        return {"error": f"Error updating user in database: {str(e)}"}
+        return {"success": False, "error": str(e)}
