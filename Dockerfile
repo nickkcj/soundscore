@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /soundscore/
 
 # DON'T move or delete the apps directory - keep it as is
-RUN mv /soundscore/apps/* /soundscore/ && rm -r /soundscore/apps
+# RUN mv /soundscore/apps/* /soundscore/ && rm -r /soundscore/apps
 
 # Set environment variables (use .env if you have one)
 ENV PYTHONUNBUFFERED=1
