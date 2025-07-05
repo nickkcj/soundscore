@@ -1,7 +1,7 @@
 from apps.groups.models import Group, GroupMember, GroupMessage
 from apps.users.models import User
 import uuid
-from apps.groups.storage.supabase_cover_storage import SupabaseCoverStorage
+from apps.groups.services.supabase_cover_storage import SupabaseCoverStorage
 
 def create_group(name, description, category, privacy, cover_image_file, username):
     """
