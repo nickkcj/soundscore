@@ -1,32 +1,37 @@
-from pydantic import BaseModel, EmailStr, field_validator
-import re
+from pydantic import BaseModel, field_validator, model_validator
+from typing import Any
 
 class RegisterSchema(BaseModel):
     username: str
-    email: EmailStr
+    email: str
     password: str
     confirm_password: str
 
-    @field_validator("username")
-    def validate_username(cls, v):
+    @field_validator('username')
+    @classmethod
+    def username_validation(cls, v):
         if len(v) < 3:
-            raise ValueError("Username must be at least 3 characters long")
+            raise ValueError('Username must be at least 3 characters long')
+        if len(v) > 20:
+            raise ValueError('Username must be no more than 20 characters long')
         return v
 
-    @field_validator("password")
-    def validate_password_strength(cls, v):
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters long")
-        if not re.search(r"[A-Z]", v):
-            raise ValueError("Password must contain an uppercase letter")
-        if not re.search(r"[a-z]", v):
-            raise ValueError("Password must contain a lowercase letter")
-        if not re.search(r"[0-9]", v):
-            raise ValueError("Password must contain a number")
+    @field_validator('email')
+    @classmethod
+    def email_validation(cls, v):
+        if '@' not in v:
+            raise ValueError('Invalid email format')
         return v
 
-    @field_validator("confirm_password")
-    def passwords_match(cls, v, values):
-        if "password" in values and v != values["password"]:
-            raise ValueError("Passwords do not match")
+    @field_validator('password')
+    @classmethod
+    def password_validation(cls, v):
+        if len(v) < 6:
+            raise ValueError('Password must be at least 6 characters long')
         return v
+
+    @model_validator(mode='after')
+    def passwords_match(self):
+        if self.password != self.confirm_password:
+            raise ValueError('Passwords do not match')
+        return self
