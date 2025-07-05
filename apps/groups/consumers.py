@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from apps.groups.services.message_service import save_message, get_recent_messages
-from apps.groups.services.user_status_service import set_online_status
+from apps.groups.services.user_status_service import is_user_online, set_online_status
 from apps.groups.models import GroupMember
 from apps.users.models import User
 
@@ -111,7 +111,7 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
 
     async def trigger_broadcast_online_users(self, event):
         """
-        Handler to trigger a broadcast of online users (used by set_online_status).
+        Handle the broadcast trigger from Redis status updates.
         """
         await self.broadcast_online_users()
 
@@ -133,15 +133,16 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_users_with_online_status(self, group_id):
         """
-        Helper to get all group members and their online status.
-        (Replace is_online logic if you implement real online tracking.)
+        Helper to get all group members and their Redis-based online status.
         """
+        from apps.groups.models import GroupMember
+        
         members = GroupMember.objects.filter(group_id=group_id).select_related('user')
         users = []
         for m in members:
             users.append({
                 "username": m.user.username,
                 "profile_picture": getattr(m.user, "profile_picture", "/static/images/default.jpg"),
-                "is_online": False  # Replace with actual online status if implemented
+                "is_online": is_user_online(m.user.username, group_id)  # Now uses Redis
             })
         return users

@@ -288,16 +288,18 @@
         if (file) {
           const reader = new FileReader();
           reader.onload = function(e) {
-            // Clear existing content
-            while (uploadLabel.firstChild) {
-              uploadLabel.removeChild(uploadLabel.firstChild);
-            }
+            // Remove only preview/image elements, not the file input
+            Array.from(uploadLabel.children).forEach(child => {
+              if (child.tagName !== 'INPUT') {
+                uploadLabel.removeChild(child);
+              }
+            });
             // Create image preview
             const img = document.createElement('img');
             img.src = e.target.result;
             img.className = 'h-full w-full object-cover rounded-lg';
             uploadLabel.appendChild(img);
-            
+
             // Add remove button
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
@@ -307,8 +309,13 @@
               e.preventDefault();
               e.stopPropagation();
               coverImageInput.value = '';
-              // Reset the upload area
-              location.reload();
+              // Remove preview and button, restore original label content if needed
+              Array.from(uploadLabel.children).forEach(child => {
+                if (child.tagName !== 'INPUT') {
+                  uploadLabel.removeChild(child);
+                }
+              });
+              // Optionally, restore the original SVG and text here
             });
             uploadLabel.appendChild(removeBtn);
           };
