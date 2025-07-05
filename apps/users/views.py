@@ -20,6 +20,7 @@ from apps.reviews.services.review_service.profile_service import get_user_profil
 from apps.users.services.follow_user import follow_service, unfollow_service
 from apps.users.services.followers_service import get_followers_list, get_following_list
 from apps.users.models import UserRelationship
+from pydantic import ValidationError
 
 def register_view(request):
     """
@@ -39,19 +40,31 @@ def register_view(request):
             'password': request.POST.get('password'),
             'confirm_password': request.POST.get('confirm_password')
         }
-        # Validate data using Pydantic schema
-        validated = RegisterSchema(**data)
-        # Call the service to create the user
-        user = create_user(validated.username, validated.email, validated.password)
+        
+        try:
+            # Validate data using Pydantic schema
+            validated = RegisterSchema(**data)
+            # Call the service to create the user
+            user = create_user(validated.username, validated.email, validated.password)
 
-        if user.get('success'):
-            # On success, show a message and redirect to the login page
-            messages.success(request, user.get('message'))
-            return redirect('login')
-        else: 
-            # On failure, show an error and redirect back to the registration page
-            messages.error(request, user.get('message'))
+            if user.get('success'):
+                # On success, show a message and redirect to the login page
+                messages.success(request, user.get('message'))
+                return redirect('login')
+            else: 
+                # On failure, show an error and redirect back to the registration page
+                messages.error(request, user.get('message'))
+                return redirect('register')
+                
+        except ValidationError as e:
+            # Handle Pydantic validation errors
+            for error in e.errors():
+                messages.error(request, error['msg'])
             return redirect('register')
+        except Exception as e:
+            messages.error(request, f"Registration failed: {str(e)}")
+            return redirect('register')
+            
     # For GET requests, just show the registration form
     return render(request, 'users/auth/register.html')
 
