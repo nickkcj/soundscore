@@ -121,7 +121,8 @@ def get_group_room_data(group_id, username):
             })
         
         # Get all messages for this group
-        messages = GroupMessage.objects.filter(group=group).select_related('user')
+        messages = GroupMessage.objects.filter(group=group).select_related('user').order_by('created_at')
+
         
         # Build formatted message list with user profile pictures
         formatted_messages = []
