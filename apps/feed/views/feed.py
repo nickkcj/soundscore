@@ -19,7 +19,7 @@ def load_more_reviews_view(request):
         return JsonResponse({"error": str(e)}, status=500)
     
 
-@cache_page(60)
+
 @login_required
 def feed_view(request):
     """

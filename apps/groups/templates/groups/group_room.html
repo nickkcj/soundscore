@@ -91,6 +91,21 @@
         </div>
       </div>
     </div>
+
+    <div class="flex justify-end p-4">
+      {% if not is_member %}
+        <form method="post" action="{% url 'join_group' group_id=group_id %}">
+          {% csrf_token %}
+          <button type="submit" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
+            Enter Group
+          </button>
+        </form>
+      {% else %}
+        <span class="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-lg font-semibold shadow">
+          You are a member
+        </span>
+      {% endif %}
+    </div>
   </div>
 </div>
 

@@ -1,6 +1,7 @@
 from apps.groups.models import Group, GroupMember, GroupMessage
 from apps.users.models import User
 import uuid
+from apps.groups.storage.supabase_cover_storage import SupabaseCoverStorage
 
 def create_group(name, description, category, privacy, cover_image_file, username):
     """
@@ -20,6 +21,10 @@ def create_group(name, description, category, privacy, cover_image_file, usernam
     try:
         # Get the user who is creating the group
         user = User.objects.get(username=username)
+        cover_url = None
+
+        if cover_image_file:
+            cover_url = SupabaseCoverStorage().upload_cover(cover_image_file, name.replace(" ", "_")) 
         
         # Create the group (Django handles file upload for ImageField)
         group = Group.objects.create(
@@ -27,7 +32,7 @@ def create_group(name, description, category, privacy, cover_image_file, usernam
             description=description,
             category=category,
             privacy=privacy,
-            cover_image=cover_image_file  # Can be None if no image uploaded
+            cover_image=cover_url  # Can be None if no image uploaded
         )
         
         # Add the creator as a member of the group
@@ -96,6 +101,7 @@ def get_group_room_data(group_id, username):
         group = Group.objects.get(id=group_id)
         # Get all group members with related user info
         members = GroupMember.objects.filter(group=group).select_related('user')
+        is_member = members.filter(user=user).exists()
         
         # Build member list with profile pictures
         member_list = []
@@ -142,6 +148,7 @@ def get_group_room_data(group_id, username):
             "members": member_list,
             "recent_messages": formatted_messages,
             "current_username": username,
+            "is_member": is_member,
         }
     except Exception as e:
         print(f"Error in get_group_room_data: {e}")
