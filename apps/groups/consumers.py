@@ -52,7 +52,7 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
             username = self.user.username
 
             # Get user data for the sender
-            user_data = await database_sync_to_async(self.get_user_data_by_username)(username)
+            user_data = await self.get_user_data_by_username(username)
             user_id = user_data.get("id")
             profile_pic = user_data.get("profile_picture", "/static/images/default.jpg")
 
