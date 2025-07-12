@@ -1,0 +1,5 @@
+# Ignore templates HTML do Django
+**/templates/** linguist-vendored
+
+# Ignore arquivos estáticos
+**/static/** linguist-vendored
